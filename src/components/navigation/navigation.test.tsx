@@ -380,14 +380,15 @@ describe('DropdownMenu', () => {
     await waitFor(() => expect(trigger).toHaveFocus())
 
     await userEvent.keyboard('{Enter}')
-    await screen.findByRole('menu')
+    // Focus enters the list a moment after the menu is drawn: a key pressed in between is lost.
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: '修改时间' })).toHaveFocus())
     await userEvent.keyboard('{End}')
     await waitFor(() => expect(screen.getByRole('menuitemradio', { name: '周' })).toHaveFocus())
     await userEvent.keyboard('{ArrowUp}{Enter}')
     expect(onView).toHaveBeenLastCalledWith('day')
 
     if (!screen.queryByRole('menu')) await userEvent.keyboard('{Enter}')
-    await screen.findByRole('menu')
+    await waitFor(() => expect(screen.getByRole('menu')).toContainElement(document.activeElement as HTMLElement))
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
     await waitFor(() => expect(trigger).toHaveFocus())

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ComponentType } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -161,8 +161,7 @@ describe('Select', () => {
     expect(trigger).toHaveFocus()
   })
 
-  it('disabled, invalid and read-only states', async () => {
-    const onValueChange = vi.fn()
+  it('disabled and invalid states', () => {
     render(
       <>
         <Field label="停用" disabled>
@@ -171,15 +170,32 @@ describe('Select', () => {
         <Field label="有误" error="请选择服务项目">
           <Select options={services} />
         </Field>
-        <Select aria-label="只读" options={services} defaultValue="bath" readOnly onValueChange={onValueChange} />
       </>,
     )
     expect(screen.getByRole('combobox', { name: '停用' })).toHaveAttribute('data-disabled')
     const invalid = screen.getByRole('combobox', { name: '有误' })
     expect(invalid).toHaveAttribute('aria-invalid', 'true')
     expect(invalid).toHaveAccessibleDescription('请选择服务项目')
-    await userEvent.click(screen.getByRole('combobox', { name: '只读' }))
-    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  // The kit's read-only locks the value, not the list: it opens to be read
+  // (a moment after the press — asserting "no listbox" passed only by timing).
+  it('read-only: the list opens to be read and choosing changes nothing', async () => {
+    const onValueChange = vi.fn()
+    render(<Select aria-label="只读" options={services} defaultValue="bath" readOnly onValueChange={onValueChange} />)
+    const trigger = screen.getByRole('combobox', { name: '只读' })
+    expect(trigger).toHaveAttribute('aria-readonly', 'true')
+    await userEvent.tab()
+    expect(trigger).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    const list = await screen.findByRole('listbox')
+    expect(within(list).getByRole('option', { name: '洗澡' })).toHaveAttribute('aria-selected', 'true')
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(trigger).toHaveTextContent('洗澡')
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
+    expect(trigger).toHaveFocus()
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
