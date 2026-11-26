@@ -71,7 +71,7 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
             in a short window; the column scrolls as a whole when even that
             does not fit.
           */}
-          <main id="main" ref={main} tabIndex={-1} className="min-h-48 flex-1 overflow-x-clip overflow-y-auto">
+          <main id="main" ref={main} tabIndex={-1} className="relative min-h-48 flex-1 overflow-x-clip overflow-y-auto">
             <Outlet />
           </main>
           {ChatBar && (

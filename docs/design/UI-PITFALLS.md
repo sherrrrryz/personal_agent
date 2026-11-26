@@ -41,6 +41,7 @@ platform/version it was observed.>
 | A kit control looks different from shadcn/ui's own — taller, bordered, underlined, grey — or a dialog has no scrim and no shadow | [§5](#5-ui-kit) |
 | An import of `@/app` works on this Mac and fails, or loads another module, elsewhere | [§8](#8-tooling-and-the-shell) |
 | `npm run matrix` stops with `no matches found`, or checks a route nobody named | [§8](#8-tooling-and-the-shell) |
+| A screen inside the shell scrolls as a whole document, down into empty space | [§2](#2-layout-and-reflow) |
 | Opening the chat panel pushes the header, or the composer she is typing in, out of the window | [§2](#2-layout-and-reflow) |
 | A sidebar group is opened and nothing seems to happen | [§2](#2-layout-and-reflow) |
 | `npm run matrix -- '/chat/conv-1'` reports `route-not-found` for a route that is registered | [§8](#8-tooling-and-the-shell) |
@@ -67,6 +68,18 @@ the window only: the page is one window high and the rest is inside `main`'s
 scroller. The assertions are not affected — they run in the page — but for
 eyes on what is below the fold, scroll `main` in a flow before the screenshot,
 or look at the content on a bare route (`/dev/components`).
+
+### A screen inside the shell scrolls as a whole document, down into empty space
+
+**Rule:** the shell's `main` stays `relative` (`src/shell/Shell.tsx`); a scroller of your own that holds visually hidden text or kit form controls needs the same.
+
+`sr-only` text and the hidden inputs behind the kit's switch, checkbox and
+select are `position: absolute`. Inside a scroller that is not positioned
+their containing block is the page, so they do not scroll with the content:
+one that sits 2000 px down a long screen makes the document 2000 px tall
+while the shell is one window high — the window gets its own scrollbar and
+scrolls to nothing. Sideways the matrix would catch it; downwards nothing
+does. Found on `/dev/frame` at 1440 (the renderer's pin status line), task 1, I5.
 
 ### Opening the chat panel pushes the header, or the composer she is typing in, out of the window
 
