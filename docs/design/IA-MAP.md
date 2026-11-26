@@ -17,6 +17,8 @@ every screen and are not pages.
 
 ```mermaid
 flowchart LR
+  onboarding[Onboarding · first run] --> onboarding.accounts[Connect accounts]
+  onboarding.accounts --> root
   root[App shell]
   root --> life[Life]
   root --> work[Work]
@@ -62,7 +64,9 @@ Module-level **workflow** and **memory** settings (`settings.workflow`,
 
 | IA id | Node | Parent | Screen type | Notes |
 | --- | --- | --- | --- | --- |
-| `root` | App shell | — | shell | Layer switch (Life / Work), chat bar, sidebar toggle |
+| `onboarding` | Onboarding | — | first-run flow | Shown once, before the shell; sets the workspace up |
+| `onboarding.accounts` | Connect accounts | `onboarding` | wizard step | The user connects the platforms the modules draw on (Google, Slack, Figma, GitHub …); same connectors as `settings.accounts`, which is where they are changed later |
+| `root` | App shell | — | shell | Layer switch (Life / Work), chat bar, sidebar toggle; reached after onboarding |
 | `life` | Life | `root` | layer home | Overview of the life modules |
 | `life.messages` | Messages | `life` | module | Connected messaging accounts |
 | `life.calendar` | Calendar | `life` | module | |
@@ -98,10 +102,12 @@ Module-level **workflow** and **memory** settings (`settings.workflow`,
 | `settings.workflow` | Module workflow | any module | panel | Entered from the module; edited by talking to the AI |
 | `settings.memory` | Module memory | any module | panel | Entered from the module; what the module remembers and which modules it shares with |
 
-## Open at G-0
+## Decided (D-07, 2026-11-26)
 
-- Whether `life.topics` / `work.topics` are the home of **all** conversations
-  (so `chat.recent` is a shortcut into them) or a filed subset — drafted as all.
-- Whether the five shared base modules (messages, calendar, to-do, mail,
-  files) are one component family rendered in two layers — drafted as yes;
-  the spec for task 1 decides the component inventory.
+- `life.topics` / `work.topics` are the home of **all** conversations;
+  `chat.recent` is a shortcut into them, not a second store.
+- The five shared base modules (messages, calendar, to-do, mail, files) are
+  **one component family** rendered in both layers; the task-1 spec decides
+  the component inventory.
+- An **onboarding** flow runs once before the shell; its job is connecting the
+  user's platform accounts.

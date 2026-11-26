@@ -65,6 +65,8 @@ every spec; it is not itself a spec.
   sub-modules each have a view of all their conversations as well.
 - **Recent conversations sidebar:** a left sidebar, expandable, listing the
   user's recent conversations.
+- **Onboarding:** before any of these screens, a first-run setup flow whose
+  main job is connecting all of the user's platform accounts.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
 
@@ -80,6 +82,7 @@ element is `IA-MAP.md` § Nodes.
 
 | IA id | Node | Parent | Screen type |
 | --- | --- | --- | --- |
+| `onboarding` | First-run setup: connect platform accounts | — | first-run flow |
 | `root` | App shell — layer switch, chat bar, sidebar toggle | — | shell |
 | `life` | Life layer: messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
 | `work` | Work layer: messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
