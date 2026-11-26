@@ -154,12 +154,10 @@ user marks persistent (or the AI converts). The diagram shows one example.
   the same layer**; triggers are nodes.
 - Every module shares **one frame** with a run-state header.
 - A **notifications module per layer** extracts the most important items from
-  every module of that layer.
+  every module of that layer; there is **no cross-layer notifications view**
+  (D-14).
 
 ## Open at G-0
 
-- Is one **cross-layer** notifications view wanted in addition to the two
-  per-layer modules? Under D-09 it would be the second thing, after calendar,
-  to cross Life ↔ Work.
 - Does `chat.recent` list conversations from **both layers** or only the
   current one (D-09 question raised earlier)?

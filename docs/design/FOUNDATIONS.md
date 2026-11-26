@@ -65,8 +65,8 @@ every spec; it is not itself a spec.
   entries to the module's workflow and memory.
 - **Notifications module (D-13):** one per layer. It is itself a workflow
   that reads the outputs of every other module in its layer and surfaces the
-  most important items in one place. Whether a single cross-layer
-  notifications view is also wanted is open at `G-0`.
+  most important items in one place. There is **no cross-layer notifications
+  view** (D-14): calendar stays the only thing that crosses Life ↔ Work.
 - **Workflows are shown as nodes, not text:** the logic of a workflow is
   presented in a form an everyday user can read and edit — a node-based canvas
   (steps, conditions, schedules, outputs as connected blocks) in the manner of
