@@ -1,0 +1,15 @@
+/*
+ * The one place the canvas library's variables are set (D-16; spec part 3
+ * § Workflow editor, "Canvas"). Every value is a reference to a token of the
+ * stock theme, so the canvas follows light and dark with the rest of the app
+ * (`.dark` on the root; the library reads the same class). Nothing else of
+ * the library is restyled: nodes are our `WorkflowNode`, connectors and
+ * connection points are drawn as the library draws them, and nothing moves by
+ * itself (edges are not animated).
+ */
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke: var(--muted-foreground);
+  --xy-edge-stroke-selected: var(--foreground);
+  --xy-handle-background-color: var(--muted-foreground);
+}

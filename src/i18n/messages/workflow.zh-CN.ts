@@ -1,0 +1,132 @@
+import type { Translation } from '../types'
+import type en from './workflow.en'
+
+const messages: Translation<typeof en> = {
+  title: '工作流',
+
+  'version.current': '版本 {n}（当前）',
+  'version.old': '版本 {n}',
+  'version.proposed': '等你批准的修改',
+
+  'view.label': '查看方式',
+  'view.canvas': '画布',
+  'view.list': '步骤列表',
+  'hint.canvas': '用 Tab 在步骤间移动，回车查看和调整。步骤列表以列表形式展示同样的步骤。',
+  'hint.list': '步骤按工作流运行的顺序排列。打开一个步骤来查看和调整。',
+
+  'canvas.label': '工作流画布',
+  'canvas.zoom.label': '画布缩放',
+  'canvas.zoomIn': '放大',
+  'canvas.zoomOut': '缩小',
+  'canvas.fit': '适应画面',
+  'canvas.nodeHint': '按回车或空格查看和调整这个步骤。',
+  'canvas.handle': '连接点',
+  'list.label': '步骤列表',
+  'list.open': '查看和调整',
+  'list.open.name': '查看和调整：{name}',
+
+  'kind.trigger': '触发',
+  'kind.source': '来源',
+  'kind.step': '步骤',
+  'kind.condition': '条件',
+  'kind.action': '动作',
+  'kind.output': '输出',
+  'kind.memory': '记忆',
+
+  'node.name': '{kind}：{label}',
+  'node.name.mode': '{kind}：{label}，{mode}',
+  'node.connectsTo': '接到：{targets}',
+  'node.separator': '、',
+  'node.capped': '受上限限制',
+  'node.selected': '已选中',
+
+  'trigger.schedule': '定时',
+  'trigger.event': '账号事件',
+  'trigger.manual': '手动',
+  'trigger.module': '来自模块',
+  'trigger.rule.weekly': '每{weekday} {time}',
+  'trigger.rule.daily': '每天 {time}',
+  'trigger.rule.module': '「{module}」有变化时',
+
+  'weekday.1': '周一',
+  'weekday.2': '周二',
+  'weekday.3': '周三',
+  'weekday.4': '周四',
+  'weekday.5': '周五',
+  'weekday.6': '周六',
+  'weekday.7': '周日',
+
+  'source.module': '读取「{module}」的输出',
+  'source.account': '读取账号「{account}」',
+  'source.tables': '读取记忆表：{tables}',
+  'source.open': '打开「{module}」',
+
+  'condition.threshold': '阈值：{minutes} 分钟',
+  'param.line': '{name}：{value}',
+
+  'action.target': '作用于「{module}」',
+  'action.account': '通过「{account}」',
+
+  'output.emits': '输出区块「{title}」（{block}）',
+  'output.view': '在页面中查看',
+
+  'memory.tables': '记忆表：{tables}',
+  'memory.readers': { other: '被 {count} 个模块读取' },
+  'memory.open': '查看记忆',
+
+  'inspector.description': '保存后会生成工作流的新版本。',
+  'inspector.readOnly.source': '来源由已连接的账号和模块决定，不能在这里调整。',
+  'inspector.readOnly.output': '这个输出显示什么由工作流决定，不能在这里调整。',
+  'inspector.readOnly.memory': '这份记忆由工作流自己写入，不能在这里调整。',
+  'inspector.readOnly.none': '这个步骤没有可以调整的内容。',
+  'inspector.readOnly.version': '这不是当前生效的版本，只能查看。',
+
+  'field.weekday': '星期',
+  'field.time': '时间',
+  'field.time.error': '请填写时间，例如 09:00。',
+  'field.threshold': '阈值',
+  'field.minutes': '分钟',
+  'field.number.error': '请填写大于 0 的整数。',
+  'field.text.error': '请填写内容。',
+  'field.mode': '行为模式',
+  'field.mode.description': '这个动作由 AI 自己做到哪一步。',
+  'field.param': '参数「{name}」',
+  'field.param.on': '开启',
+
+  'reason.weekly': '你把「{label}」的时间改为{weekday} {time}',
+  'reason.daily': '你把「{label}」的时间改为每天 {time}',
+  'reason.threshold': '你把「{label}」的阈值改为 {minutes} 分钟',
+  'reason.mode': '你把「{label}」的模式改为{mode}',
+  'reason.params': '你调整了「{label}」的参数',
+
+  saved: '已保存为版本 {n}',
+
+  loading: '正在载入工作流…',
+  'error.title': '无法载入工作流',
+  'error.body': '工作流没有送达。没有任何内容被更改，上方的链接照常可用，你可以再试一次。',
+
+  'demo.kinds.caption': '七种节点。每种都用文字写明类型；动作还会写明行为模式。',
+  'demo.selected.caption': '已选中的节点，以及一个被你的上限压低了模式的动作：',
+  'demo.canvas.caption': '四个步骤按运行顺序排开。用制表键依次经过它们，然后到缩放按钮。',
+  'demo.canvas.opened': '上次打开的是：{name}',
+  'demo.canvas.none': '还没有打开任何步骤。',
+  'demo.node.trigger': '每周一复盘',
+  'demo.node.trigger.rule': '每周一 18:00',
+  'demo.node.source': '顾客与宠物档案',
+  'demo.node.source.line': '读取「顾客与宠物」的输出',
+  'demo.node.source.link': '打开「顾客与宠物」',
+  'demo.node.step': '估算时长',
+  'demo.node.step.line': '来过两次以上：用这只狗的记录；否则：用品种表的大致时长。',
+  'demo.node.condition': '偏差超过 30 分钟',
+  'demo.node.condition.line': '阈值：30 分钟',
+  'demo.node.action': '设置预约时长',
+  'demo.node.action.line': '作用于「预约」',
+  'demo.node.output': '预计与实际',
+  'demo.node.output.line': '输出区块「预计与实际」（表格区块）',
+  'demo.node.output.link': '在页面中查看',
+  'demo.node.memory': '记忆',
+  'demo.node.memory.line': '记忆表：品种大致时长、每只狗的实际耗时',
+  'demo.node.memory.link': '查看记忆',
+}
+
+export default messages
