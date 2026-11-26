@@ -9,7 +9,7 @@ import { BlockEmpty, BlockEntry } from './parts'
 /**
  * `block.list` — items with a title, a line of meta, badges and actions. An
  * item with a link and no action is one link; otherwise its title is the link
- * and its actions are buttons, under the text until the block is 28rem wide.
+ * and its actions are buttons, under the text until the block reaches the `@md` container step.
  */
 export function ListBlock({ props, changes, state, onAction }: BlockComponentProps<'block.list'>) {
   const t = useT('data-blocks')
