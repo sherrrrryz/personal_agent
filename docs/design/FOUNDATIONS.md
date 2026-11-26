@@ -15,13 +15,50 @@ After G-0, change this file only through a spec.
 
 ## Product and platforms
 
-- **Product:** `<one sentence: what the personal agent does, for whom>`
+- **Product:** Personal Agent is a personal AI workbench for everyday users
+  that organises life and work into two layers of connected modules —
+  messages, calendar, to-do, mail, files, finance and journal, plus projects
+  with design, development and project-management sub-modules at work — each
+  tied to the user's own accounts and backed by an AI-editable workflow and a
+  memory shared across modules, so the AI works proactively inside and between
+  modules (autonomous, assisted or deferred, chosen by each task's confidence,
+  stakes and reversibility) while a chat bar fixed to the bottom of every
+  screen takes requests and opens a dedicated chat only when one is needed;
+  the user sees work kept in order, not a transcript. (Owner, 2026-11-26)
 - **Platforms:** web only; no native app for now (D-01)
 - **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (proposed — `G-0`);
   styling system: Tailwind v4 reading the CSS custom properties generated from
   the token source (follows D-03). Rules per stack: `stacks/react-web.md`.
   `stacks/react-native.md` is not in use.
 - **Languages and direction:** `<locales, e.g. zh-CN + en; is RTL required>`
+
+## Product brief
+
+The owner's description, 2026-11-26. It is the input to the IA map and to
+every spec; it is not itself a spec.
+
+- **Audience:** the general public — non-technical individuals, one user per
+  workspace.
+- **Two layers:** *Life* and *Work*. Both ship with base modules: messages,
+  calendar, to-do, mail, files. Life adds finance records and a journal; Work
+  adds projects. A project holds further sub-modules such as design,
+  development and project management.
+- **Connected accounts:** every module connects to the platforms the user
+  already uses, personal and corporate — Google, Slack, Figma, GitHub and the
+  like.
+- **Workflow and memory per module:** behind each module sits a workflow and a
+  memory. The user changes both by talking to the AI; modules can share
+  memory with one another.
+- **Proactive AI with three behaviour modes:** the AI acts on its own
+  according to the module's workflow. The user can set a behaviour mode per
+  kind of task — **autonomous**, **assisted** or **deferred** — and the AI
+  picks the mode for a given task from its confidence, the stakes and how
+  reversible the action is.
+- **Chat bar:** persistent at the bottom of every screen. From what the user
+  types it decides whether to answer in the main thread or open a dedicated
+  chat window for that topic.
+- **Not chat-first:** unlike agents built around one chat box, the interface
+  is the set of modules, and the AI works around them.
 
 ## Information architecture
 
