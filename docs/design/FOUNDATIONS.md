@@ -19,9 +19,9 @@ After G-0, change this file only through a spec.
   that organises life and work into two layers of connected modules —
   messages, calendar, to-do, mail, files, finance and journal, plus projects
   with design, development and project-management sub-modules at work — each
-  tied to the user's own accounts and backed by an AI-editable workflow and a
-  memory shared across modules, so the AI works proactively inside and between
-  modules (autonomous, assisted or deferred, chosen by each task's confidence,
+  tied to the user's own accounts and backed by a scheduled, node-editable
+  workflow and a memory shared across the modules of its layer, so the AI works
+  proactively inside and between modules (autonomous, assisted or deferred, chosen by each task's confidence,
   stakes and reversibility) while a chat bar fixed to the bottom of every
   screen takes requests and opens a dedicated chat only when one is needed;
   the user sees work kept in order, not a transcript. (Owner, 2026-11-26)
@@ -46,9 +46,17 @@ every spec; it is not itself a spec.
 - **Connected accounts:** every module connects to the platforms the user
   already uses, personal and corporate — Google, Slack, Figma, GitHub and the
   like.
-- **Workflow and memory per module:** behind each module sits a workflow and a
-  memory. The user changes both by talking to the AI; modules can share
-  memory with one another.
+- **Every module is a workflow:** behind each module sits a workflow that
+  runs on a schedule and rewrites the module's screen with its results, plus a
+  memory. The user changes both by talking to the AI, and can also open the
+  workflow and edit it directly.
+- **Workflows are shown as nodes, not text:** the logic of a workflow is
+  presented in a form an everyday user can read and edit — a node-based canvas
+  (steps, conditions, schedules, outputs as connected blocks) in the manner of
+  node editors — never as a plain "skill" text file.
+- **Memory stays inside its layer:** modules in one layer share memory with
+  one another. Between Life and Work only **calendar data** crosses; nothing
+  else does.
 - **Proactive AI with three behaviour modes:** the AI acts on its own
   according to the module's workflow. The user can set a behaviour mode per
   kind of task — **autonomous**, **assisted** or **deferred** — and the AI
@@ -75,6 +83,15 @@ every spec; it is not itself a spec.
   under Mail that keeps running. The AI may propose the conversion itself.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
+
+**Prototype scope (D-11).** The prototype must show every core
+differentiator, not a narrow slice: the two layers with calendar as the only
+bridge; a module as a scheduled workflow that rewrites its own screen; the
+node-based workflow editor; topics filed automatically with AI summaries; a
+conversation switching from one-off to persistent and becoming a sub-module;
+the three behaviour modes; the bottom chat bar with dedicated chats; the
+onboarding flow. The task-1 spec sizes this into work packages; backends may
+be faked.
 
 ## Information architecture
 
@@ -118,7 +135,12 @@ element is `IA-MAP.md` § Nodes.
   `check:design-values` and from hard rules 1, 6 and 10, and is never edited to
   add literals. Wrappers, compositions and screens we write follow every rule.
   Reviewers check kit controls for clipped text at 200% zoom instead
-- **Known gaps:** `<filled once the IA map names the components the product needs>`
+- **Known gaps:** a **node-based canvas** for the workflow editor
+  (`<module>.workflow`, D-10) — shadcn/ui has nothing of the kind. Open at
+  `G-0` (`.orchestration/G0-decision-packet.md` § 9): a specialised dependency
+  such as React Flow styled from tokens, or a component built through the
+  admission test. Other gaps are listed when the task-1 spec fixes the
+  component inventory
 
 Building a component the kit already provides is forbidden. Wrapping one to
 bind it to tokens is the normal case.

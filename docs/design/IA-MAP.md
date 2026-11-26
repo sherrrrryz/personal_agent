@@ -58,8 +58,10 @@ flowchart LR
   settings --> settings.ai-modes[AI behaviour modes]
 ```
 
-Module-level **workflow** and **memory** settings (`settings.workflow`,
-`settings.memory`) are reached from inside each module, not from the tree.
+Every module is backed by a **workflow** that runs on a schedule and rewrites
+the module's screen, and by a **memory**. Both are reached from inside the
+module (`<module>.workflow`, `<module>.memory`), not from the tree; the
+workflow opens as a node-based editor (D-10).
 
 `life.mail.custom` stands for a pattern, not one node: **any base module in
 either layer** can grow user-created sub-modules out of conversations the
@@ -74,7 +76,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `root` | App shell | — | shell | Layer switch (Life / Work), chat bar, sidebar toggle; reached after onboarding |
 | `life` | Life | `root` | layer home | Overview of the life modules |
 | `life.messages` | Messages | `life` | module | Connected messaging accounts |
-| `life.calendar` | Calendar | `life` | module | |
+| `life.calendar` | Calendar | `life` | module | The one module whose data is shared with `work.calendar` (D-09) |
 | `life.todo` | To-do | `life` | module | |
 | `life.mail` | Mail | `life` | module | |
 | `life.files` | Files | `life` | module | |
@@ -85,7 +87,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `life.topics.<topic>` | One topic (e.g. fitness) | `life.topics` | topic home | AI-written summary of the important information from the records, then every related conversation; dynamic node |
 | `work` | Work | `root` | layer home | Overview of the work modules |
 | `work.messages` | Messages | `work` | module | |
-| `work.calendar` | Calendar | `work` | module | |
+| `work.calendar` | Calendar | `work` | module | Shares data with `life.calendar`; the only Life ↔ Work bridge (D-09) |
 | `work.todo` | To-do | `work` | module | |
 | `work.mail` | Mail | `work` | module | |
 | `work.files` | Files | `work` | module | |
@@ -105,8 +107,8 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `settings` | Settings | `root` | settings home | |
 | `settings.accounts` | Connected accounts | `settings` | settings page | Google, Slack, Figma, GitHub and other personal or corporate platforms |
 | `settings.ai-modes` | AI behaviour modes | `settings` | settings page | Autonomous / assisted / deferred per kind of task |
-| `settings.workflow` | Module workflow | any module | panel | Entered from the module; edited by talking to the AI |
-| `settings.memory` | Module memory | any module | panel | Entered from the module; what the module remembers and which modules it shares with |
+| `<module>.workflow` | Module workflow editor | any module or sub-module | node canvas | Entered from the module; the workflow that runs on a schedule and rewrites the module's screen, shown as connected nodes (steps, conditions, schedule, outputs) the user can read and edit; also editable by talking to the AI (D-10) |
+| `<module>.memory` | Module memory | any module or sub-module | panel | What the module remembers and which modules of the **same layer** it shares with; nothing crosses Life ↔ Work except calendar data (D-09) |
 
 ## Decided (D-07, 2026-11-26)
 
@@ -124,3 +126,12 @@ user marks persistent (or the AI converts). The diagram shows one example.
   in the chat bar or the dedicated chat, at any time. Persistent means the AI
   turns it into a sub-module with its own workflow under the module it
   concerns (`<module>.<workflow>`); the AI may also propose the conversion.
+
+## Decided (D-09, D-10, D-11, 2026-11-26)
+
+- Only **calendar data** crosses between Life and Work; every other module,
+  memory and workflow stays in its layer.
+- **Every module is a scheduled workflow** that rewrites its own screen; its
+  logic is shown and edited on a **node-based canvas**, never as skill text.
+- The **prototype shows every core differentiator** (list in
+  `FOUNDATIONS.md` § Product brief); the task-1 spec sizes it.
