@@ -57,7 +57,9 @@ through the dev server, must export
 (a bare path string is accepted). Each route runs in each of its scenes, or
 once without `?scene=` when it lists none. With `--cells full` each preview is
 added: `long` on the four stress cells, any other state at 320 and 1440 light
-zh-CN. A `routes.tsx` without the export stops the run with its name, and so
+zh-CN. A preview runs in the **first** scene the route lists (or the one of
+`--scene`), and without `?scene=` only when the route lists none — so list
+first the scene in which the screen has its usual content. A `routes.tsx` without the export stops the run with its name, and so
 does a path that is a pattern (`/tasks/:id`, `*`): paths are concrete
 (`/tasks/t-1`). `src/app/router.test.tsx` checks that a registered route
 answers every path, so none is walked as the not-found screen.

@@ -230,11 +230,13 @@ function plan(options, discovered) {
     const scenes = options.scene ? [options.scene] : route.scenes.length > 0 ? route.scenes : [null]
     for (const scene of scenes) addScreen(route.path, scene, options.preview)
     // The route's own previews join the full matrix only: three states at
-    // 320 and 1440 light zh-CN, long content on the stress cells.
+    // 320 and 1440 light zh-CN, long content on the stress cells. They run in
+    // the first scene the route lists (or `--scene`): a screen that exists
+    // only after onboarding has nothing to preview without one.
     if (options.cells !== 'full' || options.preview) continue
     for (const preview of route.previews) {
       const where = preview === LONG_PREVIEW ? stressCells() : baseCells()
-      for (const cell of where) add(route.path, options.scene, preview, cell, null)
+      for (const cell of where) add(route.path, scenes[0], preview, cell, null)
     }
   }
   return tests

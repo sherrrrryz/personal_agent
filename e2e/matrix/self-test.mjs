@@ -144,15 +144,16 @@ export async function selfTest({ root, script, out }) {
   const count = (filter) => planned.filter(filter).length
   check('exit 0', all.code === 0, `exit ${all.code}`)
   check(
-    'two scenes × 44 cells, one preview at 320 and 1440, long content on the stress cells, a route without scenes once',
+    'two scenes × 44 cells, one preview at 320 and 1440, long content on the stress cells, previews in the first scene, a route without scenes once',
     planned.length === 138 &&
       count((test) => test.scene === 'e1' && !test.preview) === 44 &&
       count((test) => test.scene === 's3' && !test.preview) === 44 &&
       count((test) => test.preview === 'empty') === 2 &&
       count((test) => test.preview === 'long') === 4 &&
+      count((test) => test.preview && test.scene !== 'e1') === 0 &&
       count((test) => test.route.endsWith('blank.html')) === 44 &&
       planned.some((test) => test.url === `${FIXTURES}/pass.html?scene=s3`) &&
-      planned.some((test) => test.url === `${FIXTURES}/pass.html?preview=long`),
+      planned.some((test) => test.url === `${FIXTURES}/pass.html?scene=e1&preview=long`),
     `${planned.length} cell runs planned`,
   )
   const allRun = await step('--all --cells smoke, run', 'all-smoke', ['--all', '--cells', 'smoke'], registry)
