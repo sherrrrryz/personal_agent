@@ -89,7 +89,8 @@ every spec; it is not itself a spec.
   conversation. In Work, the design, development and project-management
   sub-modules each have a view of all their conversations as well.
 - **Recent conversations sidebar:** a left sidebar, expandable, listing the
-  user's recent conversations.
+  user's recent conversations in the current layer only; it switches with the
+  layer (D-15).
 - **Onboarding:** before any of these screens, a first-run setup flow whose
   main job is connecting all of the user's platform accounts.
 - **One-off or persistent:** in every conversation the user can choose, and

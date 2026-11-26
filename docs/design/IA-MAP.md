@@ -113,7 +113,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `work.topics.<topic>` | One topic | `work.topics` | topic home | Dynamic node |
 | `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; routes each input to the main thread or to a new dedicated chat; carries the **one-off / persistent** switch for the current conversation (D-08) |
 | `chat.thread` | Dedicated chat | `chat.bar` | chat window | Opened by the bar for a topic that needs its own thread; filed into Topics afterwards; can be switched to *persistent* at any time, which creates `<module>.<workflow>` under the module it concerns |
-| `chat.recent` | Recent conversations | `root` | global element | Left sidebar, collapsed by default, expands to list the user's recent conversations across both layers |
+| `chat.recent` | Recent conversations | `root` | global element | Left sidebar, collapsed by default, expands to list the user's recent conversations in the **current layer only**; its contents switch with the layer (D-15) |
 | `settings` | Settings | `root` | settings home | |
 | `settings.accounts` | Connected accounts | `settings` | settings page | Google, Slack, Figma, GitHub and other personal or corporate platforms |
 | `settings.ai-modes` | AI behaviour modes | `settings` | settings page | Autonomous / assisted / deferred per kind of task |
@@ -157,7 +157,10 @@ user marks persistent (or the AI converts). The diagram shows one example.
   every module of that layer; there is **no cross-layer notifications view**
   (D-14).
 
+- `chat.recent` lists the **current layer's** conversations only and switches
+  with the layer (D-15).
+
 ## Open at G-0
 
-- Does `chat.recent` list conversations from **both layers** or only the
-  current one (D-09 question raised earlier)?
+- Nothing in the IA. Remaining G-0 items (node canvas source, locales, modes)
+  are in `FOUNDATIONS.md` and `.orchestration/G0-decision-packet.md`.
