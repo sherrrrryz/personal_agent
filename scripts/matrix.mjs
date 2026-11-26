@@ -27,7 +27,7 @@ import { writeIndex } from '../e2e/matrix/report.mjs'
 const USAGE = `npm run matrix -- [route…] [--all] [--scene <id>] [--preview <state>]
                   [--cells full|stress|smoke] [--flows [name]]
                   [--keyboard] [--reduced-motion] [--forced-colors] [--text-spacing]
-                  [--out <dir>] [--dry-run] [--self-test]
+                  [--allow-not-found] [--out <dir>] [--dry-run] [--self-test]
 
   route…            paths to check, e.g. '/dev/components?family=layout' (quote the ?)
   --all             every route a src/screens/<area>/routes.tsx lists in matrixRoutes,
@@ -38,6 +38,7 @@ const USAGE = `npm run matrix -- [route…] [--all] [--scene <id>] [--preview <s
   --flows [name]    runs e2e/flows/<name>.spec.ts, or every flow
   --keyboard, --reduced-motion, --forced-colors, --text-spacing
                     the optional passes, at 320 and 1440, light zh-CN
+  --allow-not-found a route that opens the app's not-found screen is checked, not failed
   --out <dir>       where to write, instead of .matrix/<run>/
   --dry-run         write the plan and stop
   --self-test       prove the harness on its own fixture pages`
@@ -52,6 +53,7 @@ function parseArgs(argv) {
     flows: null,
     passes: [],
     out: null,
+    allowNotFound: false,
     dryRun: false,
     selfTest: false,
     help: false,
@@ -76,7 +78,8 @@ function parseArgs(argv) {
         options.flows.push(next)
         index++
       }
-    } else if (arg === '--dry-run') options.dryRun = true
+    } else if (arg === '--allow-not-found') options.allowNotFound = true
+    else if (arg === '--dry-run') options.dryRun = true
     else if (arg === '--self-test') options.selfTest = true
     else if (arg === '--help' || arg === '-h') options.help = true
     else if (arg.startsWith('--') && PASSES.includes(arg.slice(2))) options.passes.push(arg.slice(2))

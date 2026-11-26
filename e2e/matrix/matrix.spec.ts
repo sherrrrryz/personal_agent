@@ -11,6 +11,8 @@ import {
   checkCell,
   forcedColorsPass,
   keyboardPass,
+  notFoundFailure,
+  onNotFound,
   openCell,
   readPlan,
   reducedMotionPass,
@@ -35,9 +37,14 @@ test.describe('matrix', () => {
           reducedMotion: planned.pass === 'reduced-motion',
           forcedColors: planned.pass === 'forced-colors',
           waitForIdle: planned.preview !== 'loading',
+          // Reported below as a failure of its own, with the screenshot, not as an error.
+          allowNotFound: true,
         })
         try {
-          if (planned.pass === 'keyboard') result = await keyboardPass(page, screenshot)
+          if (!plan!.options?.allowNotFound && (await onNotFound(page))) {
+            await page.screenshot({ path: screenshot, fullPage: true })
+            result.failures.push(notFoundFailure(planned.route))
+          } else if (planned.pass === 'keyboard') result = await keyboardPass(page, screenshot)
           else if (planned.pass === 'reduced-motion') result = await reducedMotionPass(page, screenshot)
           else if (planned.pass === 'forced-colors') result = await forcedColorsPass(page, screenshot)
           else if (planned.pass === 'text-spacing') result = await textSpacingPass(page, screenshot)

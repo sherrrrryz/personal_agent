@@ -5,6 +5,7 @@
 //   3. the page with defects only the passes see: each pass finds its own
 //   4. --all reads matrixRoutes from a route registry and plans from it
 //   5. two runs started together from two directories do not share a server
+//   6. a route that opens the not-found screen fails, unless --allow-not-found
 // The environment proof (root 24 px) is part of every run and is checked in 1.
 import { spawn } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -183,6 +184,25 @@ export async function selfTest({ root, script, out }) {
     Boolean(a && b) && a.root === root && b.root === twin && a.port !== b.port && a.pid !== b.pid,
     JSON.stringify({ here: a, there: b }),
   )
+
+  // 6 — a route the app does not have
+  const lost = await step('a route that opens the not-found screen', 'not-found', [`${FIXTURES}/not-found.html`, '--cells', 'smoke'])
+  const lostTests = lost.report?.tests ?? []
+  check('non-zero exit', lost.code === 1, `exit ${lost.code}`)
+  check(
+    'every cell fails with route-not-found and nothing else, and the output names the route',
+    lostTests.length === 4 &&
+      lostTests.every((test) => sameSet(test.failures.map((failure) => failure.kind), ['route-not-found'])) &&
+      lost.output.includes(`✗ route-not-found: ${FIXTURES}/not-found.html is not a route`),
+    `kinds found: ${JSON.stringify(lost.report?.summary?.failureKinds)}`,
+  )
+  const allowed = await step('… and with --allow-not-found', 'not-found-allowed', [
+    `${FIXTURES}/not-found.html`,
+    '--cells',
+    'smoke',
+    '--allow-not-found',
+  ])
+  check('exit 0, four cells checked', allowed.code === 0 && allowed.report?.tests?.length === 4, `exit ${allowed.code}`)
 
   const failed = checks.filter((item) => !item.ok)
   writeFileSync(path.join(base, 'self-test.json'), JSON.stringify({ ok: failed.length === 0, checks }, null, 2))

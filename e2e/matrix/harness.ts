@@ -49,6 +49,7 @@ export interface Plan {
   baseURL: string
   outDir: string
   server: { root: string; port: number; pid: number }
+  options?: { allowNotFound?: boolean }
   tests: PlannedTest[]
   flows: string[] | null
 }
@@ -114,6 +115,25 @@ export interface OpenOptions {
   forcedColors?: boolean
   /** Wait for `aria-busy` regions to finish. Off for a forced loading preview. */
   waitForIdle?: boolean
+  /** The app's not-found screen is what this cell is about. Default: the run's `--allow-not-found`. */
+  allowNotFound?: boolean
+}
+
+/** The attribute `src/app/NotFound.tsx` puts on its root element. */
+export const NOT_FOUND_MARKER = 'data-route-not-found'
+
+/** True when the page shows the app's not-found screen. */
+export function onNotFound(page: Page): Promise<boolean> {
+  return page.evaluate((marker) => document.querySelector(`[${marker}]`) !== null, NOT_FOUND_MARKER)
+}
+
+/** The failure for a cell that was given a route the app does not have. */
+export function notFoundFailure(route: string): Failure {
+  return {
+    kind: 'route-not-found',
+    message: `${route} is not a route of the app — it opened the not-found screen (check the spelling; --allow-not-found when that screen is what you are checking)`,
+    route,
+  }
 }
 
 export interface OpenCell {
@@ -127,7 +147,8 @@ export interface OpenCell {
  * locale go in as the `pa.theme` and `pa.locale` keys before the first script
  * runs, and as the browser's own colour scheme and language. For root 24 px
  * the browser's default font size is set — never a style on `html` — and the
- * call throws if the browser did not take it.
+ * call throws if the browser did not take it. It also throws when `url` opens
+ * the app's not-found screen, unless that is allowed.
  */
 export async function openCell(
   browser: Browser,
@@ -178,6 +199,9 @@ export async function openCell(
       throw new Error(
         `matrix environment: the browser's default font size is ${size} px, the cell needs ${cell.rootFontSize} px`,
       )
+    }
+    if (!(options.allowNotFound ?? plan?.options?.allowNotFound ?? false) && (await onNotFound(page))) {
+      throw new Error(`route-not-found: ${notFoundFailure(url).message}`)
     }
     return { context, page, cell }
   } catch (error) {

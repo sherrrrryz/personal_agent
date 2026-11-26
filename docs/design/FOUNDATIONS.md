@@ -326,7 +326,9 @@ npm run matrix -- --self-test                     # the harness proved on its ow
 ```
 
 Also `--scene <id>` and `--preview <state>` (sent as `?scene=&preview=`),
-`--out <dir>`, `--dry-run` (write the plan only), `--help`.
+`--out <dir>`, `--dry-run` (write the plan only), `--help`. A route that opens
+the app's not-found screen fails every cell (`route-not-found`) — a misspelt
+route never passes; `--allow-not-found` is for checking that screen itself.
 
 - **Cells — 44 per screen:** 100% at 320 · 768 · 1024 · 1440; 200% zoom at
   768 · 1024 · 1440, run as 384 · 512 · 720 CSS px viewports at a device

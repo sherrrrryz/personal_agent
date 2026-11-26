@@ -13,7 +13,7 @@ people who write flows or change the harness.
 | `in-page.js` | The assertions that run inside the page (`window.__matrix`), injected as an init script |
 | `matrix.spec.ts`, `environment.spec.ts` | One test per planned cell run; the environment proof that starts every run |
 | `report.mjs`, `self-test.mjs` | The `index.html` writer; `npm run matrix -- --self-test` |
-| `fixtures/` | Self-test pages, outside `src/` on purpose: `pass.html`, `fail.html` (three defects), `passes-fail.html` (defects only the passes see), `blank.html`, `screens/sample/routes.tsx` |
+| `fixtures/` | Self-test pages, outside `src/` on purpose: `pass.html`, `fail.html` (three defects), `passes-fail.html` (defects only the passes see), `not-found.html` (the not-found marker), `blank.html`, `screens/sample/routes.tsx` |
 | `tsconfig.json` | type-checks `e2e/matrix/` and `playwright.config.ts`; referenced by the root `tsconfig.json`, so `tsc -b` and `npm run verify` cover it |
 
 ## Writing a flow
@@ -35,6 +35,10 @@ test('the panel opens and focus stays visible', async ({ browser }) => {
   await context.close()
 })
 ```
+
+`openCell` throws when the path opens the app's not-found screen (a misspelt
+route), unless the run has `--allow-not-found` or the call passes
+`{ allowNotFound: true }`.
 
 `openCell` sets the viewport, the device pixel ratio, the browser's default
 font size, `pa.theme` and `pa.locale` (once per tab, so a flow may change them
@@ -63,7 +67,15 @@ answers every path, so none is walked as the not-found screen.
 `sideways-scroll` · `clipped-text` · `small-target` · `axe` ·
 `focus-unreached` · `focus-not-visible` · `focus-out-of-view` ·
 `focus-covered` · `keyboard-trap` · `motion-under-reduced-motion` ·
-`error` (the cell could not be opened or checked) · `not-run`.
+`route-not-found` · `error` (the cell could not be opened or checked) ·
+`not-run`.
+
+`route-not-found`: the page carries `data-route-not-found`, the attribute the
+app's not-found screen (`src/app/NotFound.tsx`) puts on its root — the route
+was misspelt or is not registered. The cell fails with that one failure and a
+screenshot, and nothing else is checked. This holds for a named route, for
+`--all` and for `openCell` in a flow (there it throws). `--allow-not-found`
+turns it off for a run whose subject is the not-found screen itself.
 
 ## Limits
 
