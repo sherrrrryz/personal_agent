@@ -164,6 +164,53 @@ user marks persistent (or the AI converts). The diagram shows one example.
 - `chat.recent` lists the **current layer's** conversations only and switches
   with the layer (D-15).
 
+## Prototype scope — pet-grooming shop manager (D-26; modules and hero flow proposed, `G-0`)
+
+The prototype builds the **Work layer only**, for one example user: the
+manager of a small pet-grooming shop. The generic base modules (`work.mail`,
+`work.todo`, `work.files`, `work.projects…`) and the whole Life layer stay in
+the product IA above but are **not built**. The shop's modules are instances
+of the module mechanism (D-10, D-12): each is a scheduled workflow with the
+shared frame.
+
+| IA id | Module (zh-CN label) | What its workflow does, in this shop |
+| --- | --- | --- |
+| `work.notifications` | 通知 | Surfaces the most important items from every module below (D-13) |
+| `work.appointments` | 预约 | Grooming bookings by day and groomer; confirms tomorrow's appointments with customers, flags no-replies and freed slots |
+| `work.clients` | 顾客与宠物 | Customer and pet records: breed, coat, last visit, notes, next due; reminds when a pet is due |
+| `work.inventory` | 商品与库存 | Products sold and supplies used (shampoo, food, accessories): stock levels, sales, restock suggestions below a safety level |
+| `work.shifts` | 排班 | Staff rota against the appointment load; proposes shifts, handles swap requests |
+| `work.messages` | 消息 | Customer messages from connected channels, triaged into the modules above |
+| `work.topics` | 话题 | Archive of every conversation with the AI, filed by theme, with summaries (D-07, D-20) |
+
+Global elements and settings (`chat.bar`, `chat.thread`, `chat.recent`,
+`settings.accounts`, `settings.ai-modes`, `onboarding`) are built as in the
+product IA; for the prototype the shell opens in Work after onboarding.
+
+**Hero flow (proposed).** One end-to-end story that exercises almost every
+differentiator, used by the task-1 spec as the acceptance walk-through:
+
+1. In the chat bar the manager asks: "明天有哪些预约？帮我给顾客发确认。" The
+   answer appears **in place** (D-23) with tomorrow's list and drafted messages.
+2. The manager switches the conversation to **persistent** (D-08). It becomes
+   `work.appointments.sub.confirmations`, a sub-module with its own workflow.
+3. Opening `….workflow` shows the node canvas (D-10, D-16): trigger *every
+   evening 19:00* → source *tomorrow's appointments* → action *send
+   confirmation* in **autonomous** mode → condition *no reply by 21:00* →
+   action *remind me* in **deferred** mode → output block *tomorrow at a
+   glance*. The manager changes 21:00 to 20:30 and nothing else.
+4. The next evening the workflow runs; the sub-module's screen is rewritten
+   from registered blocks (D-12) with what-changed markers; two no-replies and
+   one cancellation that freed a slot appear in `work.notifications` as items
+   awaiting the manager (D-22: the user's ceiling for "contact a customer" is
+   *assisted*).
+5. The whole conversation is filed in `work.topics` under a topic the AI
+   named (D-20), where a summary of the week's confirmations accumulates.
+
+A second, smaller flow shows `work.inventory`: "洗护用品低于安全库存时提醒我" →
+`work.inventory.sub.restock`, with the restock order in **deferred** mode
+because it spends money.
+
 ## Topics, sub-modules and chats (D-20)
 
 - A **topic** (`*.topics.<topic>`) is a filing of conversations with an

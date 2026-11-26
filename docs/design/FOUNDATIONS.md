@@ -113,15 +113,21 @@ every spec; it is not itself a spec.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
 
-**Prototype scope (D-11).** The prototype must show every core
-differentiator, not a narrow slice: the two layers with calendar as the only
-bridge; a module as a scheduled workflow that rewrites its own screen; the
-node-based workflow editor; topics filed automatically with AI summaries; a
+**Prototype scope (D-11, narrowed by D-26).** The prototype shows every core
+differentiator through **one example user: the manager of a small pet-grooming
+shop** — someone who sells products, takes appointments for grooming and
+schedules a few staff. It builds the **Work layer only**, with that shop's
+modules (list and hero flow: `IA-MAP.md` § Prototype scope). The Life layer,
+the generic base modules and the calendar bridge remain product scope in the
+IA but are not built. Differentiators the prototype must still show: a module
+as a scheduled workflow that rewrites its own screen; the node-based workflow
+editor, positioned as *read and adjust* (thresholds, confirmation mode), not
+*build from scratch*; topics filed automatically with AI summaries; a
 conversation switching from one-off to persistent and becoming a sub-module;
-the three behaviour modes; the bottom chat bar with dedicated chats; the
-onboarding flow; the shared module frame with run state; the notifications
-module drawing from every module of its layer. The task-1 spec sizes this into work packages; backends may
-be faked.
+the three behaviour modes; the bottom chat bar with in-place answers and
+dedicated chats; onboarding; the shared module frame with run state; the
+notifications module. The task-1 spec sizes this into work packages; backends
+are faked. Market competition is out of scope — this is a design exercise.
 
 ## Information architecture
 
