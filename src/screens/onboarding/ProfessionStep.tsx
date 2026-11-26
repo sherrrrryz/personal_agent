@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { Button } from '@/components/actions'
@@ -65,6 +65,16 @@ export function ProfessionStep() {
     }, SIMULATED_DELAY)
     return () => clearTimeout(timer)
   }, [reply, preview, answered, setAnswered])
+
+  // The composer stays at the end of the window (it is sticky), so the newest message would arrive
+  // underneath it: after each exchange the end of the page is brought into view. Not when the step
+  // opens — a long interview is read from its start.
+  const end = useRef<HTMLDivElement>(null)
+  const opened = useRef(true)
+  useEffect(() => {
+    if (opened.current) opened.current = false
+    else end.current?.scrollIntoView?.({ block: 'end' })
+  }, [answered, pending])
 
   function send(text: string) {
     if (done || pending === 'streaming') return
@@ -142,6 +152,7 @@ export function ProfessionStep() {
           </Inline>
         </Stack>
       </div>
+      <div ref={end} />
     </Page>
   )
 }
