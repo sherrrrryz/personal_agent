@@ -290,6 +290,9 @@ describe('Tabs', () => {
     expect(second).toHaveAttribute('aria-selected', 'false')
     for (const tab of [first, second, third]) {
       expect(tab).toHaveClass('min-h-target', 'min-w-target', 'h-auto', 'whitespace-normal')
+      // From its label's width, not from zero: tabs that do not fit run onto a further line (navigation.md § Pitfalls).
+      expect(tab).toHaveClass('flex-auto')
+      expect(tokens(tab)).not.toContain('flex-1')
       expect(tokens(tab).filter((token) => token === 'whitespace-nowrap' || /^h-\[/.test(token))).toEqual([])
       // Selected is a bar drawn as a border, not a fill alone (D-18).
       expect(tab.querySelector('[class*="border-b-2"]')).toHaveClass('hidden', 'group-data-active/tab:block')

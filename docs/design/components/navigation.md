@@ -90,3 +90,13 @@ user cannot tell them apart in the landmark list. `Breadcrumb` takes
 not pass it a label. It is `display: none` in a browser, so nothing reads it;
 a jsdom test sees it because no stylesheet applies there — run `axe` on the
 sheet's content, not on the kit's hidden button.
+
+### Tabs stay in one row and their labels stack letter by letter
+
+**Rule:** a tab keeps `flex-auto` (its basis is its label), never the kit's `flex-1`.
+
+The list wraps, but from a zero basis every tab fitted the first line: at
+320 px with the root at 24 px three English tabs shrank to the target minimum
+and `wrap-anywhere` broke their labels one letter a line — no clipping, so the
+matrix passed it; the eyes-on pass of `I3` found it. From the label's own
+width, tabs that do not fit run onto a further line and share it.

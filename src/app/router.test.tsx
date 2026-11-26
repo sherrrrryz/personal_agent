@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { toast } from '@/components/feedback'
 import { LOCALE_STORAGE_KEY } from '@/i18n'
+import { createRuntime, parsePreview, parseSceneRef, previewIds, sceneRefs } from '@/runtime'
 import { axe } from '@/test/axe'
 import { THEME_STORAGE_KEY } from '@/theme'
 
@@ -32,6 +33,24 @@ describe('the router host', () => {
       const leaf = matchRoutes(buildRoutes(), path)?.at(-1)?.route
       expect(leaf?.path, path).not.toBe('*')
       expect(leaf, path).toBeDefined()
+    }
+  })
+
+  // The harness passes these ids as `?scene=&preview=`; the runtime ignores one it
+  // does not know and the screen would be walked in the wrong state, and pass.
+  it('every scene and preview a matrix route lists is one the runtime reads from the URL', () => {
+    for (const { path, scenes = [], previews = [] } of matrixRoutes) {
+      for (const scene of scenes) expect(sceneRefs, `${path} scene ${scene}`).toContain(scene)
+      for (const preview of previews) expect(parsePreview(preview), `${path} preview ${preview}`).toBe(preview)
+    }
+    // The harness sends the preview spelled `long` to the stress cells (`e2e/matrix/cells.mjs`).
+    expect(previewIds).toContain('long')
+    for (const ref of sceneRefs) {
+      const search = `?${new URLSearchParams({ scene: ref, preview: 'long' })}`
+      const state = createRuntime({ delay: 0, storage: null, search }).getState()
+      expect(state.scene, ref).toBe(parseSceneRef(ref)?.scene)
+      expect(state.preview, ref).toBe('long')
+      expect(state.onboarded, ref).toBe(true)
     }
   })
 

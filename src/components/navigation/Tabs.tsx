@@ -29,7 +29,11 @@ export type TabsProps<Value extends string = string> = Naming & {
 const listClass = 'flex w-full flex-wrap justify-start gap-1 group-data-horizontal/tabs:h-auto'
 
 // What `wrapped` adds to a tab: the target minimum, height `auto`, a label that wraps.
-const tabClass = 'group/tab h-auto min-h-target min-w-target max-w-full py-1.5 text-center whitespace-normal wrap-anywhere'
+// `flex-auto` replaces the kit's `flex-1`: a tab starts from the width of its label, so
+// tabs that do not fit run onto a further line and then share that line. From a zero
+// basis they all stayed in one row and shrank to the target minimum, their labels
+// stacked letter by letter (320 px at root 24 px, `I3`).
+const tabClass = 'group/tab h-auto min-h-target min-w-target max-w-full flex-auto py-1.5 text-center whitespace-normal wrap-anywhere'
 
 // "Selected" is a fill in the kit. The bar is a border, so the state survives
 // the grey theme and forced colours (D-18).
