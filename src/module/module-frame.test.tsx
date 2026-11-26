@@ -134,9 +134,10 @@ describe('ModuleFrame — the run state (R-14)', () => {
   })
 
   it('runs again from the failure, and the new run replaces it', async () => {
-    const { runtime } = open({ last: 'generation-failed', delay: 20 })
+    // A run long enough to be seen running when the suite is under load, and a wait for it.
+    const { runtime } = open({ last: 'generation-failed', delay: 150 })
     await userEvent.click(within(status()).getByRole('button', { name: '再运行一次' }))
-    expect(status()).toHaveAttribute('data-run-status', 'running')
+    await waitFor(() => expect(status()).toHaveAttribute('data-run-status', 'running'))
     await waitFor(() => expect(status()).toHaveAttribute('data-run-status', 'ok'))
     expect(runtime.getState().runs).toHaveLength(4)
   })

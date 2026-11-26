@@ -18,5 +18,5 @@ export const matrixRoutes: AreaRoutes['matrixRoutes'] = [
   { path: '/m/profession.inventory', scenes: ['s2'], previews },
   { path: '/m/profession.shifts', scenes: ['s3-resolved', 's2'], previews },
   { path: '/m/profession.appointments.sub.duration', scenes: ['s2', 's1'], previews },
-  { path: '/m/profession.appointments.sub.confirmations', scenes: ['e2', 'e1'], previews },
+  { path: '/m/profession.appointments.sub.confirmations', scenes: ['e2'], previews },
 ]

@@ -21,7 +21,8 @@ export function ApprovalsSheet({ module, name }: { module: Module; name: string 
   const t = useT('module')
   const compact = useIsMobile()
   const [open, setOpen] = useState(false)
-  const answer = useResource({ kind: 'proposals', moduleId: module.id })
+  // 通知 gathers every module's proposals on its page: its count is theirs too.
+  const answer = useResource({ kind: 'proposals', moduleId: module.id === 'notifications' ? undefined : module.id })
   const proposals = 'data' in answer && answer.data ? answer.data : null
   const count = proposals?.filter(awaits).length
 

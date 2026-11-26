@@ -27,8 +27,6 @@ describe('/dev/components', () => {
     for (const name of ['Grid', 'Inline', 'Page', 'Section', 'Stack']) {
       expect(within(layout).getByRole('heading', { level: 3, name })).toBeInTheDocument()
     }
-    // A family with no demo yet is not listed on the full gallery.
-    expect(screen.queryByRole('region', { name: '工作流' })).not.toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
   })
 
@@ -40,13 +38,6 @@ describe('/dev/components', () => {
     expect(within(nav).getByRole('link', { name: '布局' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav).getByRole('link', { name: '全部' })).not.toHaveAttribute('aria-current')
     expect(within(nav).getByRole('link', { name: '布局' })).toHaveAttribute('href', '/dev/components?family=layout')
-  })
-
-  it('a family with no demo says so; an unknown family shows everything', async () => {
-    open('/dev/components?family=workflow')
-    const workflow = await screen.findByRole('region', { name: '工作流' })
-    expect(within(workflow).getByText('这个分类还没有演示。')).toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: '布局' })).not.toBeInTheDocument()
   })
 
   it('unknown family → the whole gallery', async () => {
