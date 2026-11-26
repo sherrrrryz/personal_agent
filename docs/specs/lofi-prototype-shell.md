@@ -161,11 +161,11 @@ No token is added. Both modes and every text size: R-09, R-11, R-12, R-14.
 - [ ] **R-13** After merging S7, S8, S9, S10: `verify`, `npm test` green; `matrix /dev/components` and `/dev/shell` zero failures — commands
 - [ ] **R-14** `ModuleFrame`: each run state (never-run, ok, running, failed with its reason) as text + icon; 待你确认 and 运行记录 open sheets with focus handled; 立即运行 shows 正在运行 and then a new run; the four views share the first header row — component evidence + `matrix /dev/frame` + screenshots of the four run states at 1024 light and 320 dark
 - [ ] **R-15** `/dev/frame` renders a page description of all seven blocks; after a run that changes two items exactly those items and their blocks are marked and the summary counts them; the next run clears them; a pin survives reload — test + screenshots at 320 and 1440
-- [ ] **R-16** Routes: `/m/<ia-id>` resolves a module of the scene; a module without `module.ts` renders the stub pattern; an unknown id shows not-found; an alias redirects; a child route contributed by glob renders in its view with the bar still reachable — tests
+- [ ] **R-16** Routes: `/m/<ia-id>` resolves a module of the scene; a module without `module.ts` renders the stub pattern; an unknown id shows not-found; an alias redirects; a child route contributed by glob renders in its view and, with a test slot component in the bottom-bar row, that row stays reachable below it (the real bar: R-21) — tests
 - [ ] **R-17** Chat bar: a scripted in-place prompt opens the panel above the bar with the screen's name in its heading; the screen behind stays operable; Escape collapses, focus returns to the composer, the toast names the topic; the `s0` thread prompt navigates to `chat.thread`; unscripted input gets the canned reply; streaming, error and long states as tabled — tests + screenshots of the open panel at 320 and 1440
 - [ ] **R-18** `PersistenceSwitch` on → confirmation → the sub-module exists, appears in the sidebar under its parent, location = `/m/<id>/workflow`; the AI-raised proposal does the same; switching off archives it after the `AlertDialog`; accepting a scripted proposal whose `onAccept` is `saveNodeParams` adds a workflow version to the store — tests
 - [ ] **R-19** `chat.thread`: the bottom bar is the thread's composer; header with topic, module link, `PersistenceSwitch`; `chat.recent` is collapsed on first load, expands, stays expanded after reload, opens a thread or a topic record; both show their four states under 状态预览 — tests + `matrix /chat/<id>` + screenshot at 768
-- [ ] **R-20** In the shell the chat bar follows `main` in the tab order and, with the panel open, never covers content or the focused element — `matrix /dev/shell --keyboard` with the panel open + stress cells
+- [ ] **R-20** In the shell the chat bar follows `main` in the tab order and, with the panel open, never covers content or the focused element — `flow panel-open` (`npm run matrix -- --flows panel-open`: opens the panel on `/dev/shell`, then tabs through, at 1440 and at 320 × root 24 px)
 - [ ] **R-21** After merging S11, S12: `verify`, `npm test` green; `npm run matrix -- --all` zero failures — commands
 
 ## Work packages
@@ -182,7 +182,7 @@ Waves, integration legs and the frozen-file rule: part 1 § Work packages. `src/
 | S10 | Data blocks `block.summary` · `block.list` · `block.table` · `block.schedule` | `src/blocks/{summary,list,table,schedule}/**`, `components/data-blocks.md`, namespace `data-blocks` | R-12 | 180K | I3 | After summary, list and table; `block.schedule` is the second leg |
 | I4 | Merge wave 4 | Whatever the merge needs | R-13 | 40K | S7 – S10 | — |
 | S11 | Module frame, `/m/<ia-id>` routes, `/dev/frame` | `src/module/**`, `src/screens/module/**`, `components/module.md`, namespace `module` | R-14, R-15, R-16 | 170K | I4 | After the frame and its sheets, before the routes |
-| S12 | Chat surfaces: bar and in-place panel, persistence, thread, recent | `src/chat/**` (with `shell-slots.tsx`), `src/screens/chat/**`, namespace `chat` | R-17 – R-20 | 195K | I4 | After the bar and panel, before persistence, thread and recent |
+| S12 | Chat surfaces: bar and in-place panel, persistence, thread, recent | `src/chat/**` (with `shell-slots.tsx`), `src/screens/chat/**`, `e2e/flows/panel-open.spec.ts`, namespace `chat` | R-17 – R-20 | 195K | I4 | After the bar and panel, before persistence, thread and recent |
 | I5 | Merge wave 5 | Whatever the merge needs | R-21 | 45K | S11, S12 | — |
 
 ## Review plan

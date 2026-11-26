@@ -193,7 +193,7 @@ Waves, integration legs and frozen files: part 1 § Work packages. C1–C4 are w
 | C4 | Onboarding and settings | `src/screens/onboarding/**`, `src/screens/settings/**`, `e2e/flows/onboarding.spec.ts`, namespaces `onboarding`, `settings` | B-14 – B-18 | 195K | I5 | After onboarding, before settings |
 | I6 | Merge wave 6 | Whatever the merge needs | B-19 | 50K | C1 – C4 | — |
 | C6 | Diff, history, memory view | `src/screens/workflow/{diff,history}/**`, `src/screens/memory/**`, the `mode: diff` part of `src/components/workflow/**` (C3 is finished), namespace `workflow-history` | B-12, B-13 | 150K | I6 | After diff and history, before the memory view |
-| C5 | Flow walk-through | `e2e/flows/**` (except C3's and C4's files); fixes anywhere under `src/` | B-01, B-20 – B-28 | 180K | C6 | After `ia-walk` and stages 0–3, before stages 4–5, secondary and keyboard |
+| C5 | Flow walk-through | `e2e/flows/**` except the three files owned elsewhere (S12's `panel-open`, C3's `canvas-keyboard`, C4's `onboarding`); fixes anywhere under `src/` | B-01, B-20 – B-28 | 180K | C6 | After `ia-walk` and stages 0–3, before stages 4–5, secondary and keyboard |
 | C7 | Full matrix run, passes, evidence packet, close-out docs | Fixes anywhere under `src/`; the evidence folder; `COMPONENTS.md` index, `GOVERNANCE.md` § Budget, `UI-PITFALLS.md` | B-29, B-30, B-31 | 170K | C5 | After the `--all` run is green, before the passes and the packet |
 
 A fix by C5 or C7 lands in the component, not in the screen (playbook step 6); a fix needed in a frozen file goes through the lead. If the matrix surfaces more than C7's second leg can fix, it hands off with the failing cells listed and the lead cuts a fix package.
