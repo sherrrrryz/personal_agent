@@ -34,6 +34,7 @@ flowchart LR
   life --> life.finance[Finance]
   life --> life.journal[Journal]
   life --> life.topics[Topics]
+  life.mail --> life.mail.custom["Sub-module ‹workflow› · e.g. promotions digest"]
   life.topics --> life.topic["Topic ‹name› · e.g. fitness"]
 
   work --> work.messages[Messages]
@@ -60,6 +61,10 @@ flowchart LR
 Module-level **workflow** and **memory** settings (`settings.workflow`,
 `settings.memory`) are reached from inside each module, not from the tree.
 
+`life.mail.custom` stands for a pattern, not one node: **any base module in
+either layer** can grow user-created sub-modules out of conversations the
+user marks persistent (or the AI converts). The diagram shows one example.
+
 ## Nodes
 
 | IA id | Node | Parent | Screen type | Notes |
@@ -75,6 +80,7 @@ Module-level **workflow** and **memory** settings (`settings.workflow`,
 | `life.files` | Files | `life` | module | |
 | `life.finance` | Finance records | `life` | module | |
 | `life.journal` | Journal | `life` | module | |
+| `<module>.<workflow>` | User-created sub-module (e.g. `life.mail.promotions`) | any base module, either layer | sub-module home | Born from a conversation the user switched to *persistent*, or converted by the AI; shows the workflow's standing output (e.g. the mail it pushed and why); its workflow and memory are edited like any module's; dynamic node (D-08) |
 | `life.topics` | Topics | `life` | module index | Every conversation with the AI, filed automatically by theme |
 | `life.topics.<topic>` | One topic (e.g. fitness) | `life.topics` | topic home | AI-written summary of the important information from the records, then every related conversation; dynamic node |
 | `work` | Work | `root` | layer home | Overview of the work modules |
@@ -93,8 +99,8 @@ Module-level **workflow** and **memory** settings (`settings.workflow`,
 | `project.pm.chats` | Chats | `project.pm` | conversation list | |
 | `work.topics` | Topics | `work` | module index | Same mechanism as `life.topics`, work-side |
 | `work.topics.<topic>` | One topic | `work.topics` | topic home | Dynamic node |
-| `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; routes each input to the main thread or to a new dedicated chat |
-| `chat.thread` | Dedicated chat | `chat.bar` | chat window | Opened by the bar for a topic that needs its own thread; filed into Topics afterwards |
+| `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; routes each input to the main thread or to a new dedicated chat; carries the **one-off / persistent** switch for the current conversation (D-08) |
+| `chat.thread` | Dedicated chat | `chat.bar` | chat window | Opened by the bar for a topic that needs its own thread; filed into Topics afterwards; can be switched to *persistent* at any time, which creates `<module>.<workflow>` under the module it concerns |
 | `chat.recent` | Recent conversations | `root` | global element | Left sidebar, collapsed by default, expands to list the user's recent conversations across both layers |
 | `settings` | Settings | `root` | settings home | |
 | `settings.accounts` | Connected accounts | `settings` | settings page | Google, Slack, Figma, GitHub and other personal or corporate platforms |
@@ -111,3 +117,10 @@ Module-level **workflow** and **memory** settings (`settings.workflow`,
   the component inventory.
 - An **onboarding** flow runs once before the shell; its job is connecting the
   user's platform accounts.
+
+## Decided (D-08, 2026-11-26)
+
+- Every conversation is **one-off by default and switchable to persistent**,
+  in the chat bar or the dedicated chat, at any time. Persistent means the AI
+  turns it into a sub-module with its own workflow under the module it
+  concerns (`<module>.<workflow>`); the AI may also propose the conversion.

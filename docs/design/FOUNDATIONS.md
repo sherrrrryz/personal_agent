@@ -67,6 +67,12 @@ every spec; it is not itself a spec.
   user's recent conversations.
 - **Onboarding:** before any of these screens, a first-run setup flow whose
   main job is connecting all of the user's platform accounts.
+- **One-off or persistent:** in every conversation the user can choose, and
+  later switch, whether it is a one-off chat or one that becomes a lasting
+  sub-module with its own workflow under the module it concerns. Example: "go
+  through all my promotional mail and push me the ones that matter, by my
+  preferences" can run once, or the AI turns it into a sub-module and workflow
+  under Mail that keeps running. The AI may propose the conversion itself.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
 
