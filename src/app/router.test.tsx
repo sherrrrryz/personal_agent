@@ -11,7 +11,7 @@ import { axe } from '@/test/axe'
 import { THEME_STORAGE_KEY } from '@/theme'
 
 import { Providers } from './Providers'
-import { buildRoutes, fallbackStart } from './router'
+import { buildRoutes } from './router'
 import { areaRoutes, matrixRoutes } from './routes'
 
 function open(path: string, routes: RouteObject[] = buildRoutes()) {
@@ -54,10 +54,11 @@ describe('the router host', () => {
     }
   })
 
-  it('opens the gallery at / while no area claims the start', async () => {
+  // `/` is the start redirect (`src/screens/root/`): the profession interview until onboarding is done.
+  it('opens the first onboarding step at / while onboarding is not done', async () => {
     const { router } = open('/')
     expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe(fallbackStart)
+    expect(router.state.location.pathname).toBe('/onboarding/profession')
   })
 
   it('leaves / to the area that registers it', async () => {
