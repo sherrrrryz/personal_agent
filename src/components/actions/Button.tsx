@@ -32,10 +32,7 @@ type IconOnly = Common & {
 
 export type ButtonProps = WithText | IconOnly
 
-/**
- * The kit's button, wrapped: at least the target size in both directions,
- * height `auto`, a label that wraps. `type` is `button` unless set.
- */
+/** The kit's button as stock shadcn/ui draws it (D-43). `type` is `button` unless set. */
 export function Button({ variant = 'primary', size = 'md', loading = false, disabled, children, ...rest }: ButtonProps) {
   return (
     <KitButton

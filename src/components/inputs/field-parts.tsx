@@ -21,13 +21,8 @@ export function hasError(error: ReactNode): boolean {
 }
 
 // A labelled row — a switch or one radio option. The kit draws the row as a
-// bordered label once it holds a field; the whole row answers a click. The
-// kit fades the border of a checked row to 30% of `primary`, which in the
-// grey theme is fainter than the unchecked edge, so the checked row keeps a
-// full `primary` border.
-export const choiceRow =
-  'min-h-target w-full has-data-checked:border-primary dark:has-data-checked:border-primary *:data-[slot=field]:items-center'
+// bordered label once it holds a field; the whole row answers a click.
+export const choiceRow = 'w-full'
 
-// The control's own hit box: the kit widens it past the visible mark; here
-// it reaches the target minimum in both directions.
-export const choiceHitBox = 'after:-inset-4'
+// The control's own hit box is the kit's (it already reaches past the visible mark).
+export const choiceHitBox: string | undefined = undefined

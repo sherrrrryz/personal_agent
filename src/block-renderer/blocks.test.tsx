@@ -127,13 +127,13 @@ describe('block.text', () => {
 describe('block.empty', () => {
   const Component = emptyBlock.Component
 
-  it('says what is empty and offers one next step, a link with a full target', () => {
+  it('says what is empty and offers one next step, a link drawn as the kit’s button', () => {
     const { props } = emptyBlock.demo('zh-CN')
     renderIn('zh-CN', <Component props={props} changes={{ action: 'new' }} state="ready" />)
     expect(screen.getByText('今天没有待办')).toBeInTheDocument()
     const action = screen.getByRole('link', { name: '去看今天的预约' })
     expect(action).toHaveAttribute('href', '/m/appointments')
-    expect(action).toHaveClass('min-h-target')
+    expect(action).toHaveClass('min-h-8')
     expect(screen.getByText('新')).toBeInTheDocument()
   })
 

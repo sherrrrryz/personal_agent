@@ -89,6 +89,11 @@ turns it off for a run whose subject is the not-found screen itself.
 - **Focus visible** means a change of outline, box-shadow, border, background
   or underline on the element, its pseudo-elements or three ancestors. Its
   contrast and thickness are measured elsewhere (A-13).
+- **Colour contrast** (`axe` rule `color-contrast`) is reported as the waiver
+  `contrast stock theme (D-43)` and does not fail a cell: the stock shadcn/ui
+  theme is kept as it is and falls short of 4.5:1 in a few pairings
+  (`docs/design/TOKENS.md` § Contrast pairs, rows marked `gap`). Every other
+  `axe` rule fails the cell as before.
 - **Clipped text** is text past the edge of a box that hides overflow. Text
   that spills out of a box that does not hide it is not caught here; it
   usually shows as a sideways scroll or in the screenshot.

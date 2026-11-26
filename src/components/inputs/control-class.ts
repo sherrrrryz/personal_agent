@@ -1,11 +1,14 @@
 import { focusRingOverInvalid } from '@/components/actions/focus-ring'
 
-// What `wrapped` adds to a text control: the focus ring kept while invalid,
-// and a read-only state told by a dashed edge as well as by its fill.
-export const stateClass = `${focusRingOverInvalid} [&[readonly]]:border-dashed [&[readonly]]:bg-muted`
+// The text controls are drawn as stock shadcn/ui draws them (D-43). The one
+// deviation (docs/design/components/inputs.md § Deviations from stock): an
+// invalid control keeps the kit's focus ring while it is focused.
 
-/** A one-line control: the target minimum with height `auto`, plus the states. */
-export const controlClass = `h-auto min-h-target ${stateClass}`
+/** A one-line control. */
+export const controlClass = focusRingOverInvalid
 
-/** Inside an `InputGroup` the group draws the border and the ring. */
-export const groupedControlClass = 'h-auto min-h-target'
+/** A control of several lines. */
+export const stateClass = focusRingOverInvalid
+
+/** A one-line control inside an `InputGroup`: the group draws the border and the ring. */
+export const groupedControlClass: string | undefined = undefined

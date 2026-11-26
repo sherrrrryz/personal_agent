@@ -36,17 +36,13 @@ export function BlockItemLink({ href, children }: { href: string; children: Reac
   )
 }
 
-// The kit keeps a badge on one line and hides what does not fit; a block's
-// badge carries the workflow's words, so its height follows the text.
-const badgeClass = 'h-auto max-w-full shrink text-start whitespace-normal wrap-anywhere'
-
 /** An item's badges. A badge that says a behaviour mode is the shared `BehaviourModeBadge`. */
 export function BlockBadges({ badges }: { badges: BlockBadge[] }) {
   return badges.map((badge) =>
     badge.mode ? (
       <BehaviourModeBadge key={`${badge.mode}:${badge.label}`} mode={badge.mode} />
     ) : (
-      <Badge key={badge.label} variant="secondary" className={badgeClass}>
+      <Badge key={badge.label} variant="secondary">
         {badge.label}
       </Badge>
     ),
@@ -135,7 +131,7 @@ export function BlockEntry({ id, title, lead, meta, badges = [], actions = [], h
 /** The empty state of a block: the kit's `Empty` with the block's own sentence. */
 export function BlockEmpty({ title }: { title: string }) {
   return (
-    <Empty className="border">
+    <Empty>
       <EmptyHeader>
         <EmptyTitle>{title}</EmptyTitle>
       </EmptyHeader>

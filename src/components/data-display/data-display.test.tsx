@@ -92,13 +92,12 @@ describe('BehaviourModeBadge', () => {
     expect(screen.getByRole('link', { name: '发送晚间提醒 协助' })).toBeInTheDocument()
   })
 
-  it('does not keep the kit badge’s fixed height or its single line', () => {
+  it('is the kit’s badge as stock draws it: nothing of ours on top (D-43)', () => {
     renderIn('en', <BehaviourModeBadge mode="autonomous" />)
     const badge = screen.getByText('Autonomous')
-    expect(badge).toHaveClass('h-auto', 'whitespace-normal', 'shrink', 'max-w-full')
-    expect(badge).not.toHaveClass('h-5')
-    expect(badge).not.toHaveClass('whitespace-nowrap')
-    expect(badge).not.toHaveClass('shrink-0')
+    expect(badge).toHaveAttribute('data-slot', 'badge')
+    expect(badge).toHaveClass('h-5', 'whitespace-nowrap')
+    expect(badge).not.toHaveClass('h-auto')
   })
 })
 
@@ -144,9 +143,8 @@ describe('ChangeMarker', () => {
     )
     expect(screen.getByRole('heading', { name: '今日预约 新' })).toBeInTheDocument()
     const marker = screen.getByText('新')
-    expect(marker).toHaveClass('h-auto', 'whitespace-normal')
-    expect(marker).not.toHaveClass('h-5')
-    expect(marker).not.toHaveClass('whitespace-nowrap')
+    // The kit's badge, as stock draws it (D-43).
+    expect(marker).toHaveClass('h-5', 'whitespace-nowrap')
   })
 })
 
@@ -222,7 +220,7 @@ describe('Item', () => {
     const item = container.querySelector('[data-slot="item"]')!
     expect(item.tagName).toBe('DIV')
     expect(item).toHaveAttribute('data-variant', variant)
-    expect(item).toHaveClass('min-h-target', 'min-w-target')
+    expect(item.className).not.toMatch(/-target\b/)
     // On its own it is no list item, and it is not a tab stop: only the control inside it is.
     expect(item).not.toHaveAttribute('role')
     expect(item.parentElement).not.toHaveAttribute('role')
@@ -241,7 +239,7 @@ describe('Item', () => {
     )
     const item = container.querySelector('[data-slot="item"]')!
     expect(item).toHaveAttribute('data-size', size)
-    expect(item).toHaveClass('min-h-target', 'min-w-target')
+    expect(item.className).not.toMatch(/-target\b/)
   })
 
   it('shows its title and description in full: the kit’s one-line and two-line cuts are off', () => {
@@ -290,7 +288,7 @@ describe('Item', () => {
     const first = screen.getByRole('link', { name: /^已连接的账号\s*3 个已连接$/ })
     expect(first).toHaveAttribute('data-slot', 'item')
     expect(first).toHaveAttribute('href', '#accounts')
-    expect(first).toHaveClass('min-h-target', 'min-w-target', 'w-full')
+    expect(first).toHaveClass('w-full')
     // A badge in the title is part of the link's name.
     const second = screen.getByRole('link', { name: /^发送晚间提醒\s*协助$/ })
     await user.tab()
@@ -405,16 +403,13 @@ describe('Table', () => {
     expect(other).toHaveFocus()
   })
 
-  it('lets header and cell text wrap, at a readable column width, and aligns a number column to the end', () => {
+  it('header and cells are the kit’s (D-43); alignment follows the reading direction, and a number column goes to the end', () => {
     render(<Durations />)
     const head = screen.getByRole('columnheader', { name: '狗狗' })
-    expect(head).toHaveClass('h-auto', 'whitespace-normal', 'min-w-24', 'text-start')
-    expect(head).not.toHaveClass('h-10')
-    expect(head).not.toHaveClass('whitespace-nowrap')
+    expect(head).toHaveClass('h-10', 'whitespace-nowrap', 'text-start')
     expect(head).not.toHaveClass('text-left')
     const cell = screen.getByRole('cell', { name: '洗澡加修剪' })
-    expect(cell).toHaveClass('whitespace-normal', 'min-w-24', 'text-start')
-    expect(cell).not.toHaveClass('whitespace-nowrap')
+    expect(cell).toHaveClass('whitespace-nowrap', 'text-start')
     expect(screen.getByRole('columnheader', { name: '预计' })).toHaveClass('text-end')
     expect(screen.getByRole('cell', { name: '90 分钟' })).toHaveClass('text-end')
   })

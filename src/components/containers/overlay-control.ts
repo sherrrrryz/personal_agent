@@ -16,7 +16,7 @@ export function rootProps({ open, defaultOpen, onOpenChange }: OverlayControl) {
   return { open, defaultOpen, onOpenChange: onOpenChange ? (next: boolean) => onOpenChange(next) : undefined }
 }
 
-// No scrim and no shadow in the placeholder theme: an overlay separates from
-// the page by its border. It is never taller than the window; what does not
-// fit scrolls inside it.
-export const overlaySurface = 'max-h-full overflow-y-auto border'
+// The overlay is drawn as stock shadcn/ui draws it — scrim, shadow, radius
+// (D-43). The one addition is invisible at the default size: it is never
+// taller than the window, and what does not fit scrolls inside it.
+export const overlaySurface = 'max-h-full overflow-y-auto'

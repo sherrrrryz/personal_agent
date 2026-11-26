@@ -2,7 +2,6 @@ import { ChevronDownIcon, PanelLeftIcon, XIcon } from 'lucide-react'
 import { useId, useState, type ReactElement, type ReactNode } from 'react'
 
 import { Button } from '@/components/actions'
-import { focusRing } from '@/components/actions/focus-ring'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Sidebar as KitSidebar,
@@ -13,6 +12,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader as KitSidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -23,12 +23,6 @@ import {
 import { useT } from '@/i18n'
 
 import { SidebarPlacementContext, useSidebar, type SidebarPlacement } from './sidebar-context'
-
-// The kit sizes its icon rail for a 2rem button. Ours holds a target-size
-// item inside the group's padding, so the rail is the target token plus that
-// padding. The kit sets the variable in an inline style; a class outranks it
-// only with the important modifier (navigation.md § Pitfalls).
-const railWidth = '[--sidebar-width-icon:calc(var(--size-target-min)+--spacing(4))]!'
 
 export type SidebarProviderProps = {
   /** Open with labels, or folded into the icon rail. The shell decides it from the size class. */
@@ -44,7 +38,7 @@ export type SidebarProviderProps = {
 export function SidebarProvider({ placement = 'viewport', children, ...state }: SidebarProviderProps) {
   return (
     <SidebarPlacementContext value={placement}>
-      <KitSidebarProvider {...state} className={placement === 'inline' ? `${railWidth} min-h-0` : railWidth}>
+      <KitSidebarProvider {...state} className={placement === 'inline' ? 'min-h-0' : undefined}>
         {children}
       </KitSidebarProvider>
     </SidebarPlacementContext>
@@ -59,7 +53,7 @@ export type SidebarProps = {
 }
 
 /**
- * The app's navigation: open with wrapping labels, an icon rail, or — in the
+ * The app's navigation, as stock shadcn/ui draws it (D-43): open, an icon rail, or — in the
  * compact size class — a sheet off the canvas that `SidebarTrigger` opens.
  */
 export function Sidebar({ 'aria-label': label, children }: SidebarProps) {
@@ -81,7 +75,7 @@ export function Sidebar({ 'aria-label': label, children }: SidebarProps) {
   )
   if (placement === 'inline') {
     return (
-      <KitSidebar collapsible="none" className={mode === 'rail' ? 'w-(--sidebar-width-icon) max-w-full border' : 'max-w-full border'}>
+      <KitSidebar collapsible="none" className={mode === 'rail' ? 'w-(--sidebar-width-icon)' : undefined}>
         {body}
       </KitSidebar>
     )
@@ -150,8 +144,8 @@ type CollapsibleGroup = GroupBase & {
 
 export type SidebarGroupProps = PlainGroup | CollapsibleGroup
 
-// The kit's group heading is one fixed line.
-const groupLabelClass = 'h-auto min-h-8 py-1 wrap-anywhere'
+/** Deviations from stock for the group heading, if the matrix forces any (navigation.md § Deviations from stock). */
+const groupLabelClass: string | undefined = undefined
 
 /** A titled list of items. */
 export function SidebarGroup(props: SidebarGroupProps) {
@@ -173,7 +167,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
           </SidebarGroupLabel>
         )}
         <SidebarGroupContent>
-          <SidebarMenu aria-labelledby={id} className="gap-1">
+          <SidebarMenu aria-labelledby={id}>
             {children}
           </SidebarMenu>
         </SidebarGroupContent>
@@ -218,7 +212,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
         />
       </div>
       <CollapsibleContent render={<SidebarGroupContent />}>
-        <SidebarMenu aria-labelledby={id} className="gap-1">
+        <SidebarMenu aria-labelledby={id}>
           {children}
         </SidebarMenu>
       </CollapsibleContent>
@@ -226,26 +220,21 @@ export function SidebarGroup(props: SidebarGroupProps) {
   )
 }
 
-// What `wrapped` adds to the kit's menu button: the target minimum with height
-// `auto`, a label that wraps instead of being cut, our focus ring, and room
-// for the bar that marks the current item. The kit's rail size is `!important`,
-// so its replacement is too.
-const itemBase = `relative h-auto min-h-target min-w-target overflow-visible ${focusRing} group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:p-1!`
-const itemClass = { open: `${itemBase} py-1.5`, rail: `${itemBase} flex-col justify-center gap-0.5 p-1` }
-
-// The kit cuts the last `span` of a button to one line with a selector of its own; only `!important` reaches it.
-const labelClass = 'min-w-0 flex-1 overflow-visible! whitespace-normal! wrap-anywhere'
-const badgeClass = 'shrink-0 overflow-visible! text-xs font-medium tabular-nums'
-
-// "Current" is a fill in the kit. The bar is a border, so the state survives
-// the grey theme and forced colours (D-18).
-const currentBar = 'absolute inset-y-2 start-0 hidden border-s-2 border-current group-data-active/menu-button:block'
+// The one deviation from stock for an item (navigation.md § Deviations from
+// stock): the kit cuts a label to one line at a fixed height, with nowhere to
+// read the rest. Ours keeps the kit's height as a minimum and lets a label
+// that does not fit wrap; one that fits is drawn exactly as stock. The kit
+// truncates the last `span` with a selector of its own — only `!important`
+// reaches it. The rail is untouched: the kit's rail size is `!important`.
+const itemClass = 'h-auto min-h-8 py-1.5'
+const subItemClass = 'h-auto min-h-7 py-1'
+const labelClass = 'whitespace-normal! overflow-visible! wrap-anywhere'
 
 export type SidebarItemProps = {
   /** Decorative: the label names the item. */
   icon: ReactNode
   label: string
-  /** A count or short status at the end of the row; part of the item's name. Kept in the rail. */
+  /** A count or short status at the end of the row; part of the item's name. As in the kit, not drawn in the rail. */
   badge?: ReactNode
   /** The item of the page that is open. */
   current?: boolean
@@ -257,7 +246,7 @@ export type SidebarItemProps = {
   children?: ReactNode
 }
 
-/** One destination. Open: icon, wrapping label, badge. Rail: the icon, with the label as its name and tooltip. */
+/** One destination. Open: icon, label, badge. Rail: the icon, with the label as its name and tooltip. */
 export function SidebarItem({ icon, label, badge, current = false, disabled, render, onClick, children }: SidebarItemProps) {
   const { mode } = useSidebar()
   const rail = mode === 'rail'
@@ -272,22 +261,22 @@ export function SidebarItem({ icon, label, badge, current = false, disabled, ren
         // press must close the sheet.
         tooltip={rail ? label : undefined}
         onClick={disabled ? (event) => event.preventDefault() : onClick}
-        className={rail ? itemClass.rail : itemClass.open}
+        className={itemClass}
       >
-        <span aria-hidden="true" className={currentBar} />
         <span aria-hidden="true" className="flex shrink-0">
           {icon}
         </span>
-        <span className={rail ? 'sr-only' : labelClass}>{label}</span>
-        {badge != null && <span className={badgeClass}>{badge}</span>}
+        {/* The kit truncates the last `span` of a button; the count stays in the item's name. */}
+        <span className={rail ? 'sr-only' : labelClass}>
+          {label}
+          {badge != null && <span className="sr-only"> {badge}</span>}
+        </span>
       </SidebarMenuButton>
-      {children != null && !rail && <SidebarMenuSub className="gap-1">{children}</SidebarMenuSub>}
+      {badge != null && !rail && <SidebarMenuBadge aria-hidden="true">{badge}</SidebarMenuBadge>}
+      {children != null && !rail && <SidebarMenuSub>{children}</SidebarMenuSub>}
     </SidebarMenuItem>
   )
 }
-
-const subItemClass = `relative h-auto min-h-target min-w-target overflow-visible py-1.5 ${focusRing}`
-const subCurrentBar = 'absolute inset-y-2 start-0 hidden border-s-2 border-current group-data-active/sub:block'
 
 export type SidebarSubItemProps = {
   label: string
@@ -304,9 +293,8 @@ export function SidebarSubItem({ label, current = false, render }: SidebarSubIte
         render={render}
         isActive={current}
         aria-current={current ? 'page' : undefined}
-        className={`group/sub ${subItemClass}`}
+        className={subItemClass}
       >
-        <span aria-hidden="true" className={subCurrentBar} />
         <span className={labelClass}>{label}</span>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>

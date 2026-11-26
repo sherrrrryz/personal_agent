@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+
 import { focusRingOverInvalid } from '@/components/actions/focus-ring'
 
 import { useFieldControl } from './field-context'
@@ -35,13 +36,13 @@ export type SelectProps<Value extends string = string> = {
   'aria-invalid'?: boolean
 }
 
-// The kit's trigger is one fixed line that clamps its value; ours is the
-// target minimum, fills its field and wraps a long value.
-const triggerClass = `h-auto min-h-target w-full whitespace-normal text-start data-[size=default]:h-auto *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:wrap-anywhere ${focusRingOverInvalid}`
-
-// The kit's option text is one unshrinkable line that the popup would cut;
-// its class cannot be reached by a prop, hence the important modifier.
-const itemClass = 'min-h-target *:shrink! *:whitespace-normal! wrap-anywhere'
+// The trigger, the list and its options are drawn as stock shadcn/ui draws
+// them (D-43). Deviations (docs/design/components/inputs.md § Deviations from
+// stock): the trigger fills its field, as the kit's input does; the kit cuts a
+// chosen value to one line at a fixed height, ours keeps that height as a
+// minimum and lets a value that does not fit wrap; and an invalid trigger
+// keeps the focus ring while focused.
+const triggerClass = `h-auto min-h-8 w-full py-1 text-start whitespace-normal data-[size=default]:h-auto *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:wrap-anywhere ${focusRingOverInvalid}`
 
 /** One of several, chosen from a list that opens. Inside a `Field` it takes its label from it. */
 export function Select<Value extends string = string>({
@@ -86,10 +87,9 @@ export function Select<Value extends string = string>({
           }}
         </SelectValue>
       </SelectTrigger>
-      {/* No shadow in the placeholder theme: the list separates from the page by its border. */}
-      <SelectContent alignItemWithTrigger={false} className="border">
+      <SelectContent>
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} disabled={option.disabled} lang={option.lang} className={itemClass}>
+          <SelectItem key={option.value} value={option.value} disabled={option.disabled} lang={option.lang}>
             {option.label}
           </SelectItem>
         ))}

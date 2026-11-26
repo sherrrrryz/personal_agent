@@ -18,10 +18,12 @@ describe('Button', () => {
     expect(button).toHaveAttribute('type', 'button')
   })
 
-  it('binds the target size, grows with its text and lets it wrap', () => {
+  it('is the kit’s button: its height is a minimum, and a label that does not fit wraps (D-43)', () => {
     render(<Button>保存</Button>)
     const button = screen.getByRole('button')
-    expect(button).toHaveClass('min-h-target', 'min-w-target', 'h-auto', 'whitespace-normal', 'max-w-full', 'shrink')
+    expect(button).toHaveClass('min-h-8', 'h-auto', 'whitespace-normal', 'max-w-full', 'shrink')
+    // No forced target size: the kit's 32 px is above the 24 px floor of WCAG 2.2 AA.
+    expect(button.className).not.toMatch(/-target\b/)
     // The kit's fixed height and single line are gone, not merely outranked.
     const tokens = button.className.split(' ')
     expect(tokens.filter((token) => /^h-\d/.test(token) || token === 'whitespace-nowrap' || token === 'shrink-0')).toEqual([])
@@ -55,14 +57,19 @@ describe('Button', () => {
   it('gives each variant its own look', () => {
     const classes = buttonVariants.map((variant) => buttonClass({ variant }))
     expect(new Set(classes).size).toBe(buttonVariants.length)
-    // A link is underlined at rest: colour alone never marks it (hard rule 13).
-    expect(buttonClass({ variant: 'link' }).split(' ')).toContain('underline')
+    // Every variant is the kit's own: nothing restated on top, the link's underline on hover included.
+    expect(buttonClass({ variant: 'link' }).split(' ')).not.toContain('underline')
+    expect(buttonClass({ variant: 'link' }).split(' ')).toContain('hover:underline')
+    expect(buttonClass({ variant: 'danger' })).not.toMatch(/focus-visible:ring-ring/)
   })
 
-  it.each(buttonSizes)('size %s keeps the target minimum and no fixed size', (size) => {
-    const tokens = buttonClass({ size }).split(' ')
-    expect(tokens).toEqual(expect.arrayContaining(['min-h-target', 'min-w-target']))
-    expect(tokens.filter((token) => /^(?:h|w|size)-\d/.test(token))).toEqual([])
+  it('sizes: sm and md keep the kit’s height as a minimum, icon is the kit’s square; no size binds the target token', () => {
+    expect(buttonClass({ size: 'sm' }).split(' ')).toEqual(expect.arrayContaining(['min-h-7', 'h-auto']))
+    expect(buttonClass({ size: 'md' }).split(' ')).toEqual(expect.arrayContaining(['min-h-8', 'h-auto']))
+    const icon = buttonClass({ size: 'icon' }).split(' ')
+    expect(icon).toContain('size-8')
+    expect(icon).not.toContain('h-auto')
+    for (const size of buttonSizes) expect(buttonClass({ size })).not.toMatch(/-target\b/)
   })
 
   it('an icon-only button is named by its aria-label', () => {

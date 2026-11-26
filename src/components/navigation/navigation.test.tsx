@@ -87,22 +87,28 @@ describe('Sidebar', () => {
     )
   }
 
-  it('open: a named nav of named lists; labels wrap at the target minimum; the current item is aria-current and not a fill alone', async () => {
+  it('open: a named nav of named lists, drawn as the kit draws it; a long label wraps; the current item is aria-current', async () => {
     const { container } = render(<Example />)
     const nav = screen.getByRole('navigation', { name: '主导航' })
     expect(within(nav).getByRole('list', { name: '基础' })).toBeInTheDocument()
     const item = within(nav).getByRole('link', { name: /通知/ })
     expect(item).toHaveAccessibleName(expect.stringMatching(/^通知\s*3$/))
-    expect(item).toHaveClass('min-h-target', 'min-w-target', 'h-auto', 'overflow-visible')
-    expect(tokens(item).filter((token) => /^h-\d/.test(token) || token === 'overflow-hidden')).toEqual([])
+    // The kit's height as a minimum, so a label that does not fit wraps instead of being cut.
+    expect(item).toHaveClass('min-h-8', 'h-auto')
+    expect(item.className).not.toMatch(/-target\b/)
+    expect(tokens(item).filter((token) => /^h-\d/.test(token))).toEqual([])
     expect(within(item).getByText('通知')).toHaveClass('whitespace-normal!', 'overflow-visible!')
+    // The count is drawn by the kit's badge and stays in the item's name.
+    expect(item.parentElement!.querySelector('[data-slot="sidebar-menu-badge"]')).toHaveTextContent('3')
     const current = within(nav).getByRole('link', { name: '日程' })
     expect(current).toHaveAttribute('aria-current', 'page')
-    expect(current.querySelector('[class*="border-s-2"]')).toHaveClass('group-data-active/menu-button:block')
+    // Current is the kit's own fill (D-43): no bar of ours.
+    expect(current).toHaveAttribute('data-active')
+    expect(current.querySelector('[class*="border-s-2"]')).toBeNull()
     expect(within(nav).getByRole('link', { name: /^通知\s*3$/ })).not.toHaveAttribute('aria-current')
     // One level of sub-items, each a link.
     expect(within(nav).getByRole('link', { name: '美容时长' })).toHaveAttribute('aria-current', 'page')
-    expect(within(nav).getByRole('link', { name: '美容时长' })).toHaveClass('min-h-target', 'h-auto')
+    expect(within(nav).getByRole('link', { name: '美容时长' })).toHaveClass('min-h-7', 'h-auto')
     // Disabled: said, and it does nothing.
     expect(within(nav).getByRole('button', { name: '库存' })).toHaveAttribute('aria-disabled', 'true')
     expect(await axe(container)).toHaveNoViolations()
@@ -115,7 +121,7 @@ describe('Sidebar', () => {
       await userEvent.tab()
       order.push(document.activeElement?.textContent ?? '')
     }
-    expect(order).toEqual(['通知3', '日程', '预约', '美容时长'])
+    expect(order).toEqual(['通知 3', '日程', '预约', '美容时长'])
   })
 
   it('a collapsible group: its heading is our button, which shows and hides the list', async () => {
@@ -123,7 +129,7 @@ describe('Sidebar', () => {
     render(<Example onRecent={onRecent} />)
     const heading = screen.getByRole('button', { name: '最近对话' })
     expect(heading).toHaveAttribute('aria-expanded', 'false')
-    expect(heading).toHaveClass('min-h-target')
+    expect(heading).toHaveClass('min-h-7')
     expect(screen.queryByRole('link', { name: '调整周六的预约' })).not.toBeInTheDocument()
     await userEvent.click(heading)
     expect(heading).toHaveAttribute('aria-expanded', 'true')
@@ -139,8 +145,10 @@ describe('Sidebar', () => {
     const nav = screen.getByRole('navigation', { name: '主导航' })
     const item = within(nav).getByRole('link', { name: /^通知\s*3$/ })
     expect(within(item).getByText('通知')).toHaveClass('sr-only')
-    expect(item).toHaveClass('min-h-target', 'min-w-target', 'group-data-[collapsible=icon]:size-auto!')
-    expect(tokens(item)).not.toContain('group-data-[collapsible=icon]:size-8!')
+    // The kit's rail: its own square, nothing of ours over it (D-43).
+    expect(tokens(item)).toContain('group-data-[collapsible=icon]:size-8!')
+    expect(tokens(item)).not.toContain('group-data-[collapsible=icon]:size-auto!')
+    expect(item.parentElement!.querySelector('[data-slot="sidebar-menu-badge"]')).toBeNull()
     expect(within(nav).getByRole('list', { name: '基础' })).toBeInTheDocument()
     expect(within(nav).queryByRole('link', { name: '美容时长' })).not.toBeInTheDocument()
     expect(within(nav).getByRole('link', { name: '日程' })).toHaveAttribute('aria-current', 'page')
@@ -160,7 +168,7 @@ describe('Sidebar', () => {
     render(<Example />)
     const trigger = screen.getByRole('button', { name: '展开或收起侧边栏' })
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    expect(trigger).toHaveClass('min-h-target', 'min-w-target')
+    expect(trigger).toHaveClass('size-8')
     await userEvent.click(trigger)
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByText('通知')).toHaveClass('sr-only')
@@ -225,7 +233,8 @@ describe('Breadcrumb', () => {
     const links = within(whole).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual(['我的店', '预约与提醒', '美容时长'])
     expect(links[0]).toHaveAttribute('href', '#shop')
-    expect(links[0]).toHaveClass('min-h-target', 'min-w-target', 'underline')
+    expect(links[0]).toHaveClass('min-h-target', 'min-w-target')
+    expect(links[0]).not.toHaveClass('underline')
     expect(links[2]).toHaveAttribute('aria-current', 'page')
     // The whole path shows only with room; the folded one only without (a container query).
     expect(whole).toHaveClass('hidden', '@md:flex')
@@ -248,7 +257,7 @@ describe('Breadcrumb', () => {
     expect(folded).toContainElement(waived[0] as HTMLElement)
 
     const open = within(folded).getByRole('button', { name: '显示完整路径' })
-    expect(open).toHaveClass('min-h-target', 'min-w-target')
+    expect(open).toHaveClass('size-8')
     await userEvent.click(open)
     const menu = await screen.findByRole('menu')
     const items = within(menu).getAllByRole('menuitem')
@@ -269,7 +278,8 @@ describe('Breadcrumb', () => {
     expect(within(nav).getAllByRole('list')).toHaveLength(1)
     expect(within(nav).queryByRole('button')).not.toBeInTheDocument()
     expect(container.querySelector('[data-matrix-allow], .truncate')).toBeNull()
-    expect(within(nav).getByRole('link')).toHaveClass('min-h-target', 'min-w-target')
+    // The kit marks the open page as a disabled link: text, not a target.
+    expect(within(nav).getByRole('link')).toHaveAttribute('aria-disabled', 'true')
   })
 })
 
@@ -280,22 +290,19 @@ describe('Tabs', () => {
     { value: 'archive', label: '归档', disabled: true, content: <p>空</p> },
   ]
 
-  it('a named tablist; the first tab is selected and shows its panel; tabs wrap at the target minimum', async () => {
+  it('a named tablist, drawn as the kit draws it; the first tab is selected and shows its panel; tabs that do not fit run onto a further line', async () => {
     const { container } = render(<Tabs aria-label="记忆里的表格" tabs={tabs} />)
     const list = screen.getByRole('tablist', { name: '记忆里的表格' })
-    expect(list).toHaveClass('flex-wrap', 'w-full', 'group-data-horizontal/tabs:h-auto')
+    expect(list).toHaveClass('flex-wrap', 'max-w-full', 'group-data-horizontal/tabs:h-auto')
     expect(tokens(list)).not.toContain('group-data-horizontal/tabs:h-8')
     const [first, second, third] = within(list).getAllByRole('tab')
     expect(first).toHaveAttribute('aria-selected', 'true')
     expect(second).toHaveAttribute('aria-selected', 'false')
     for (const tab of [first, second, third]) {
-      expect(tab).toHaveClass('min-h-target', 'min-w-target', 'h-auto', 'whitespace-normal')
-      // From its label's width, not from zero: tabs that do not fit run onto a further line (navigation.md § Pitfalls).
-      expect(tab).toHaveClass('flex-auto')
-      expect(tokens(tab)).not.toContain('flex-1')
-      expect(tokens(tab).filter((token) => token === 'whitespace-nowrap' || /^h-\[/.test(token))).toEqual([])
-      // Selected is a bar drawn as a border, not a fill alone (D-18).
-      expect(tab.querySelector('[class*="border-b-2"]')).toHaveClass('hidden', 'group-data-active/tab:block')
+      // The kit's tab (D-43): one line, the kit's own selected look, nothing of ours on it.
+      expect(tab).toHaveClass('flex-1', 'whitespace-nowrap')
+      expect(tab.className).not.toMatch(/-target\b/)
+      expect(tab.querySelector('[class*="border-b-2"]')).toBeNull()
     }
     expect(screen.getByRole('tabpanel')).toHaveTextContent('每个品种一行')
     expect(third).toHaveAttribute('aria-disabled', 'true')
@@ -355,12 +362,13 @@ describe('DropdownMenu', () => {
     await userEvent.click(trigger)
     const menu = await screen.findByRole('menu')
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    // Separates by a border, and is as wide as its items need rather than as its trigger.
-    expect(menu).toHaveClass('border', 'w-auto', 'max-w-(--available-width)')
+    // As wide as its items need rather than as its trigger; otherwise the kit's menu (D-43).
+    expect(menu).toHaveClass('w-auto', 'max-w-(--available-width)')
+    expect(menu).not.toHaveClass('border')
     expect(tokens(menu)).not.toContain('w-(--anchor-width)')
     const items = within(menu).getAllByRole('menuitem')
     expect(items.map((item) => item.textContent)).toEqual(['修改时间', '导出', '取消预约'])
-    for (const item of items) expect(item).toHaveClass('min-h-target', 'whitespace-normal')
+    for (const item of items) expect(item.className).not.toMatch(/-target\b/)
     expect(items[1]).toHaveAttribute('aria-disabled', 'true')
     expect(within(menu).getByRole('group', { name: '这条预约' })).toBeInTheDocument()
     const radios = within(within(menu).getByRole('group', { name: '日历视图' })).getAllByRole('menuitemradio')
@@ -436,7 +444,7 @@ describe('LocaleSelect', () => {
     )
     const select = screen.getByRole('combobox', { name: '语言' })
     expect(select).toHaveTextContent('简体中文')
-    expect(select).toHaveClass('min-h-target')
+    expect(select).toHaveClass('min-h-8')
     expect(await axe(container)).toHaveNoViolations()
     await userEvent.click(select)
     const options = within(await screen.findByRole('listbox')).getAllByRole('option')

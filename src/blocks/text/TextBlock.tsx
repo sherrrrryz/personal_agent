@@ -31,7 +31,7 @@ export function TextBlock({ props, changes, state }: BlockComponentProps<'block.
         </div>
       }
       empty={
-        <Empty className="border">
+        <Empty>
           <EmptyHeader>
             <EmptyTitle>{t('text.empty.title')}</EmptyTitle>
           </EmptyHeader>

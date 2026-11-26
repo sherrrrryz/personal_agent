@@ -136,7 +136,7 @@ export function ChatMessageList<Attachment = unknown>({
       loading={<MessageSkeleton />}
       empty={
         empty ?? (
-          <Empty className="border">
+          <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <MessagesSquare aria-hidden="true" />

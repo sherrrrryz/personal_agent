@@ -16,7 +16,6 @@ import { Field, Input, InputGroup, RadioGroup, Select, Switch, Textarea } from '
 // keyboard path, axe, and each demo in zh-CN.
 
 const tokens = (element: Element) => element.className.split(' ')
-const fixedBlockSize = (element: Element) => tokens(element).filter((token) => /^(?:h|size)-(?:\d|\[)/.test(token))
 
 const services = [
   { value: 'bath', label: '洗澡' },
@@ -76,10 +75,10 @@ describe('Field', () => {
 
 describe('Input and Textarea', () => {
   it.each([
-    ['Input', Input, 'INPUT', 'min-h-target'],
-    // The kit's own minimum for a textarea is above the target and is kept.
+    // The kit's own sizes, as stock draws them (D-43).
+    ['Input', Input, 'INPUT', 'h-8'],
     ['Textarea', Textarea, 'TEXTAREA', 'min-h-16'],
-  ] as const)('%s: native element at the target minimum, typed into, with no fixed height', async (_name, Control, tag, minimum) => {
+  ] as const)('%s: native element at the kit’s size, typed into', async (_name, Control, tag, minimum) => {
     const onChange = vi.fn()
     render(
       <Field label="备注">
@@ -89,7 +88,7 @@ describe('Input and Textarea', () => {
     const control = screen.getByRole('textbox', { name: '备注' })
     expect(control.tagName).toBe(tag)
     expect(control).toHaveClass(minimum)
-    expect(fixedBlockSize(control)).toEqual([])
+    expect(control.className).not.toMatch(/-target\b/)
     await userEvent.tab()
     expect(control).toHaveFocus()
     await userEvent.keyboard('好')
@@ -117,7 +116,8 @@ describe('Input and Textarea', () => {
     )
     const readOnly = screen.getByRole('textbox', { name: '只读' })
     expect(readOnly).toHaveAttribute('readonly')
-    expect(tokens(readOnly)).toEqual(expect.arrayContaining(['[&[readonly]]:border-dashed', '[&[readonly]]:bg-muted']))
+    // Read-only is the native state; the kit draws it like any other field and nothing is added (D-43).
+    expect(tokens(readOnly).filter((token) => token.startsWith('[&[readonly]]'))).toEqual([])
     await userEvent.type(readOnly, '改')
     expect(readOnly).toHaveValue('前台')
   })
@@ -134,7 +134,7 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: '服务项目' })
     expect(trigger).toHaveAccessibleDescription('可以之后再改')
     expect(trigger).toHaveTextContent('请选择')
-    expect(trigger).toHaveClass('min-h-target', 'h-auto', 'w-full', 'whitespace-normal')
+    expect(trigger).toHaveClass('min-h-8', 'h-auto', 'w-full', 'whitespace-normal')
     expect(tokens(trigger)).not.toContain('whitespace-nowrap')
     await userEvent.tab()
     expect(trigger).toHaveFocus()
@@ -143,7 +143,6 @@ describe('Select', () => {
     const options = within(list).getAllByRole('option')
     expect(options.map((option) => option.textContent)).toEqual(['洗澡', '全套美容', '洁牙'])
     expect(options[2]).toHaveAttribute('aria-disabled', 'true')
-    for (const option of options) expect(option).toHaveClass('min-h-target')
     await userEvent.keyboard('{ArrowDown}{Enter}')
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(['bath', 'groom']).toContain(onValueChange.mock.calls[0][0])
@@ -220,9 +219,8 @@ describe('Switch', () => {
     await userEvent.click(control)
     expect(onCheckedChange).toHaveBeenCalledTimes(2)
     expect(control).toHaveAttribute('aria-checked', 'false')
-    // The row is a label at the target minimum; the control's own hit box reaches it too.
-    expect(control.closest('label')).toHaveClass('min-h-target', 'w-full')
-    expect(control).toHaveClass('after:-inset-4')
+    // The row is a label: the whole of it answers a click.
+    expect(control.closest('label')).toHaveClass('w-full')
     expect(await axe(container)).toHaveNoViolations()
   })
 
@@ -281,8 +279,7 @@ describe('RadioGroup', () => {
     expect(onValueChange).toHaveBeenCalledTimes(2)
     expect(short).toBeChecked()
     for (const radio of within(group).getAllByRole('radio')) {
-      expect(radio.closest('label')).toHaveClass('min-h-target', 'w-full')
-      expect(radio).toHaveClass('after:-inset-4')
+      expect(radio.closest('label')).toHaveClass('w-full')
     }
     expect(await axe(container)).toHaveNoViolations()
   })
@@ -348,8 +345,9 @@ describe('InputGroup', () => {
     expect(input).toHaveAccessibleDescription('没有找到')
     expect(input).toHaveAttribute('data-slot', 'input-group-control')
     const group = input.closest('[data-slot="input-group"]')!
-    expect(group).toHaveClass('min-h-target', 'h-auto')
-    expect(fixedBlockSize(group)).toEqual([])
+    // The kit's group (D-43); an invalid control keeps the focus ring while focused.
+    expect(group).toHaveClass('h-8')
+    expect(tokens(group)).toContain('has-[[data-slot=input-group-control][aria-invalid=true]:focus-visible]:ring-ring/50')
     expect(group).toContainElement(screen.getByTestId('icon'))
     // Tab order follows reading order: the control, then the attached button.
     await userEvent.tab()

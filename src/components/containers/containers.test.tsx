@@ -81,7 +81,7 @@ describe('Dialog', () => {
     </App>
   )
 
-  it('opens from our button, named by its title and described by its description; separates by a border, scrolls inside', async () => {
+  it('opens from our button, named by its title and described by its description; drawn as the kit draws it, scrolls inside', async () => {
     render(example)
     const trigger = screen.getByRole('button', { name: '连接日历' })
     expect(trigger).toHaveAttribute('aria-haspopup', 'dialog')
@@ -89,13 +89,14 @@ describe('Dialog', () => {
     await userEvent.click(trigger)
     const dialog = await screen.findByRole('dialog', { name: '连接你的日历' })
     expect(dialog).toHaveAccessibleDescription('原型：模拟授权。')
-    expect(dialog).toHaveClass('border', 'max-h-full', 'overflow-y-auto')
+    expect(dialog).toHaveClass('max-h-full', 'overflow-y-auto')
+    // No border of ours: the kit separates the dialog by its ring, shadow and scrim (D-43).
+    expect(dialog).not.toHaveClass('border')
     expect(within(dialog).getByText('预约和日程都会读取你的日历。')).toBeInTheDocument()
-    // The close control is our button, named in the user's language — not the kit's.
+    // The close control is the kit's own, in the kit's place, named in the user's language.
     const close = within(dialog).getByRole('button', { name: '关闭' })
-    expect(close).toHaveClass('min-h-target', 'min-w-target')
-    expect(dialog.querySelector('.sr-only')).toBeNull()
-    expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['', '稍后再连', '连接'])
+    expect(close).toHaveAttribute('data-slot', 'dialog-close')
+    expect(within(dialog).getAllByRole('button').map((button) => button.textContent)).toEqual(['稍后再连', '连接', '关闭'])
     expect(await axe(document.body)).toHaveNoViolations()
   })
 
@@ -164,10 +165,11 @@ describe('AlertDialog', () => {
     await userEvent.click(trigger)
     const dialog = await screen.findByRole('alertdialog', { name: '要断开日历吗？' })
     expect(dialog).toHaveAccessibleDescription('预约和日程会停止更新。')
-    expect(dialog).toHaveClass('border', 'max-h-full', 'overflow-y-auto')
+    expect(dialog).toHaveClass('max-h-full', 'overflow-y-auto')
+    expect(dialog).not.toHaveClass('border')
     const cancel = within(dialog).getByRole('button', { name: '取消' })
     const confirm = within(dialog).getByRole('button', { name: '断开' })
-    for (const button of [cancel, confirm]) expect(button).toHaveClass('min-h-target', 'min-w-target')
+    for (const button of [cancel, confirm]) expect(button).toHaveClass('min-h-8')
     await waitFor(() => expect(cancel).toHaveFocus())
     expect(await axe(document.body)).toHaveNoViolations()
     await expectFocusContained(dialog, 2)
@@ -211,15 +213,14 @@ describe('Sheet', () => {
   it.each([
     ['end', 'right'],
     ['bottom', 'bottom'],
-  ] as const)('side %s: a named dialog on that edge with our close button; never taller than the window', async (side, kitSide) => {
+  ] as const)('side %s: a named dialog on that edge with the kit’s close button, named; never taller than the window', async (side, kitSide) => {
     render(example(side))
     await userEvent.click(screen.getByRole('button', { name: '运行记录' }))
     const sheet = await screen.findByRole('dialog', { name: '运行记录' })
     expect(sheet).toHaveAttribute('data-side', kitSide)
     expect(sheet).toHaveAccessibleDescription('每运行一次多一行。')
-    expect(sheet).toHaveClass('border', 'max-h-full', 'overflow-y-auto')
-    expect(within(sheet).getByRole('button', { name: '关闭' })).toHaveClass('min-h-target', 'min-w-target')
-    expect(sheet.querySelector('.sr-only')).toBeNull()
+    expect(sheet).toHaveClass('max-h-full', 'overflow-y-auto')
+    expect(within(sheet).getByRole('button', { name: '关闭' })).toHaveAttribute('data-slot', 'sheet-close')
     expect(await axe(document.body)).toHaveNoViolations()
   })
 
@@ -252,7 +253,7 @@ describe('Collapsible (kit)', () => {
       </Collapsible>,
     )
     const trigger = screen.getByRole('button', { name: '3 月 12 日的对话' })
-    expect(trigger).toHaveClass('min-h-target', 'min-w-target')
+    expect(trigger).toHaveAttribute('data-slot', 'collapsible-trigger')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText('三位主人已经同意。')).not.toBeInTheDocument()
     await userEvent.tab()
@@ -293,7 +294,7 @@ describe('Tooltip (kit)', () => {
       </Tooltip>,
     )
     const trigger = screen.getByRole('button', { name: '添加预约' })
-    expect(trigger).toHaveClass('min-h-target', 'min-w-target')
+    expect(trigger).toHaveClass('size-8')
     expect(screen.queryByText('新建一条今天的空白预约')).not.toBeInTheDocument()
     await userEvent.tab()
     expect(trigger).toHaveFocus()

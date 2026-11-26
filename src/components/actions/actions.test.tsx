@@ -32,7 +32,7 @@ describe('Toggle', () => {
     expect(onPressedChange.mock.calls.map(([pressed]) => pressed)).toEqual([true, false, true])
   })
 
-  it.each(toggleVariants)('variant %s: target minimum, wrapping text, and a pressed state that is not a fill alone', (variant) => {
+  it.each(toggleVariants)('variant %s: the kit’s toggle and pressed state; its height is a minimum and a long label wraps', (variant) => {
     render(
       <Toggle variant={variant} defaultPressed>
         置顶
@@ -40,16 +40,12 @@ describe('Toggle', () => {
     )
     const toggle = screen.getByRole('button')
     expect(toggle).toHaveAttribute('aria-pressed', 'true')
-    expect(toggle).toHaveClass('min-h-target', 'min-w-target', 'h-auto', 'whitespace-normal')
-    // The kit's smaller `min-w-8` stays in the class list; `min-w-target` is declared after it in the
-    // stylesheet and wins — the matrix measures the result (actions.md § Pitfalls).
+    expect(toggle).toHaveClass('min-h-8', 'h-auto', 'whitespace-normal')
+    expect(toggle.className).not.toMatch(/-target\b/)
     expect(tokens(toggle).filter((token) => /^h-\d/.test(token) || token === 'whitespace-nowrap')).toEqual([])
-    // Pressed: filled, and a bar drawn as a border, which forced colours keep (D-18).
-    expect(tokens(toggle)).toEqual(
-      expect.arrayContaining(['aria-pressed:bg-primary', 'aria-pressed:text-primary-foreground', 'after:border-b-2', 'aria-pressed:after:block']),
-    )
-    // The kit's pressed fill is replaced, not left to compete.
-    expect(tokens(toggle)).not.toContain('aria-pressed:bg-muted')
+    // Pressed is the kit's own fill (D-43): nothing of ours on top.
+    expect(tokens(toggle)).toContain('aria-pressed:bg-muted')
+    expect(tokens(toggle).filter((token) => token.startsWith('aria-pressed:bg-primary') || token.startsWith('after:'))).toEqual([])
   })
 
   it('disabled: not pressable', async () => {
@@ -106,7 +102,7 @@ describe('ToggleGroup', () => {
     await userEvent.click(screen.getByRole('button', { name: '周' }))
     expect(pressed()).toEqual([])
     expect(onValueChange.mock.calls.map(([value]) => value)).toEqual(['week', null])
-    for (const button of screen.getAllByRole('button')) expect(button).toHaveClass('min-h-target', 'min-w-target', 'shrink')
+    for (const button of screen.getAllByRole('button')) expect(button).toHaveClass('min-h-7', 'data-[size=default]:min-h-8', 'shrink')
     expect(await axe(container)).toHaveNoViolations()
   })
 

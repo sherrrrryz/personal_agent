@@ -51,7 +51,7 @@ export default function DataStateDemo() {
           </div>
         }
         empty={
-          <Empty className="border">
+          <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <CalendarDays aria-hidden="true" />

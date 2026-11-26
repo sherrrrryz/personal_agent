@@ -27,7 +27,7 @@ export function EmptyBlock({ props, changes, state }: BlockComponentProps<'block
       errorTitle={t('empty.error.title')}
       error={t('empty.error.reason')}
     >
-      <Empty data-slot="block-empty" className="border">
+      <Empty data-slot="block-empty">
         <EmptyHeader>
           <EmptyTitle className="wrap-break-word">{props.title}</EmptyTitle>
           <EmptyDescription className="wrap-break-word">{props.body}</EmptyDescription>

@@ -119,7 +119,7 @@ export function BlockRenderer({
         onRetry={onRetry}
         empty={
           empty ?? (
-            <Empty className="border">
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>{t('renderer.empty.title')}</EmptyTitle>
                 <EmptyDescription>{t('renderer.empty.body')}</EmptyDescription>

@@ -93,7 +93,7 @@ describe('DataState', () => {
     const onRetry = vi.fn()
     show({ state: 'error', onRetry })
     const retry = screen.getByRole('button', { name: translate('zh-CN', 'common', 'action.retry') })
-    expect(retry).toHaveClass('min-h-target', 'min-w-target')
+    expect(retry.className).toMatch(/(?:^| )min-h-[78](?: |$)/)
     await userEvent.tab()
     expect(retry).toHaveFocus()
     await userEvent.keyboard('{Enter}')

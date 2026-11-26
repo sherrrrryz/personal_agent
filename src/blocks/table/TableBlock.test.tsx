@@ -57,7 +57,6 @@ describe('block.table', () => {
       const cells = Array.from(row.children)
       cells.forEach((cell, index) => {
         expect(cell.classList.contains('text-end')).toBe(ends[index])
-        expect(cell.classList.contains('min-w-24')).toBe(true)
       })
     }
   })

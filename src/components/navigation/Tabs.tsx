@@ -24,20 +24,17 @@ export type TabsProps<Value extends string = string> = Naming & {
   onValueChange?: (value: Value) => void
 }
 
-// The kit's list is one fixed line of unbreakable tabs. Ours fills its
-// container and lets the tabs run onto further lines.
-const listClass = 'flex w-full flex-wrap justify-start gap-1 group-data-horizontal/tabs:h-auto'
+// The tabs are drawn as stock shadcn/ui draws them (D-43). The one deviation
+// (navigation.md § Deviations from stock): the kit's list is one fixed line,
+// which pushes a narrow page sideways; ours is never wider than its container
+// and lets tabs that do not fit run onto a further line. Tabs that fit are
+// drawn as stock.
+const listClass = 'max-w-full flex-wrap group-data-horizontal/tabs:h-auto'
+const tabClass: string | undefined = undefined
 
-// What `wrapped` adds to a tab: the target minimum, height `auto`, a label that wraps.
-// `flex-auto` replaces the kit's `flex-1`: a tab starts from the width of its label, so
-// tabs that do not fit run onto a further line and then share that line. From a zero
-// basis they all stayed in one row and shrank to the target minimum, their labels
-// stacked letter by letter (320 px at root 24 px, `I3`).
-const tabClass = 'group/tab h-auto min-h-target min-w-target max-w-full flex-auto py-1.5 text-center whitespace-normal wrap-anywhere'
-
-// "Selected" is a fill in the kit. The bar is a border, so the state survives
-// the grey theme and forced colours (D-18).
-const selectedBar = 'absolute inset-x-2 bottom-1 hidden border-b-2 border-current group-data-active/tab:block'
+// The kit removes the outline of the panel, which is a tab stop: without a
+// ring a keyboard user loses the focus there. Invisible until focused.
+const panelClass = `rounded-md ${focusRing}`
 
 /** Views of one thing, one shown at a time. One tab stop; the arrows move between tabs. */
 export function Tabs<Value extends string = string>({ tabs, value, defaultValue, onValueChange, ...naming }: TabsProps<Value>) {
@@ -56,12 +53,11 @@ export function Tabs<Value extends string = string>({ tabs, value, defaultValue,
               </span>
             )}
             {tab.label}
-            <span aria-hidden="true" className={selectedBar} />
           </TabsTrigger>
         ))}
       </TabsList>
       {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value} className={`rounded-md ${focusRing}`}>
+        <TabsContent key={tab.value} value={tab.value} className={panelClass}>
           {tab.content}
         </TabsContent>
       ))}
