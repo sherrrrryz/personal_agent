@@ -317,7 +317,7 @@ done. Reviewers re-run it. Web only; the app column is empty by D-01.
 machine: `npx playwright install chromium`.
 
 ```bash
-npm run matrix -- /dev/components?family=layout   # one screen, the 44 cells
+npm run matrix -- '/dev/components?family=layout' # one screen, the 44 cells (quote a route with ? — the shell globs it)
 npm run matrix -- --all                           # every route in a matrixRoutes export, its scenes and previews
 npm run matrix -- /dev/shell --cells stress       # full (44, default) · stress (4) · smoke (4)
 npm run matrix -- /dev/shell --keyboard --reduced-motion --forced-colors --text-spacing

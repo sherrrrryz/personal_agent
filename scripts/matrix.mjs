@@ -29,7 +29,7 @@ const USAGE = `npm run matrix -- [route…] [--all] [--scene <id>] [--preview <s
                   [--keyboard] [--reduced-motion] [--forced-colors] [--text-spacing]
                   [--out <dir>] [--dry-run] [--self-test]
 
-  route…            paths to check, e.g. /dev/components?family=layout
+  route…            paths to check, e.g. '/dev/components?family=layout' (quote the ?)
   --all             every route a src/screens/<area>/routes.tsx lists in matrixRoutes,
                     with its scenes; with --cells full also its previews
   --scene <id>      adds ?scene=<id>
