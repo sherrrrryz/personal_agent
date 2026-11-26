@@ -118,7 +118,7 @@ const messages: Translation<typeof en> = {
   'avatar.demo.initial2': '陈',
   'avatar.demo.name3': '阿杰',
   'avatar.demo.initial3': '杰',
-  'avatar.demo.more': '还有 2 位美容师',
+  'avatar.demo.group': '周岚、小陈、阿杰，还有 2 位美容师',
 }
 
 export default messages

@@ -121,7 +121,7 @@ const messages = {
   'avatar.demo.initial2': 'C',
   'avatar.demo.name3': 'Ajie',
   'avatar.demo.initial3': 'A',
-  'avatar.demo.more': 'and 2 more groomers',
+  'avatar.demo.group': 'Zhou Lan, Chen, Ajie and 2 more groomers',
 } satisfies Messages
 
 export default messages
