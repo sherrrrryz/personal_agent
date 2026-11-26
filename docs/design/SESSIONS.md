@@ -158,5 +158,26 @@ the review by package or the spec in two.
 
 ## Pitfalls
 
-<Add entries as they are learned: a package that was sized wrong and why, a
-handoff that lost something, a parallel pair that collided.>
+### The lead could no longer start sessions overnight
+
+- **Cause:** in the Claude desktop app, a session may start another session
+  only on the owner's own message, or on a turn triggered by a child session
+  finishing **in an unbroken chain from that message**. Any automated turn in
+  between — a scheduled heartbeat, a cron prompt — breaks the chain, and every
+  later `start_session` is refused until the owner writes again.
+- **Rule:** a lead that must run unattended sets **no** scheduled prompts or
+  heartbeats in its own session. It relies on the child-finished turns only,
+  and tells the owner before they leave that one word from them restarts a
+  stalled chain. Messages to sessions that already exist are not affected.
+- **First seen:** task 1, spec review, 2026-11-26 (D-41 night).
+
+### A child could not write its report to `.orchestration/`
+
+- **Cause:** child sessions run in their own worktree and a hook refuses
+  writes outside it, so the absolute runtime path in "Where sessions work" is
+  read-only for them.
+- **Rule:** a child writes its report, completion note or handoff to
+  `<its worktree>/.orchestration/…` (untracked) and names the path in its
+  final message; the lead copies it to the main checkout's `.orchestration/`.
+  Every brief says so.
+- **First seen:** task 1, spec review, 2026-11-26.
