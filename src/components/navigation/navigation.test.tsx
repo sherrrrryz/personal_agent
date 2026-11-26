@@ -233,7 +233,7 @@ describe('Breadcrumb', () => {
     const links = within(whole).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual(['我的店', '预约与提醒', '美容时长'])
     expect(links[0]).toHaveAttribute('href', '#shop')
-    expect(links[0]).toHaveClass('min-h-target', 'min-w-target')
+    expect(links[0].className).not.toMatch(/-target\b/)
     expect(links[0]).not.toHaveClass('underline')
     expect(links[2]).toHaveAttribute('aria-current', 'page')
     // The whole path shows only with room; the folded one only without (a container query).

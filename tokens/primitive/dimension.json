@@ -2,7 +2,7 @@
   "space": {
     "$type": "dimension",
     "$description": "Steps of Tailwind's shipped spacing scale (0.25rem × n) that a semantic token needs. The rest of the scale is used as shipped until task 2.",
-    "6": { "$value": { "value": 1.5, "unit": "rem" } }
+    "0": { "$value": { "value": 0, "unit": "rem" } }
   },
   "border": {
     "width": {

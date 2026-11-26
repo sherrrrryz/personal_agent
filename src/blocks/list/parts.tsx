@@ -25,7 +25,7 @@ import type { BlockAction, BlockBadge } from '../types'
 // and `block.table` import from this file.
 
 // A link standing in a title or a cell: as high as a target, underlined, in full.
-const linkClass = `inline-flex min-h-target min-w-target items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere ${focusRing}`
+const linkClass = `inline-flex items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere ${focusRing}`
 
 /** A link to another screen of the prototype, from a title or a table cell. */
 export function BlockItemLink({ href, children }: { href: string; children: ReactNode }) {

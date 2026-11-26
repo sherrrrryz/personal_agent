@@ -20,7 +20,7 @@
   --primitive-color-red-600: oklch(0.577 0.245 27.325);
   --primitive-color-blue-700: oklch(0.488 0.243 264.376);
   --primitive-color-system-highlight: Highlight;
-  --primitive-space-6: 1.5rem;
+  --primitive-space-0: 0rem;
   --primitive-border-width-2: 2px;
   --primitive-radius-lg: 0.625rem;
   --primitive-font-stack-sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
@@ -68,7 +68,7 @@
   --radius-step-3xl: calc(var(--primitive-radius-lg) * 2.2);
   --radius-step-4xl: calc(var(--primitive-radius-lg) * 2.6);
   --font-family-sans: var(--primitive-font-stack-sans);
-  --size-target-min: var(--primitive-space-6);
+  --size-target-min: var(--primitive-space-0);
 }
 
 .dark {

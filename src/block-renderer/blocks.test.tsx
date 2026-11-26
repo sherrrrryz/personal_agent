@@ -109,7 +109,10 @@ describe('block.text', () => {
     expect([...block.querySelectorAll(':scope > p')].map((p) => p.textContent)).toEqual(['第一段。', '第二段。', '第三段。'])
     const links = within(screen.getByRole('list', { name: '相关链接' })).getAllByRole('link')
     expect(links.map((link) => link.getAttribute('href'))).toEqual(['/m/duration', 'https://example.com/a'])
-    for (const link of links) expect(link).toHaveClass('min-h-target', 'underline')
+    for (const link of links) {
+      expect(link).toHaveClass('underline')
+      expect(link.className).not.toMatch(/-target\b/)
+    }
     // The marker stands beside the link it names, not inside it.
     expect(within(links[0].closest('li')!).getByText('新')).toBeInTheDocument()
     expect(links[0]).toHaveTextContent(/^品种表$/)

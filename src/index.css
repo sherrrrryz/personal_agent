@@ -61,8 +61,9 @@
 
   /*
    * size.target.min as a sizing step: min-h-target, min-w-target, size-target.
-   * The WCAG 2.2 AA floor (24 CSS px) for a target we build ourselves; stock
-   * kit controls are larger and are not enlarged (D-43).
+   * Withdrawn by D-43 — there is no target-size requirement and the token is
+   * zero. The names stay only so that older code naming them still builds;
+   * they size nothing. Do not use them in new code.
    */
   --spacing-target: var(--size-target-min);
 }

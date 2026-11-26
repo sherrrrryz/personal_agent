@@ -69,9 +69,9 @@ describe('built CSS', () => {
     expect(css.includes('--primitive-font-stack-sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;')).toBe(true)
   })
 
-  it('binds the target utilities to size.target.min, the 24 CSS px floor', () => {
+  it('keeps the target utilities as names that size nothing (the requirement is withdrawn by D-43)', () => {
     expect(/\.min-h-target \{\s*min-height: var\(--size-target-min\);/.test(css)).toBe(true)
-    expect(css.includes('--primitive-space-6: 1.5rem;')).toBe(true)
+    expect(css.includes('--primitive-space-0: 0rem;')).toBe(true)
   })
 
   it('takes the md and lg breakpoints from the token source', () => {

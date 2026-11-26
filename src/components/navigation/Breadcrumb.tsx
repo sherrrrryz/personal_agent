@@ -27,9 +27,8 @@ export type BreadcrumbProps = {
   'aria-label'?: string
 }
 
-// A crumb is drawn as stock (D-43); as a link outside running text it keeps
-// the 24 px target floor of WCAG 2.2 AA — the kit's line is 20 px high.
-const linkClass = 'inline-flex min-h-target min-w-target items-center'
+// A crumb is drawn as stock (D-43).
+const linkClass = 'inline-flex items-center'
 const pageClass: string | undefined = undefined
 
 /**

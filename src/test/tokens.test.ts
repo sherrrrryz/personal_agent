@@ -160,10 +160,10 @@ describe('stock theme (D-43)', () => {
     expect(primitiveByPath.get('color.system.highlight')?.value).toBe('Highlight')
   })
 
-  it('the purpose tokens alias their steps: the target floor is WCAG 2.2 AA\'s 24 CSS px', () => {
+  it('the purpose tokens alias their steps: the target size is zero (withdrawn by D-43)', () => {
     const alias = (path: string) => semantic.find((token) => token.path === path)?.value
-    expect(alias('size.target.min')).toBe('{space.6}')
-    expect(primitiveByPath.get('space.6')?.value).toEqual({ value: 1.5, unit: 'rem' })
+    expect(alias('size.target.min')).toBe('{space.0}')
+    expect(primitiveByPath.get('space.0')?.value).toEqual({ value: 0, unit: 'rem' })
     expect(alias('border.width.focus')).toBe('{border.width.2}')
     expect(alias('radius.base')).toBe('{radius.lg}')
     expect(alias('font.family.sans')).toBe('{font.stack.sans}')

@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { SOURCES } from '../../scripts/build-tokens.mjs'
-import type { Oklch } from './color'
 
 export const REPO_ROOT = join(import.meta.dirname, '..', '..')
 
@@ -63,6 +62,9 @@ export function readTokens(): SourceToken[] {
   ]
 }
 
+/** Lightness, chroma and hue of an OKLCH colour. */
+export type Oklch = readonly [lightness: number, chroma: number, hue: number]
+
 const ALIAS = /^\{([^{}]+)\}$/
 
 /** The path an alias value points at, or `null` for a raw value. */
@@ -84,14 +86,4 @@ export function resolveRawColor(
   if (value?.colorSpace !== 'oklch' || value.components?.length !== 3)
     throw new Error(`${path} (${mode}) does not resolve to an OKLCH primitive`)
   return { oklch: [value.components[0], value.components[1], value.components[2]], alpha: value.alpha ?? 1 }
-}
-
-/**
- * The OKLCH value of a semantic colour (`color.<role>`) in a mode, without its
- * opacity. A translucent role (the stock dark `border` and `input`) is drawn
- * over a surface: composite it with `resolveRawColor(...).alpha` and
- * `compositeOver` before measuring contrast.
- */
-export function resolveColor(path: string, mode: Mode, tokens: SourceToken[] = readTokens()): Oklch {
-  return resolveRawColor(path, mode, tokens).oklch
 }
