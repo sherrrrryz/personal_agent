@@ -52,6 +52,9 @@ The allowed pairings are the table in `TOKENS.md`.
 | Focus is always visible | A visible indicator exists (WCAG 2.4.7, AA); it contrasts ≥ 3:1 (WCAG 1.4.11, AA). **House rule:** at least 2px thick — taken from 2.4.13, which is level AAA | WCAG 2.4.7, 1.4.11 |
 | The focused element is not hidden behind sticky bars or overlays | | WCAG 2.4.11 |
 | Pointer target size | ≥ 24×24 CSS px on web (the WCAG AA floor). **This kit's minimum, from platform guidance rather than WCAG AA: 44×44 pt on iOS, 44×44 CSS px on web where touch is possible, 48×48 dp on Android** | WCAG 2.5.8; Apple HIG; Material |
+
+**Superseded in part by D-43 (2026-11-26):** on the web this project keeps shadcn/ui's stock sizes and colours. The target figure in force is the WCAG AA floor, 24 × 24 CSS px — the row above keeps the kit's 44 px guidance for a future native target. Where the stock theme falls short of a contrast figure of this document (the input and card borders, the focus ring in light mode, muted text on a muted surface, the tinted danger button), **stock wins**: the shortfall is listed in `TOKENS.md` § Contrast pairs and is the owner's to change with a colour, never fixed in a component.
+
 | Any drag has a single-pointer alternative | | WCAG 2.5.7 |
 | Gestures have a simple-tap alternative | | WCAG 2.5.1 |
 | Nothing flashes more than 3 times a second | | WCAG 2.3.1 |
@@ -107,7 +110,7 @@ live in the family files**, beside the registry row of the same component —
 | Name comes from | Content, a visible label, or a prop — never a built-in string: every name is localised (`COMPONENTS.md` § Kit patches) |
 | Keyboard | The keys that operate it, as the kit's primitive defines them |
 | Focus | Where focus goes on open and close, and that the ring is visible |
-| Min target | 44 × 44 CSS px through `size.target.min` for anything interactive |
+| Min target | 24 × 24 CSS px (WCAG 2.2 AA). Kit controls keep their stock size, 28–36 px; a target we build ourselves binds `size.target.min` (**D-43** — 44 px before it) |
 | Announces | State and changes exposed to assistive technology |
 
 ## Verifying

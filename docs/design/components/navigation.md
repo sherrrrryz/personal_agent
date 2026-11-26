@@ -16,6 +16,36 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/navigation/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+The complete list for this family (D-43; `../COMPONENTS.md` § Conventions). Each is invisible at the
+default size unless noted.
+
+| Component | What is added | Why — the matrix cell that fails without it |
+| --- | --- | --- |
+| `SidebarItem`, `SidebarSubItem` | The kit's height as a minimum with height `auto`, and a label that wraps (`whitespace-normal!`, `overflow-visible!`) | Clipped text in 22 cells: the kit cuts a label to one line with nowhere to read the rest |
+| `SidebarFooter` | `gap-0 p-0` | Not a matrix failure: our footer holds `SidebarGroup`s, which bring the kit's padding themselves — the footer's own would double it |
+| `SidebarContent` | Scrolls in the rail too | A short window: the kit stops the rail from scrolling |
+| `Tabs` | The list is never wider than its container and wraps (`max-w-full flex-wrap`, height `auto`); the panel, a tab stop, shows the kit's ring when focused | Sideways scroll at 200% zoom; `focus-not-visible` — the kit removes the panel's outline |
+| `DropdownMenu` | As wide as its items need (`w-auto`, never wider than the room), not as its trigger; the item of the open page is semibold | An icon-button trigger gives the kit's menu its 8rem minimum and wraps every item; visible, and the shape of the kit's own examples (`w-56`) |
+| `Breadcrumb` | A crumb link keeps the 24 px floor (`min-h-target`); the folded page name truncates (`data-matrix-allow="clip"`, unchanged) | `small-target`: the kit's line is 20 px high |
+
+**Removed with D-43:** the 44 px minimum everywhere; the widened rail (`--sidebar-width-icon` is the kit's
+3rem again) and the stacked icon-and-count rail item; the bar marking the current item, sub-item and tab
+(current and selected are the kit's fills; `aria-current` / `aria-selected` are unchanged); our focus ring
+on sidebar items; the gap between menu rows; the border on the inline sidebar and on a menu; the underline
+and medium weight of crumbs. **Changed behaviour to know:** a `SidebarItem`'s `badge` is drawn by the
+kit's `SidebarMenuBadge` and, as in the kit, is **not drawn in the rail**; it stays in the item's accessible
+name in both states.
+
 ## Registry
 
 One row per component. The Component cell is the component's name in

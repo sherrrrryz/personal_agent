@@ -16,6 +16,23 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/feedback/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+None in appearance (D-43; `../COMPONENTS.md` § Conventions). `Sonner` shows toasts with the library's and
+the kit's own styling (`unstyled` and our toast classes are removed). Two behaviour props of ours are kept
+and are visible: `closeButton` (every toast can be dismissed from the keyboard) and `expand` (toasts are
+listed in full, not stacked behind one another) — stock shadcn/ui sets neither; the library's close control
+is 20 px, under the 24 px floor, and is measured only while a toast is open. `Empty` no longer gets a
+border from the compositions that use it.
+
 ## Registry
 
 One row per component. The Component cell is the component's name in

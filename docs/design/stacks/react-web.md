@@ -32,6 +32,8 @@ HOW TO BUILD THIS DOC
    `:focus-visible`, ≥ 3:1 against its surroundings; sticky bars never cover
    the focused element (`scroll-padding`).
 8. **Targets ≥ 24×24 CSS px everywhere; ≥ 44×44 wherever touch is possible.**
+   *(D-43: this project keeps shadcn/ui's stock control sizes, 28–36 px; the
+   asserted floor is 24 × 24.)*
 9. **Logical properties only** (`margin-inline`, `padding-block`,
    `inset-inline-start`), never left/right.
 10. **Motion lives inside `@media (prefers-reduced-motion: no-preference)`** —

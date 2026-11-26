@@ -16,6 +16,29 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/actions/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+The complete list for this family (D-43; `../COMPONENTS.md` § Conventions). Each is invisible when the
+label fits on one line.
+
+| Component | What is added | Why — the matrix cell that fails without it |
+| --- | --- | --- |
+| `Button` (`sm`, `md`) | The kit's height as a minimum (`min-h-7` / `min-h-8`) with height `auto`, `max-w-full`, `shrink`, and a label that wraps (`button-variants.ts`) | Sideways scroll at 320 px: the kit's button is one unbreakable line (gallery, long-label demo, zh-CN and en) |
+| `Toggle`, `ToggleGroupItem` | The same, for a toggle (`toggle-class.ts`) | Sideways scroll at 320 px with root 24 px: one long item is wider than the page |
+| `ToggleGroup` | `max-w-full flex-wrap` on the group | Sideways scroll at 320 px: the kit's group is one row |
+
+Not deviations, and unchanged: `secondary` maps to the kit's `outline` variant (a naming choice between two
+stock looks); `loading` shows the kit's `Spinner`. **Removed with D-43:** the 44 px minimum, the always-on
+underline of `link`, the `primary` fill and bar of a pressed toggle, the ring restated over `danger`.
+
 ## Registry
 
 One row per component. The Component cell is the component's name in
@@ -43,12 +66,14 @@ through `size.target.min` for anything interactive.
 
 ## The focus ring
 
-Every wrapped control of the two families shows the same ring on
-`:focus-visible`: the kit's — `ring` at half opacity, three pixels wide, with a
-border in `ring` (`src/components/actions/focus-ring.ts`). Two kit states
-replace it with a fainter tint (a `destructive` button; an invalid field,
-whose tint outranks `:focus-visible`); the wrappers restate the ring for both,
-so a focused control looks the same in every state. Under forced colours the
+Every control shows the kit's own ring on `:focus-visible` — `ring` at half
+opacity, three pixels wide, with a border in `ring`; a `destructive` button
+shows the kit's `destructive` tint (D-43: nothing is restated). The one
+exception is an invalid field, which keeps the `ring` colour while focused
+(`inputs.md` § Deviations from stock). `focusRing` in
+`src/components/actions/focus-ring.ts` is that same ring as classes, for a
+control we lay out ourselves. The stock ring measures under 3:1 in light mode
+— a recorded gap (`../TOKENS.md` § Contrast pairs). Under forced colours the
 outline rule of `src/index.css` takes over.
 
 ## Pitfalls
@@ -62,15 +87,14 @@ The kit component always prepends the classes of its default variant. A
 `bg-primary`, so it survives the merge and every variant renders filled, with
 no error. `Button.test.tsx` holds each variant to exactly `buttonClass`.
 
-### A kit minimum survives beside `min-w-target` / `min-h-target`
+### A wrap deviation changes the stock height
 
-**Rule:** do not rely on `cn` to drop a kit `min-w-8` or `min-h-16` when adding a `*-target` utility; check which one the stylesheet declares last.
+**Rule:** when a kit control must wrap, keep the kit's height as the minimum (`min-h-7`, `min-h-8`) and add no more vertical padding than fits inside it (`py-1`); check a one-line label against the stock control.
 
-`cn` does not know the `target` step, so both classes stay. Tailwind declares
-numbered steps before named ones, so `min-w-target` wins over `min-w-8`
-(`Toggle`) — and `min-h-target` would also win over the kit's taller
-`min-h-16`, which is why `Textarea` does not add it. The matrix measures the
-result.
+With height `auto` the control is as high as its line plus its padding. The
+kit's `py-2` on a 20 px line gives 36 px where stock is 32 — a visible
+change on every control, which D-43 does not allow. (`min-h-target` is now
+the 24 px floor and no longer a way to size a kit control.)
 
 ### A class name assembled at run time produces no CSS
 

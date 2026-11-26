@@ -65,12 +65,19 @@ later fix that needs a wrapper therefore changes no importer. The rule reads
 static `import` and `export … from`; a dynamic `import()` of a kit file is the
 same defect and is caught at review.
 
-**What `wrapped` means** — always the same thin thing: the wrapper binds
-`size.target.min` as minimum block and inline size with height `auto`
-(utilities `min-h-target`, `min-w-target`), lets text wrap, fills the kit's
-built-in names from the messages (§ Kit patches) and narrows the props.
-Behaviour stays Base UI's. Every interactive kit control is `wrapped`; only
-non-interactive ones are `kit`.
+**What `wrapped` means** — always the same thin thing: the wrapper fills the
+kit's built-in names from the messages (§ Kit patches) and narrows the props.
+**It does not restyle (D-43):** the control is drawn as stock shadcn/ui draws
+it — no forced target size, no restated focus ring, no added border, colour,
+radius or state mark. Behaviour stays Base UI's. Every interactive kit
+control is `wrapped`; only non-interactive ones are `kit`.
+
+**Deviations from stock** are the few classes a wrapper still adds, each
+because a matrix assertion (sideways scroll, clipped text, visible focus)
+fails without it, each invisible at the default size. Every one is listed in
+its family file under § Deviations from stock; adding one needs the failing
+cell named there. Until D-43 a wrapper also bound `size.target.min` (44 px)
+with height `auto` — that is withdrawn.
 
 **One component, one row — checked by `src/test/registry-parity.test.ts`**
 on every `npm test`:

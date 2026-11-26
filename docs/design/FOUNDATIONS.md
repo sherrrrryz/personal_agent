@@ -247,9 +247,9 @@ deliberately not used.
   `src/tokens/generated/breakpoints.ts` (the same two breakpoints as
   constants, read by `src/hooks/use-mobile.ts`). Neither is edited by hand
 - **Not generated until task 2:** Tailwind's shipped spacing, type, blur and
-  motion scales are used through stock utilities (D-05); its colour palette
-  and shadow scale are removed in `src/index.css` (`TOKENS.md` § Placeholder
-  theme)
+  motion scales, its colour palette and its shadow scale are used through
+  stock utilities as shipped (D-05, D-43 — the reset of the palette and the
+  shadow scale is withdrawn)
 - **Check config:** `design-values.config.json` at the repo root lists the UI
   source folders to scan (`include: ["src"]`), the token source and
   generated outputs to exempt (`tokenPaths: ["tokens/", "src/tokens/generated/"]`)
@@ -271,6 +271,12 @@ enabled later, a new decision supersedes D-04 and this section is filled from
   desktop app's browser pane via `.claude/launch.json`, configuration `dev`)
 
 ## Base values
+
+**The look is stock shadcn/ui (D-43).** To change a colour — the only thing
+the owner changes: (1) edit the role's line in `tokens/semantic/color.json`
+(light) and `tokens/semantic/color.dark.json` (dark), adding the value to
+`tokens/primitive/color.json`; (2) run `npm run tokens:build`; (3) list the
+role in `TOKENS.md` § Changed from stock and run `npm test`.
 
 **shadcn/ui's defaults are the base values (D-05).** Task 2 expands them into
 the three tiers and invents nothing; a new primitive enters only through
@@ -337,9 +343,13 @@ route never passes; `--allow-not-found` is for checking that screen itself.
   on `html`, so `rem` media and container queries move with it; every run
   measures that first and writes the proof into its report.
 - **Asserted in every cell:** no sideways page scroll; no clipped text; every
-  target ≥ 44 × 44 CSS px, measured as the box that answers a click (a link
-  inside running text is exempt); a full-page screenshot. `axe` with zero
-  violations in four cells: 320 and 1440 at 100%, light zh-CN and dark en.
+  target ≥ 24 × 24 CSS px (WCAG 2.2 AA; 44 until D-43 — stock kit controls
+  are 28–36 px), measured as the box that answers a click (a link inside
+  running text is exempt); a full-page screenshot. `axe` with zero
+  violations in four cells: 320 and 1440 at 100%, light zh-CN and dark en —
+  except `color-contrast`, which is reported as a waiver, not a failure: the
+  stock theme is kept where it falls short (D-43; `TOKENS.md` § Contrast
+  pairs).
 - **Passes, at 320 and 1440, light zh-CN:** `--keyboard` (every focusable
   reached, focus visible, no trap), `--reduced-motion` (nothing animates for
   a non-zero time at load, after opening each overlay, or as focus moves),

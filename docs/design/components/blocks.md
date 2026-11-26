@@ -16,6 +16,10 @@ HOW TO BUILD THIS FILE
 
 Code: `src/block-renderer/` and `src/blocks/<name>/`.
 
+> **D-43 (2026-11-26).** The kit controls inside these components are drawn as stock shadcn/ui draws
+> them: no 44 px minimum, no border added to the kit's `Empty`, `Card` or `Badge`. Where a note below says
+> otherwise it is superseded. Our own links keep the 24 px floor (`min-h-target`).
+
 ## Registry
 
 One row per component. The Component cell is the id of a block (`` `block.<name>` ``) or the component's name in

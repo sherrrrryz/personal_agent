@@ -28,7 +28,7 @@ Load only the row for the task at hand. Every row also assumes this file.
 | If the task is… | Playbook | Read first | Load skills |
 | --- | --- | --- | --- |
 | 0 · Collect inputs, choose platform and UI kit | `docs/design/tasks/0-foundations.md` | `WORKFLOW.md`, `FOUNDATIONS.md`, `HITL.md`, `DECISIONS.md`, `TOKENS.md` § One source, ~~`FIGMA-SYNC.md` § Before the first mirror~~ (D-04), the stack doc | — |
-| 1 · Low-fi prototype from the IA map | `tasks/1-lofi-prototype.md` | `FOUNDATIONS.md`, `COMPONENTS.md`, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `TOKENS.md` § Placeholder theme, `GOVERNANCE.md`, the stack doc | `/responsive` `/accessibility` `/design-tokens` |
+| 1 · Low-fi prototype from the IA map | `tasks/1-lofi-prototype.md` | `FOUNDATIONS.md`, `COMPONENTS.md`, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `TOKENS.md` § Placeholder theme (superseded by D-43: the stock theme), `GOVERNANCE.md`, the stack doc | `/responsive` `/accessibility` `/design-tokens` |
 | 2 · Expand base values into tokens | `tasks/2-design-tokens.md` | `FOUNDATIONS.md` § Base values, `TOKENS.md`, `GOVERNANCE.md`, `ACCESSIBILITY.md` § Contrast, `RESPONSIVE.md` § Unit policy, the stack doc § Tokens | `/design-tokens` `/accessibility` |
 | 3 · Apply tokens to components | `tasks/3-apply-tokens.md` | `FOUNDATIONS.md` § Verification matrix, `COMPONENTS.md`, `TOKENS.md`, `RESPONSIVE.md` § Unit policy, `ACCESSIBILITY.md`, `GOVERNANCE.md`, the stack doc | `/design-tokens` `/responsive` `/accessibility` |
 | ~~4 · Mirror an owner-approved stage in Figma~~ — **not in use in this project (D-04)** | ~~`tasks/4-figma-mirror.md`~~ | — | — (never load `/figma-mirror`) |
@@ -90,8 +90,14 @@ Reviewers check every kit control in use for clipped text at 200% zoom.
     and state on every interactive element; full keyboard operation; visible
     focus. Plus the platform target sizes: 44 pt on iOS, 48 dp on Android,
     44 CSS px on web where touch is possible (never under WCAG's 24 CSS px).
+    **Superseded on the web by D-43:** kit controls keep their stock size
+    (28–36 px); the floor that is asserted is WCAG's 24 CSS px. Where the
+    stock theme falls short of a contrast figure, stock wins and the gap is
+    recorded in `TOKENS.md` § Contrast pairs.
 13. Colour is never the only carrier of meaning. Reduced motion is honoured.
-14. Restyling never removes behaviour the kit provides.
+14. Restyling never removes behaviour the kit provides. **D-43: kit controls
+    are not restyled at all** — every component is drawn as stock shadcn/ui
+    draws it; the owner changes a few colours in `tokens/`, nothing else.
 
 **Figma — **not in use in this project (D-04)**; rules 15–16 bind only if Figma is enabled by a decision superseding D-04**
 
