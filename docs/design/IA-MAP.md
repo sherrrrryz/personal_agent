@@ -115,7 +115,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `work.projects.<project>.pm.chats` | Chats | `…pm` | conversation list | Filtered view, as above |
 | `work.topics` | Topics | `work` | module index | Same mechanism as `life.topics`, work-side |
 | `work.topics.<topic>` | One topic | `work.topics` | topic home | Dynamic node |
-| `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; routes each input to the main thread or to a new dedicated chat; carries the **one-off / persistent** switch for the current conversation (D-08) |
+| `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; from each input it either answers **in place** — a panel expanding above the bar, in the current screen's context, filed into Topics afterwards (D-23) — or opens a dedicated chat; carries the **one-off / persistent** switch for the current conversation (D-08) |
 | `chat.thread` | Dedicated chat | `chat.bar` | chat window | Opened by the bar for a topic that needs its own thread; filed into Topics afterwards; can be switched to *persistent* at any time, which creates `<module>.sub.<name>` under the module it concerns |
 | `chat.recent` | Recent conversations | `root` | global element | Left sidebar, expandable, listing the user's recent conversations in the **current layer only**; its contents switch with the layer (D-15). Collapsed by default: proposed, `G-0` |
 | `settings` | Settings | `root` | settings home | |

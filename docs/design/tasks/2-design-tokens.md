@@ -53,7 +53,7 @@ is derived from the base values by a written rule.
 - Units follow the unit policy in `RESPONSIVE.md` — sizes that must scale
   with the user's text setting are stored in scalable units for the web
   output and as scalable numbers for React Native.
-- Token names are identical in the source, the generated code and the Figma
+- Token names are identical in the source, the generated code and the Figma (Figma: not in use in this project, D-04)
   code syntax.
 
 ## Suggested work packages
