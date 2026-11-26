@@ -34,10 +34,11 @@ const USAGE = `npm run matrix -- [route…] [--all] [--scene <id>] [--preview <s
                     with its scenes; with --cells full also its previews
   --scene <id>      adds ?scene=<id>
   --preview <state> adds ?preview=<state>
-  --cells           full (44 cells, the default) · stress (4) · smoke (4)
+  --cells           full (8 cells, the default) · stress (2) · smoke (4) — desktop
+                    widths only, 1024 and 1440 (D-44)
   --flows [name]    runs e2e/flows/<name>.spec.ts, or every flow
   --keyboard, --reduced-motion, --forced-colors, --text-spacing
-                    the optional passes, at 320 and 1440, light zh-CN
+                    the optional passes, at 1024 and 1440, light zh-CN
   --allow-not-found a route that opens the app's not-found screen is checked, not failed
   --out <dir>       where to write, instead of .matrix/<run>/
   --dry-run         write the plan and stop
@@ -230,7 +231,7 @@ function plan(options, discovered) {
     const scenes = options.scene ? [options.scene] : route.scenes.length > 0 ? route.scenes : [null]
     for (const scene of scenes) addScreen(route.path, scene, options.preview)
     // The route's own previews join the full matrix only: three states at
-    // 320 and 1440 light zh-CN, long content on the stress cells. They run in
+    // 1024 and 1440 light zh-CN, long content on the stress cells. They run in
     // the first scene the route lists (or `--scene`): a screen that exists
     // only after onboarding has nothing to preview without one.
     if (options.cells !== 'full' || options.preview) continue

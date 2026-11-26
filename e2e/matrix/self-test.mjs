@@ -1,6 +1,6 @@
 // npm run matrix -- --self-test — proves the harness on its own fixture
 // pages (docs/specs/lofi-prototype-system.md § Matrix harness, A-11):
-//   1. the passing page: 44 cells and every pass, zero failures, exit 0
+//   1. the passing page: 8 cells and every pass, zero failures, exit 0
 //   2. the failing page: non-zero exit, the two defects named in every cell
 //   3. the page with defects only the passes see: each pass finds its own
 //   4. --all reads matrixRoutes from a route registry and plans from it
@@ -45,7 +45,7 @@ export async function selfTest({ root, script, out }) {
   }
 
   // 1 — the passing page
-  const pass = await step('the passing page, 44 cells and every pass', 'pass', [
+  const pass = await step('the passing page, 8 cells and every pass', 'pass', [
     `${FIXTURES}/pass.html`,
     '--keyboard',
     '--reduced-motion',
@@ -55,14 +55,18 @@ export async function selfTest({ root, script, out }) {
   const passTests = pass.report?.tests ?? []
   const cells = passTests.filter((test) => !test.pass)
   check('exit 0', pass.code === 0, `exit ${pass.code}`)
-  check('44 cells', cells.length === 44 && new Set(cells.map((test) => test.cell)).size === 44, `${cells.length} cells`)
+  check(
+    '8 cells, desktop widths only',
+    cells.length === 8 && new Set(cells.map((test) => test.cell)).size === 8 && cells.every((test) => /^w(1024|1440)-100-/.test(test.cell)),
+    `${cells.length} cells`,
+  )
   check('axe ran in four cells', cells.filter((test) => test.axe).length === 4, `${cells.filter((test) => test.axe).length}`)
   check(
-    'four passes at 320 and 1440',
+    'four passes at 1024 and 1440',
     sameSet(
       passTests.filter((test) => test.pass).map((test) => `${test.pass}@${test.cell}`),
       ['keyboard', 'reduced-motion', 'forced-colors', 'text-spacing'].flatMap((name) => [
-        `${name}@w320-100-light-zh-CN`,
+        `${name}@w1024-100-light-zh-CN`,
         `${name}@w1440-100-light-zh-CN`,
       ]),
     ),
@@ -99,8 +103,8 @@ export async function selfTest({ root, script, out }) {
   const two = ['clipped-text', 'sideways-scroll']
   check('non-zero exit', fail.code === 1, `exit ${fail.code}`)
   check(
-    'every one of the 44 cells names exactly the two defects',
-    failTests.length === 44 && failTests.every((test) => sameSet(test.failures.map((failure) => failure.kind), two)),
+    'every one of the 8 cells names exactly the two defects',
+    failTests.length === 8 && failTests.every((test) => sameSet(test.failures.map((failure) => failure.kind), two)),
     `kinds found: ${JSON.stringify(fail.report?.summary?.failureKinds)}`,
   )
   check(
@@ -143,14 +147,15 @@ export async function selfTest({ root, script, out }) {
   const count = (filter) => planned.filter(filter).length
   check('exit 0', all.code === 0, `exit ${all.code}`)
   check(
-    'two scenes × 44 cells, one preview at 320 and 1440, long content on the stress cells, previews in the first scene, a route without scenes once',
-    planned.length === 138 &&
-      count((test) => test.scene === 'e1' && !test.preview) === 44 &&
-      count((test) => test.scene === 's3' && !test.preview) === 44 &&
+    'two scenes × 8 cells, one preview at 1024 and 1440, long content on the two stress cells, previews in the first scene, a route without scenes once',
+    planned.length === 28 &&
+      count((test) => test.scene === 'e1' && !test.preview) === 8 &&
+      count((test) => test.scene === 's3' && !test.preview) === 8 &&
       count((test) => test.preview === 'empty') === 2 &&
-      count((test) => test.preview === 'long') === 4 &&
+      count((test) => test.preview === 'long') === 2 &&
       count((test) => test.preview && test.scene !== 'e1') === 0 &&
-      count((test) => test.route.endsWith('blank.html')) === 44 &&
+      count((test) => test.route.endsWith('blank.html')) === 8 &&
+      planned.every((test) => test.cell.width >= 1024 && test.cell.text === '100') &&
       planned.some((test) => test.url === `${FIXTURES}/pass.html?scene=s3`) &&
       planned.some((test) => test.url === `${FIXTURES}/pass.html?scene=e1&preview=long`),
     `${planned.length} cell runs planned`,

@@ -13,6 +13,12 @@ HOW TO BUILD THIS DOC
   standard is revised.
 -->
 
+> **Narrowed by D-44 (2026-11-26):** this project is accepted on desktop
+> only — widths of 1024 CSS px and up, at the default text size. The rules
+> below stay as written and existing responsive code stays; nothing here is
+> checked under 1024 px, at root 24 px, for compact navigation or for touch,
+> and a failure found only there is listed, not fixed.
+
 Two things vary independently and both must be handled: **the space
 available** (viewport, container, orientation, safe areas) and **the size of
 text** (browser zoom, root font size, system font scale). A layout that
@@ -153,7 +159,8 @@ contrast where the platform exposes it, and text size.
 
 Run the verification matrix in `FOUNDATIONS.md`. At each cell: no sideways
 scroll, no clipped or overlapping text, no unreachable control, hierarchy
-intact. (Target size is not checked — withdrawn by D-43.)
+intact. (Target size is not checked — withdrawn by D-43. **Narrowed by
+D-44:** the cells are desktop only, 1024 and 1440 CSS px.)
 
 ## Pitfalls
 

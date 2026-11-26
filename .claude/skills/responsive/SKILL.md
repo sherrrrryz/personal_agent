@@ -11,6 +11,14 @@ Matrix: `docs/design/FOUNDATIONS.md` § Verification matrix.
 
 Two axes, always both: **space available** and **text size**.
 
+> **Narrowed by D-44 in this project:** acceptance is on desktop only —
+> widths of 1024 CSS px and up, default text size (the matrix cells are 1024
+> and 1440). Keep writing layouts the way the rules below say and leave
+> existing responsive code in place, but do not build, check or fix for
+> widths under 1024 px, root 24 px, compact navigation or touch: a failure
+> found only there is listed, not fixed. In the checklist, "narrowest width"
+> reads 1024 px and "largest text size" reads the default.
+
 ## While building
 
 1. Start from the narrowest width at the largest text size. Add room upward.
@@ -41,7 +49,7 @@ Run every matrix cell the change touches and look at each one:
 - [ ] Longest realistic strings and a 30–40% longer translation
 - [ ] Empty, loading, error and very long content
 - [ ] Both orientations (app), resized window (tablet / desktop)
-- [ ] Targets still at minimum size
+- [ ] ~~Targets still at minimum size~~ — withdrawn by D-43
 - [ ] RTL, if the product requires it
 - [ ] `check:design-values` reports zero (it does not see everything — look
       for raw values in inline styles, utilities and SVG yourself)

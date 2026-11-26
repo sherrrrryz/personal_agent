@@ -8,13 +8,32 @@ people who write flows or change the harness.
 | File | What it holds |
 | --- | --- |
 | `scripts/matrix.mjs` | The command: arguments → plan, this run's own dev server, Playwright, `report.json`, `index.html`, exit code |
-| `cells.mjs` | The matrix as data: the 44 cells, the stress, smoke and base sets, where `axe` runs |
+| `cells.mjs` | The matrix as data: the 8 cells, the stress, smoke and base sets, where `axe` runs |
 | `harness.ts` | `openCell`, `checkCell`, the four passes — imported by the specs here and by `e2e/flows/` |
 | `in-page.js` | The assertions that run inside the page (`window.__matrix`), injected as an init script |
 | `matrix.spec.ts`, `environment.spec.ts` | One test per planned cell run; the environment proof that starts every run |
 | `report.mjs`, `self-test.mjs` | The `index.html` writer; `npm run matrix -- --self-test` |
 | `fixtures/` | Self-test pages, outside `src/` on purpose: `pass.html`, `fail.html` (three defects), `passes-fail.html` (defects only the passes see), `not-found.html` (the not-found marker), `blank.html`, `screens/sample/routes.tsx` |
 | `tsconfig.json` | type-checks `e2e/matrix/` and `playwright.config.ts`; referenced by the root `tsconfig.json`, so `tsc -b` and `npm run verify` cover it |
+
+## The cell sets — desktop only (D-44)
+
+Acceptance is at widths of 1024 CSS px and up, so every set holds desktop
+cells only: default text size, no 320 or 768 width, no root 24 px, no 200%
+zoom (at 1024 or 1440 it lays the page out in 512 or 720 CSS px, under the
+accepted range).
+
+| Set | Cells |
+| --- | --- |
+| `--cells full` (the default) | 8 — 1024 and 1440 × light / dark × zh-CN / en |
+| `--cells smoke` | 4 — 1024 light zh-CN, 1024 dark en, 1440 light zh-CN, 1440 dark en |
+| `--cells stress` | 2 — 1024 light zh-CN, 1024 dark en; a route's `long` preview runs here |
+| base | 2 — 1024 and 1440, light zh-CN; the four passes and the other previews run here |
+
+`axe` runs in the four smoke cells. `makeCell` and `openCell` still open 320,
+768, `zoom200` and `root24` for a flow that asks, and the environment proof
+that starts every run still measures them; no set plans one. Responsive code
+in the components is unchanged.
 
 ## Writing a flow
 
@@ -29,7 +48,7 @@ import { keyboardPass, openCell } from '../matrix/harness.ts'
 
 test('the panel opens and focus stays visible', async ({ browser }) => {
   // { width, text?: '100' | 'zoom200' | 'root24', theme?, locale? } — light zh-CN at 100% by default
-  const { context, page } = await openCell(browser, { width: 320, text: 'root24' }, '/dev/shell')
+  const { context, page } = await openCell(browser, { width: 1440 }, '/dev/shell')
   await page.getByRole('button', { name: '…' }).click()
   expect((await keyboardPass(page)).failures).toEqual([])
   await context.close()
@@ -56,7 +75,7 @@ through the dev server, must export
 `matrixRoutes: { path: string; scenes?: string[]; previews?: string[] }[]`
 (a bare path string is accepted). Each route runs in each of its scenes, or
 once without `?scene=` when it lists none. With `--cells full` each preview is
-added: `long` on the four stress cells, any other state at 320 and 1440 light
+added: `long` on the two stress cells, any other state at 1024 and 1440 light
 zh-CN. A preview runs in the **first** scene the route lists (or the one of
 `--scene`), and without `?scene=` only when the route lists none — so list
 first the scene in which the screen has its usual content. A `routes.tsx` without the export stops the run with its name, and so

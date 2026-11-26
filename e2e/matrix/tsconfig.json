@@ -19,5 +19,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["*.ts", "cells.mjs", "../../playwright.config.ts"]
+  "include": ["*.ts", "cells.mjs", "../flows/*.ts", "../../playwright.config.ts"]
 }

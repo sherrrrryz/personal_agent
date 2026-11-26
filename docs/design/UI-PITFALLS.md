@@ -45,7 +45,7 @@ platform/version it was observed.>
 | A sidebar group is opened and nothing seems to happen | [§2](#2-layout-and-reflow) |
 | `npm run matrix -- '/chat/conv-1'` reports `route-not-found` for a route that is registered | [§8](#8-tooling-and-the-shell) |
 | A flow's Tab walk begins in the middle of the page | [§8](#8-tooling-and-the-shell) |
-| A flow with a type error passes `npm run verify` | [§8](#8-tooling-and-the-shell) |
+| The page in `npm run dev` reloads by itself while nobody edits it | [§8](#8-tooling-and-the-shell) |
 
 ## 1. Text scaling
 
@@ -165,14 +165,16 @@ sequential focus navigation where they were; `blur()` does not move it back.
 A walk that follows a click then begins after the clicked control and never
 sees what comes before it — it reads as "Tab never reaches `main`".
 
-### A flow with a type error passes `npm run verify`
+### The page in `npm run dev` reloads by itself while nobody edits it
 
-**Rule:** until `e2e/matrix/tsconfig.json` (a frozen file) includes `../flows/*.ts`, type-check a new flow by hand: a temporary `tsconfig` beside it that extends `../matrix/tsconfig.json` and includes `*.ts`, then `npx tsc --noEmit -p` it.
+**Rule:** keep `.claude/**`, `.matrix/**` and `.orchestration/**` in `server.watch.ignored` of `vite.config.ts`, anchored at the checkout's own directory.
 
-`tsc -b` covers `e2e/matrix/` and `playwright.config.ts`; `e2e/flows/` is in
-no `include`. Playwright strips types without checking them, so a flow runs
-and passes with an error the compiler would have named. Found in task 1, S12;
-the include is the integration leg's to add.
+Vite watches the whole project root. Other sessions' worktrees live under
+`.claude/worktrees/`, matrix runs write `.matrix/`, notes go to
+`.orchestration/` — every file written there reloaded the page open in the
+main checkout, which reads like a crash or a lost state. The patterns are
+absolute, not `**/.claude/**`: a worktree's own path contains `.claude/`, and
+the loose form would stop it watching itself. Found in task 1, wave 5.
 
 ## Categories worth checking early
 

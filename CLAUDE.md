@@ -85,7 +85,11 @@ Reviewers check every kit control in use for clipped text at 200% zoom.
 
 11. Works across the whole verification matrix: every width, largest text
     size, every mode. No sideways page scroll, no clipped text, nothing lost
-    at small sizes.
+    at small sizes. **Narrowed by D-44:** the matrix is desktop only — widths
+    of 1024 CSS px and up, default text size, light and dark, both locales.
+    Narrower widths, root 24 px, compact navigation and touch are not
+    accepted against; existing responsive code stays, and a failure only
+    under 1024 px is listed, not fixed.
 12. WCAG 2.2 AA: ~~text contrast 4.5:1 (large 3:1), non-text 3:1;~~ name, role
     and state on every interactive element; full keyboard operation; visible
     focus. ~~Plus the platform target sizes: 44 pt on iOS, 48 dp on Android,
@@ -154,6 +158,6 @@ npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (St
 npm run check:design-values  # node scripts/check-design-values.mjs — no raw visual values under src/
 npm run check:docs           # node scripts/check-docs.mjs — docs index and status headers
 npm run verify               # both checks + lint + build
-npm run matrix -- <route…>   # node scripts/matrix.mjs — the verification matrix (Playwright): 44 cells per screen; --all, --cells, --flows, the four passes; --self-test
+npm run matrix -- <route…>   # node scripts/matrix.mjs — the verification matrix (Playwright): 8 desktop cells per screen (narrowed by D-44; was 44); --all, --cells, --flows, the four passes; --self-test
 npm test                     # vitest run — component, token and registry-parity tests; also the last step of verify
 ```

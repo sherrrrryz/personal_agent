@@ -313,6 +313,18 @@ re-read them from the installed version in task 2.
 Every screen and component is checked at every required cell before a task is
 done. Reviewers re-run it. Web only; the app column is empty by D-01.
 
+> **Narrowed by D-44 (2026-11-26) — desktop only, and a light done-check.**
+> Acceptance is at widths of **1024 CSS px and up**: the cells are 1024 and
+> 1440 at the default text size × light / dark × zh-CN / en — **8 per
+> screen** (`--cells full`), 4 in `smoke`, 2 in `stress`; the passes and the
+> forced previews run at 1024 and 1440, light zh-CN; `axe` in the four smoke
+> cells. The 320 and 768 widths, 200% zoom, root 24 px and touch in the
+> table and the list below are **not checked**; a failure only under 1024 px
+> is listed, not fixed. Per package of task 1: `npm run verify`, one
+> `--cells smoke` run per route registered or changed, the package's own
+> flows once, one or two screenshots per screen; the full matrix and the
+> four passes run once for the whole prototype (package `C7`).
+
 | Axis | Web (D-34) | App |
 | --- | --- | --- |
 | Width | 320 · 768 · 1024 · 1440 CSS px | n/a |
@@ -327,9 +339,9 @@ done. Reviewers re-run it. Web only; the app column is empty by D-01.
 machine: `npx playwright install chromium`.
 
 ```bash
-npm run matrix -- '/dev/components?family=layout' # one screen, the 44 cells (quote a route with ? — the shell globs it)
+npm run matrix -- '/dev/components?family=layout' # one screen, the 8 cells (quote a route with ? — the shell globs it)
 npm run matrix -- --all                           # every route in a matrixRoutes export, its scenes and previews
-npm run matrix -- /dev/shell --cells stress       # full (44, default) · stress (4) · smoke (4)
+npm run matrix -- /dev/shell --cells stress       # full (8, default) · stress (2) · smoke (4)
 npm run matrix -- /dev/shell --keyboard --reduced-motion --forced-colors --text-spacing
 npm run matrix -- --flows panel-open              # e2e/flows/<name>.spec.ts; no name = every flow
 npm run matrix -- --self-test                     # the harness proved on its own fixture pages
@@ -340,7 +352,7 @@ Also `--scene <id>` and `--preview <state>` (sent as `?scene=&preview=`),
 the app's not-found screen fails every cell (`route-not-found`) — a misspelt
 route never passes; `--allow-not-found` is for checking that screen itself.
 
-- **Cells — 44 per screen:** 100% at 320 · 768 · 1024 · 1440; 200% zoom at
+- **Cells — 44 per screen until D-44 (now 8, see the note above):** 100% at 320 · 768 · 1024 · 1440; 200% zoom at
   768 · 1024 · 1440, run as 384 · 512 · 720 CSS px viewports at a device
   pixel ratio of 2; root 24 px at all four widths; each × light/dark ×
   zh-CN/en. Root 24 px is the **browser's default font size**, never a style
@@ -351,7 +363,7 @@ route never passes; `--allow-not-found` is for checking that screen itself.
   1440 at 100%, light zh-CN and dark en. **Withdrawn by D-43:** the
   target-size assertion (no target is measured) and the contrast assertion
   (`axe` runs without its `color-contrast` rule).
-- **Passes, at 320 and 1440, light zh-CN:** `--keyboard` (every focusable
+- **Passes, at 1024 and 1440, light zh-CN (D-44; was 320 and 1440):** `--keyboard` (every focusable
   reached, focus visible, no trap), `--reduced-motion` (nothing animates for
   a non-zero time at load, after opening each overlay, or as focus moves),
   `--forced-colors` (focus still visible; the screenshot is for a person to

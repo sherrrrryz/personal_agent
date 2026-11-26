@@ -1,7 +1,7 @@
 # Components — layout primitives
 
 > Status: evergreen — the registry rows and the accessibility contract of
-> the only places page padding, gaps and breakpoints are decided. Contract every component meets, conventions and the
+> the places page padding, gaps and breakpoints are decided (`ModuleFrame` restates `Page`'s padding — `module.md`). Contract every component meets, conventions and the
 > index of families: `../COMPONENTS.md`.
 
 <!--
@@ -27,7 +27,7 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 | Component | Source | Variants | Status | Notes |
 | --- | --- | --- | --- | --- |
-| `Page` | `new` | `width: prose · wide · full` (default `wide`); slots `title` (the one `h1`), `description`, `actions` | `lofi` | The content of `main`. The only place page padding is set; it steps up at the `md` and `lg` breakpoint tokens — with the shell, the only reader of the viewport. `prose` is a reading measure, `wide` the default for lists and grids, `full` for the canvas and schedules |
+| `Page` | `new` | `width: prose · wide · full` (default `wide`); slots `title` (the one `h1`), `description`, `actions` | `lofi` | The content of `main`. Where page padding is set for every screen that is not a module's; it steps up at the `md` and `lg` breakpoint tokens — with the shell, a reader of the viewport. `ModuleFrame` (`module.md`) does not sit inside `Page` and restates the same padding and steps for a module's screens: change the two together. `prose` is a reading measure, `wide` the default for lists and grids, `full` for the canvas and schedules |
 | `Stack` | `new` | `gap` (below; default `md`); `align: stretch · start · center · end`; `as: div · ul · ol · header · footer · article · aside · form` | `lofi` | Children one under the other, one gap between them |
 | `Inline` | `new` | `gap` (default `sm`); `align: start · center · end · baseline · stretch`; `justify: start · center · end · between`; `as: div · ul · ol · header · footer · span` | `lofi` | A cluster that wraps onto new lines when room runs out; the gap applies in both directions |
 | `Grid` | `new` | `min: 3xs · xs · sm · lg` (default `xs`); `gap` (default `md`); sub-part `GridItem` with `span: auto · full` | `lofi` | Equal columns by **container query**: one column when narrow, one more at each container step where another item of about `min` width fits (16 · 20 · 24 · 32rem, Tailwind's shipped container steps; the gap comes out of the items). Never reads the viewport |

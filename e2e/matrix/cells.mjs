@@ -3,13 +3,20 @@
 // Shared by scripts/matrix.mjs (the plan) and the Playwright specs (the run).
 // Plain JavaScript so both can import it without a build step.
 
-/** The four widths of the matrix, in CSS px at 100% zoom, with a viewport height each. */
+/**
+ * The widths a cell can be opened at, in CSS px at 100% zoom, with a viewport
+ * height each. Only the desktop widths are cells of the matrix (D-44); 320 and
+ * 768 stay so that a flow or the environment proof can still open one.
+ */
 export const WIDTHS = [
   { width: 320, height: 640 },
   { width: 768, height: 1024 },
   { width: 1024, height: 768 },
   { width: 1440, height: 900 },
 ]
+
+/** The widths of the matrix: desktop only — acceptance is at 1024 CSS px and up (D-44). */
+export const MATRIX_WIDTHS = [1024, 1440]
 
 /** The size a real user's "very large" text setting gives the root, in px. */
 export const ROOT_LARGE = 24
@@ -35,7 +42,7 @@ export const LOCALES = ['zh-CN', 'en']
 /** @returns {Cell} */
 export function makeCell(width, text, theme, locale) {
   const size = WIDTHS.find((entry) => entry.width === width)
-  if (!size) throw new Error(`${width} is not a matrix width (320, 768, 1024 or 1440)`)
+  if (!size) throw new Error(`${width} is not a width a cell can be opened at (320, 768, 1024 or 1440)`)
   // 200% browser zoom halves the CSS px a window offers and doubles the
   // device px each one takes: the same thing as a half-size viewport at
   // a device scale factor of 2.
@@ -55,47 +62,40 @@ export function makeCell(width, text, theme, locale) {
 }
 
 /**
- * The 44 cells of one screen: 100% at four widths, 200% zoom at 768 · 1024 ·
- * 1440, root 24 px at four widths; each × light/dark × zh-CN/en. 320 at 200%
- * is not a cell (under the WCAG 1.4.10 floor).
+ * The 8 cells of one screen (D-44, desktop only): 1024 and 1440 at the default
+ * text size, each × light/dark × zh-CN/en. The 320 and 768 widths, root 24 px
+ * and 200% zoom (which lays a desktop window out in 512 or 720 CSS px) are no
+ * longer cells; `makeCell` still builds them for a flow that asks.
  * @returns {Cell[]}
  */
 export function fullCells() {
   const cells = []
-  for (const text of ['100', 'zoom200', 'root24']) {
-    for (const { width } of WIDTHS) {
-      if (text === 'zoom200' && width === 320) continue
-      for (const theme of THEMES) {
-        for (const locale of LOCALES) cells.push(makeCell(width, text, theme, locale))
-      }
+  for (const width of MATRIX_WIDTHS) {
+    for (const theme of THEMES) {
+      for (const locale of LOCALES) cells.push(makeCell(width, '100', theme, locale))
     }
   }
   return cells
 }
 
-/** The four hardest text cases (spec § Matrix harness, `--cells stress`). */
+/** Where long content is hardest on a desktop: the narrower width, each theme once, each locale once (`--cells stress`). */
 export function stressCells() {
-  return [
-    makeCell(320, 'root24', 'dark', 'en'),
-    makeCell(320, 'root24', 'light', 'zh-CN'),
-    makeCell(768, 'zoom200', 'light', 'en'),
-    makeCell(1440, 'zoom200', 'dark', 'zh-CN'),
-  ]
+  return [makeCell(1024, '100', 'light', 'zh-CN'), makeCell(1024, '100', 'dark', 'en')]
 }
 
-/** A quick look: the two end widths at 100%, each theme once, each locale once. */
+/** A quick look: both widths, each theme once, each locale once. */
 export function smokeCells() {
   return [
-    makeCell(320, '100', 'light', 'zh-CN'),
-    makeCell(320, '100', 'dark', 'en'),
+    makeCell(1024, '100', 'light', 'zh-CN'),
+    makeCell(1024, '100', 'dark', 'en'),
     makeCell(1440, '100', 'light', 'zh-CN'),
     makeCell(1440, '100', 'dark', 'en'),
   ]
 }
 
-/** The two cells every pass and every forced preview runs in: 320 and 1440, light zh-CN. */
+/** The two cells every pass and every forced preview runs in: 1024 and 1440, light zh-CN. */
 export function baseCells() {
-  return [makeCell(320, '100', 'light', 'zh-CN'), makeCell(1440, '100', 'light', 'zh-CN')]
+  return MATRIX_WIDTHS.map((width) => makeCell(width, '100', 'light', 'zh-CN'))
 }
 
 export function cellsFor(set) {
@@ -106,12 +106,12 @@ export function cellsFor(set) {
 }
 
 /**
- * `axe` runs in four cells per screen: 320 and 1440 at 100%, light and dark.
+ * `axe` runs in four cells per screen: 1024 and 1440 at 100%, light and dark.
  * Light is taken in zh-CN and dark in en so both locales are analysed.
  */
 export function isAxeCell(cell) {
   if (cell.text !== '100') return false
-  if (cell.width !== 320 && cell.width !== 1440) return false
+  if (!MATRIX_WIDTHS.includes(cell.width)) return false
   return (
     (cell.theme === 'light' && cell.locale === 'zh-CN') ||
     (cell.theme === 'dark' && cell.locale === 'en')
