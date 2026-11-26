@@ -212,47 +212,58 @@ are tokens (`RESPONSIVE.md` § Breakpoints).
 
 ## Contrast pairs
 
-Every foreground/background pairing the system allows, measured in every
-mode. A pairing not in this table is not allowed. Thresholds:
-`ACCESSIBILITY.md` § Contrast.
+Every foreground/background pairing the system uses, measured in every
+mode. Thresholds: `ACCESSIBILITY.md` § Contrast.
 
 Ratios are WCAG 2.x contrast ratios computed from the token source (OKLCH →
-linear sRGB → relative luminance), written rounded **down** to two decimals.
+linear sRGB → relative luminance; a translucent colour is first composited
+over its background), written rounded **down** to two decimals.
 `src/test/contrast.test.ts` recomputes every row on each `npm test` and
-fails when a ratio is stale or below its requirement — after changing a
-colour token, run the test and copy the ratios it reports. Names are source
-paths; the CSS property is the path without `color.`.
+fails when a ratio is stale — after changing a colour token, run the test
+and copy the ratios it reports. Names are source paths; the CSS property is
+the path without `color.`.
 
-| Foreground | Background | Use | Light | Dark | Required |
-| --- | --- | --- | --- | --- | --- |
-| `color.foreground` | `color.background` | Body text | 19.79 | 18.95 | 4.5 |
-| `color.card-foreground` | `color.card` | Text on a card | 19.79 | 17.15 | 4.5 |
-| `color.popover-foreground` | `color.popover` | Text in a menu, a select list or a tooltip surface | 19.79 | 17.15 | 4.5 |
-| `color.primary-foreground` | `color.primary` | Label of a primary button | 17.15 | 14.22 | 4.5 |
-| `color.secondary-foreground` | `color.secondary` | Label of a secondary button | 16.42 | 14.47 | 4.5 |
-| `color.muted-foreground` | `color.background` | Secondary text, placeholder | 7.80 | 7.63 | 4.5 |
-| `color.muted-foreground` | `color.muted` | Secondary text on a muted surface | 7.15 | 5.82 | 4.5 |
-| `color.accent-foreground` | `color.accent` | Hovered or highlighted item | 16.42 | 14.47 | 4.5 |
-| `color.sidebar-foreground` | `color.sidebar` | Sidebar text | 18.95 | 17.15 | 4.5 |
-| `color.sidebar-accent-foreground` | `color.sidebar-accent` | Hovered or current sidebar item | 16.42 | 14.47 | 4.5 |
-| `color.border` | `color.background` | Boundary of a card or an overlay, a divider | 4.73 | 4.18 | 3 |
-| `color.input` | `color.background` | Boundary of an input | 4.73 | 4.18 | 3 |
-| `color.muted-foreground` | `color.card` | Card description (kit) | 7.80 | 6.90 | 4.5 |
-| `color.muted-foreground` | `color.popover` | Menu label, select group label (kit) | 7.80 | 6.90 | 4.5 |
-| `color.destructive` | `color.background` | Error text, danger label (kit); grey in task 1 — the icon and the words carry the meaning | 7.80 | 7.63 | 4.5 |
-| `color.destructive` | `color.card` | The same, on a card | 7.80 | 6.90 | 4.5 |
-| `color.sidebar-primary-foreground` | `color.sidebar-primary` | Sidebar brand tile (kit) | 17.15 | 14.22 | 4.5 |
-| `color.border` | `color.card` | Divider and input boundary on a card | 4.73 | 3.78 | 3 |
-| `color.sidebar-border` | `color.sidebar` | Sidebar edge and separators | 4.53 | 3.78 | 3 |
+**Status** is `ok` when both modes meet the requirement, and `gap` when the
+stock value does not. By D-43 the stock value wins: a `gap` row is a known,
+recorded shortfall of shadcn/ui's stock theme, kept for the owner to decide
+when they change colours — it is not fixed in a component. The test fails
+when a row marked `ok` drops below its requirement, and when a row marked
+`gap` no longer has one (so the mark never goes stale).
+
+| Foreground | Background | Use | Light | Dark | Required | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `color.foreground` | `color.background` | Body text | 19.79 | 18.95 | 4.5 | ok |
+| `color.card-foreground` | `color.card` | Text on a card | 19.79 | 17.15 | 4.5 | ok |
+| `color.popover-foreground` | `color.popover` | Text in a menu, a select list or a tooltip surface | 19.79 | 17.15 | 4.5 | ok |
+| `color.primary-foreground` | `color.primary` | Label of a primary button | 17.15 | 14.22 | 4.5 | ok |
+| `color.secondary-foreground` | `color.secondary` | Label of a secondary button | 16.42 | 14.47 | 4.5 | ok |
+| `color.muted-foreground` | `color.background` | Secondary text, placeholder | 4.73 | 7.63 | 4.5 | ok |
+| `color.muted-foreground` | `color.muted` | Secondary text on a muted surface | 4.33 | 5.82 | 4.5 | gap |
+| `color.accent-foreground` | `color.accent` | Hovered or highlighted item | 16.42 | 14.47 | 4.5 | ok |
+| `color.sidebar-foreground` | `color.sidebar` | Sidebar text | 18.95 | 17.15 | 4.5 | ok |
+| `color.sidebar-accent-foreground` | `color.sidebar-accent` | Hovered or current sidebar item | 16.42 | 14.47 | 4.5 | ok |
+| `color.border` | `color.background` | Boundary of a card or an overlay, a divider | 1.25 | 1.25 | 3 | gap |
+| `color.input` | `color.background` | Boundary of an input | 1.25 | 1.47 | 3 | gap |
+| `color.muted-foreground` | `color.card` | Card description (kit) | 4.73 | 6.90 | 4.5 | ok |
+| `color.muted-foreground` | `color.popover` | Menu label, select group label (kit) | 4.73 | 6.90 | 4.5 | ok |
+| `color.destructive` | `color.background` | Error text, danger label (kit) | 4.76 | 6.84 | 4.5 | ok |
+| `color.destructive` | `color.card` | The same, on a card | 4.76 | 6.19 | 4.5 | ok |
+| `color.sidebar-primary-foreground` | `color.sidebar-primary` | Sidebar brand tile (kit) | 17.15 | 6.53 | 4.5 | ok |
+| `color.border` | `color.card` | Divider and input boundary on a card | 1.25 | 1.32 | 3 | gap |
+| `color.sidebar-border` | `color.sidebar` | Sidebar edge and separators | 1.20 | 1.32 | 3 | gap |
 
 The first twelve rows are the pairs the task-1 spec introduces; the rest are
 pairings the kit files already use. **Not in the table because it is not a
-solid pair:** the focus ring. The kit paints `ring` at half opacity, so its
-contrast is measured as composited on a rendered control against
-`background`, `card` and `sidebar` (≥ 3:1, both modes — spec A-13;
-`compositeOver` in `src/test/color.ts` does the blend the way a browser
-does). Translucent tints the kit derives from a role (`bg-destructive/10`,
-`bg-input/30`, `bg-muted/50`) are checked on the rendered control at review.
+solid pair:** the focus ring. The kit paints `ring` at half opacity, three
+pixels wide, with a solid `ring` border inside it. Composited on a rendered
+control (`compositeOver` in `src/test/color.ts` does the blend the way a
+browser does) the stock ring measures 1.52–1.54 (light) and 1.87 (dark)
+against `background`, `card` and `sidebar`; the solid border 2.48–2.59
+(light) and 3.79–4.18 (dark). That is under 3:1 in light mode — a known gap
+of the stock theme (D-43), pinned by
+`src/components/actions/focus-ring.test.tsx`. Translucent tints the kit
+derives from a role (`bg-destructive/10`, `bg-input/30`, `bg-muted/50`) are
+looked at on the rendered control at review.
 
 ## Pitfalls
 

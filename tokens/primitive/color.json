@@ -2,7 +2,7 @@
   "color": {
     "neutral": {
       "$type": "color",
-      "$description": "The one neutral ramp: the twelve lightness steps of FOUNDATIONS.md § Base values (shadcn neutral), OKLCH, chroma 0. Step names follow Tailwind's neutral scale; 0 is white.",
+      "$description": "The neutral ramp of shadcn/ui's stock `neutral` theme (D-43): OKLCH, chroma 0. Step names follow Tailwind's neutral scale; 0 is white.",
       "0": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0] } },
       "50": { "$value": { "colorSpace": "oklch", "components": [0.985, 0, 0] } },
       "100": { "$value": { "colorSpace": "oklch", "components": [0.97, 0, 0] } },
@@ -15,6 +15,23 @@
       "800": { "$value": { "colorSpace": "oklch", "components": [0.269, 0, 0] } },
       "900": { "$value": { "colorSpace": "oklch", "components": [0.205, 0, 0] } },
       "950": { "$value": { "colorSpace": "oklch", "components": [0.145, 0, 0] } }
+    },
+    "white-alpha": {
+      "$type": "color",
+      "$description": "White at an opacity: the stock dark theme draws its borders this way. The step is the opacity in percent.",
+      "10": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.1 } },
+      "15": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15 } }
+    },
+    "red": {
+      "$type": "color",
+      "$description": "The two reds of the stock theme's destructive role. Step names follow Tailwind's red scale.",
+      "400": { "$value": { "colorSpace": "oklch", "components": [0.704, 0.191, 22.216] } },
+      "600": { "$value": { "colorSpace": "oklch", "components": [0.577, 0.245, 27.325] } }
+    },
+    "blue": {
+      "$type": "color",
+      "$description": "The blue of the stock dark theme's sidebar-primary role. Step name follows Tailwind's blue scale.",
+      "700": { "$value": { "colorSpace": "oklch", "components": [0.488, 0.243, 264.376] } }
     },
     "system": {
       "$type": "string",

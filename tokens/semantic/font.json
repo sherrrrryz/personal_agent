@@ -3,8 +3,8 @@
     "family": {
       "$type": "fontFamily",
       "sans": {
-        "$value": "{font.stack.system}",
-        "$description": "All text, both locales. Geist is installed but not wired in task 1; task 2 puts it in front of this stack."
+        "$value": "{font.stack.sans}",
+        "$description": "All text, both locales: the stock typeface for Latin, the system CJK fonts for zh-CN."
       }
     }
   }

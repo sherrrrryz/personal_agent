@@ -3,8 +3,9 @@
 // The built stylesheet (spec A-03, A-05). This file is itself Tailwind
 // source: src/index.css scans everything under src/, so the class names
 // written below are candidates. A candidate with a mapped token must produce
-// a rule (that proves this file is scanned); a stock palette or shadow-scale
-// candidate must produce none.
+// a rule (that proves this file is scanned), and so must a candidate of
+// Tailwind's stock palette and shadow scale: shadcn/ui's stock styling uses
+// them, and the reset that removed them is withdrawn (D-43).
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -16,11 +17,16 @@ import { REPO_ROOT } from './tokens'
 
 /** Candidates that must exist: each is backed by a token mapped in src/index.css. */
 export const MAPPED = ['bg-background', 'text-muted-foreground', 'border-border', 'rounded-lg', 'min-h-target', 'min-w-target', 'md:hidden', 'lg:hidden']
-/** Candidates that must not exist: Tailwind's stock palette and shadow scale. */
-export const STOCK = ['bg-red-500', 'text-blue-600', 'border-neutral-200', 'bg-black', 'text-white', 'shadow-md', 'shadow-lg']
+/** Candidates of Tailwind's stock palette, opacity modifiers and shadow scale: the kit's scrims and shadows are drawn. */
+export const STOCK = ['bg-black/10', 'text-white', 'shadow-xs', 'shadow-md', 'shadow-lg', 'ring-foreground/10']
 
-const escapeClass = (name: string) => name.replace(/:/g, '\\:')
+const escapeClass = (name: string) => name.replace(/[:/]/g, '\\$&')
 const hasRule = (css: string, name: string) => css.includes(`.${escapeClass(name)} {`)
+/** The declarations of the first rule for a class. */
+const ruleOf = (css: string, name: string) => {
+  const start = css.indexOf(`.${escapeClass(name)} {`)
+  return start < 0 ? '' : css.slice(start, css.indexOf('\n}', start))
+}
 
 let outDir = ''
 let css = ''
@@ -48,19 +54,24 @@ describe('built CSS', () => {
     expect(hasRule(css, name)).toBe(true)
   })
 
-  it.each(STOCK)('has no rule for the stock utility %s', (name) => {
-    expect(hasRule(css, name)).toBe(false)
+  it.each(STOCK)('has a rule for the stock utility %s', (name) => {
+    expect(hasRule(css, name)).toBe(true)
   })
 
-  it('holds no stock palette variable and no colour outside the token block', () => {
-    expect(/--color-(red|blue|green|black|white|neutral|gray|zinc|slate|stone)\b/.test(css)).toBe(false)
-    const colours = [...css.matchAll(/^.*oklch\(.*$/gm)].map(([line]) => line.trim())
-    expect(colours.length).toBeGreaterThan(0)
-    expect(colours.every((line) => line.startsWith('--primitive-color-neutral-'))).toBe(true)
+  it('draws the scrim and the shadows: the stock utilities resolve to values', () => {
+    expect(ruleOf(css, 'bg-black/10')).toMatch(/background-color:/)
+    expect(ruleOf(css, 'shadow-md')).toMatch(/box-shadow:/)
+    expect(css).toMatch(/--color-black: #000/)
   })
 
-  it('binds the target size to size.target.min', () => {
+  it('loads the stock typeface and keeps the system CJK fonts behind it', () => {
+    expect(css).toMatch(/@font-face \{[^}]*font-family: ["']?Geist Variable["']?;/)
+    expect(css.includes('--primitive-font-stack-sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;')).toBe(true)
+  })
+
+  it('binds the target utilities to size.target.min, the 24 CSS px floor', () => {
     expect(/\.min-h-target \{\s*min-height: var\(--size-target-min\);/.test(css)).toBe(true)
+    expect(css.includes('--primitive-space-6: 1.5rem;')).toBe(true)
   })
 
   it('takes the md and lg breakpoints from the token source', () => {
@@ -89,8 +100,10 @@ describe('built CSS', () => {
     expect(css.includes('--primitive-color-system-highlight: Highlight;')).toBe(true)
   })
 
-  it('carries both modes of the theme', () => {
+  it('carries both modes of the theme, with the stock hues', () => {
     expect(/:root \{[^}]*--background: var\(--primitive-color-neutral-0\);/.test(css)).toBe(true)
     expect(/\.dark \{[^}]*--background: var\(--primitive-color-neutral-950\);/.test(css)).toBe(true)
+    expect(/:root \{[^}]*--destructive: var\(--primitive-color-red-600\);/.test(css)).toBe(true)
+    expect(/\.dark \{[^}]*--border: var\(--primitive-color-white-alpha-10\);/.test(css)).toBe(true)
   })
 })

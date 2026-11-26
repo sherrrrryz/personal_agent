@@ -70,14 +70,28 @@ export function aliasTarget(value: unknown): string | null {
   return typeof value === 'string' ? (ALIAS.exec(value)?.[1] ?? null) : null
 }
 
-/** The OKLCH value of a semantic colour (`color.<role>`) in a mode. */
-export function resolveColor(path: string, mode: Mode, tokens: SourceToken[] = readTokens()): Oklch {
+/** The raw primitive a semantic colour (`color.<role>`) points at in a mode: OKLCH components and opacity. */
+export function resolveRawColor(
+  path: string,
+  mode: Mode,
+  tokens: SourceToken[] = readTokens(),
+): { oklch: Oklch; alpha: number } {
   const token = tokens.find((candidate) => candidate.tier === 'semantic' && candidate.mode === mode && candidate.path === path)
   if (!token) throw new Error(`No semantic token ${path} in ${mode} mode`)
   const target = aliasTarget(token.value)
   const primitive = tokens.find((candidate) => candidate.tier === 'primitive' && candidate.path === target)
-  const value = primitive?.value as { colorSpace?: string; components?: number[] } | undefined
+  const value = primitive?.value as { colorSpace?: string; components?: number[]; alpha?: number } | undefined
   if (value?.colorSpace !== 'oklch' || value.components?.length !== 3)
     throw new Error(`${path} (${mode}) does not resolve to an OKLCH primitive`)
-  return [value.components[0], value.components[1], value.components[2]]
+  return { oklch: [value.components[0], value.components[1], value.components[2]], alpha: value.alpha ?? 1 }
+}
+
+/**
+ * The OKLCH value of a semantic colour (`color.<role>`) in a mode, without its
+ * opacity. A translucent role (the stock dark `border` and `input`) is drawn
+ * over a surface: composite it with `resolveRawColor(...).alpha` and
+ * `compositeOver` before measuring contrast.
+ */
+export function resolveColor(path: string, mode: Mode, tokens: SourceToken[] = readTokens()): Oklch {
+  return resolveRawColor(path, mode, tokens).oklch
 }

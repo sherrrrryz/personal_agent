@@ -1,15 +1,17 @@
 // @vitest-environment node
 //
 // docs/design/TOKENS.md § Contrast pairs, recomputed from the token source
-// (spec A-05): every listed ratio is the computed one, in both modes, and is
-// at or above its requirement; every pair the spec introduces is listed.
+// (spec A-05): every listed ratio is the computed one, in both modes; every
+// pair the spec introduces is listed. A row marked `ok` meets its requirement.
+// A row marked `gap` is a recorded shortfall of shadcn/ui's stock theme, which
+// D-43 keeps as it is: it must really be below, so the mark cannot go stale.
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { compositeOver, contrastRatio, oklchToLinearRgb } from './color'
-import { readTokens, REPO_ROOT, resolveColor } from './tokens'
+import { readTokens, REPO_ROOT, resolveRawColor } from './tokens'
 
 interface Pair {
   foreground: string
@@ -17,6 +19,7 @@ interface Pair {
   light: string
   dark: string
   required: number
+  status: string
 }
 
 /** The rows of the table under `## Contrast pairs`. */
@@ -28,12 +31,13 @@ function readPairs(): Pair[] {
     .split('\n')
     .filter((line) => line.startsWith('| `'))
     .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()))
-    .map(([foreground, background, , light, dark, required]) => ({
+    .map(([foreground, background, , light, dark, required, status]) => ({
       foreground: code(foreground)!,
       background: code(background)!,
       light,
       dark,
       required: Number(required),
+      status,
     }))
 }
 
@@ -55,11 +59,13 @@ const SPEC_PAIRS: [foreground: string, background: string, required: number][] =
 
 const tokens = readTokens()
 const pairs = readPairs()
-const ratio = (pair: Pair, mode: 'light' | 'dark') =>
-  contrastRatio(
-    oklchToLinearRgb(resolveColor(pair.foreground, mode, tokens)),
-    oklchToLinearRgb(resolveColor(pair.background, mode, tokens)),
-  )
+/** The foreground as painted — a translucent role (the stock dark borders) composited over the background. */
+const ratio = (pair: Pair, mode: 'light' | 'dark') => {
+  const foreground = resolveRawColor(pair.foreground, mode, tokens)
+  const background = oklchToLinearRgb(resolveRawColor(pair.background, mode, tokens).oklch)
+  return contrastRatio(compositeOver(oklchToLinearRgb(foreground.oklch), foreground.alpha, background), background)
+}
+
 /** Ratios are written rounded down to two decimals, so a listed value never overstates. */
 const written = (value: number) => (Math.floor(value * 100) / 100).toFixed(2)
 
@@ -78,14 +84,19 @@ describe('TOKENS.md § Contrast pairs', () => {
     expect(pairs.every((pair) => pair.required === 4.5 || pair.required === 3)).toBe(true)
   })
 
+  it('marks every row `ok` or `gap`', () => {
+    expect(pairs.filter((pair) => pair.status !== 'ok' && pair.status !== 'gap')).toEqual([])
+  })
+
   it.each(pairs.map((pair) => [`${pair.foreground} on ${pair.background}`, pair] as const))(
-    '%s — listed ratios are the computed ones and meet the requirement',
+    '%s — listed ratios are the computed ones; `ok` meets the requirement, `gap` is a real one',
     (_name, pair) => {
-      for (const mode of ['light', 'dark'] as const) {
-        const computed = ratio(pair, mode)
-        expect(pair[mode], `${mode}: the table is stale`).toBe(written(computed))
-        expect(computed, `${mode}: below ${pair.required}:1`).toBeGreaterThanOrEqual(pair.required)
-      }
+      const computed = { light: ratio(pair, 'light'), dark: ratio(pair, 'dark') }
+      for (const mode of ['light', 'dark'] as const)
+        expect(pair[mode], `${mode}: the table is stale`).toBe(written(computed[mode]))
+      const lowest = Math.min(computed.light, computed.dark)
+      if (pair.status === 'ok') expect(lowest, `below ${pair.required}:1 — fix the token or record the gap`).toBeGreaterThanOrEqual(pair.required)
+      else expect(lowest, 'no longer a gap — mark the row ok').toBeLessThan(pair.required)
     },
   )
 })

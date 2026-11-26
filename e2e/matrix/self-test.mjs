@@ -108,7 +108,7 @@ export async function selfTest({ root, script, out }) {
     three.every((kind) => fail.output.includes(`✗ ${kind}:`)) &&
       fail.output.includes('widest: div "This block is wider') &&
       fail.output.includes('label "Full name of the account holder"') &&
-      fail.output.includes('button "Close" answers a click over 24 × 24 px'),
+      fail.output.includes('button "Close" answers a click over 16 × 16 px'),
     'the summary does not name the three defects',
   )
 

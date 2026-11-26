@@ -230,7 +230,7 @@ function merge(result: CheckResult, part: { failures: Failure[]; waived?: Waiver
 
 /**
  * What every cell asserts: no sideways page scroll, no clipped text, every
- * target at least 44 × 44 CSS px, a screenshot; `axe` where the plan says so.
+ * target at least 24 × 24 CSS px (WCAG 2.2 AA; D-43), a screenshot; `axe` where the plan says so.
  */
 export async function checkCell(
   page: Page,

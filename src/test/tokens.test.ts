@@ -1,14 +1,15 @@
 // @vitest-environment node
 //
 // The token source and its build (spec A-02, A-03): three tiers with nothing
-// skipped, both modes complete, every colour grey, generated files current.
+// skipped, both modes complete, the colour roles at shadcn/ui's stock values
+// (D-43), generated files current.
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { cssName, renderTokens } from '../../scripts/build-tokens.mjs'
-import { aliasTarget, readTokens, REPO_ROOT } from './tokens'
+import { aliasTarget, readTokens, REPO_ROOT, resolveRawColor } from './tokens'
 
 const tokens = readTokens()
 const primitives = tokens.filter((token) => token.tier === 'primitive')
@@ -55,44 +56,102 @@ describe('tiers', () => {
   })
 })
 
-describe('placeholder theme', () => {
-  it('the neutral ramp is the twelve lightness steps of the base values, chroma 0', () => {
-    const ramp = primitives.filter((token) => token.type === 'color')
-    const components = ramp.map((token) => (token.value as { components: number[] }).components)
-    expect(components.map(([lightness]) => lightness).sort((a, b) => a - b)).toEqual([
-      0.145, 0.205, 0.269, 0.371, 0.439, 0.556, 0.708, 0.87, 0.922, 0.97, 0.985, 1,
-    ])
-    expect(components.every(([, chroma]) => chroma === 0)).toBe(true)
-  })
+/**
+ * shadcn/ui's stock `neutral` theme (style `base-nova`, CLI 4.23.1 — D-05), as
+ * `shadcn init` writes it: `[lightness, chroma, hue, opacity?]` per role.
+ */
+type Stock = [number, number, number, number?]
+const white: Stock = [1, 0, 0]
+const n50: Stock = [0.985, 0, 0]
+const n100: Stock = [0.97, 0, 0]
+const n200: Stock = [0.922, 0, 0]
+const n300: Stock = [0.87, 0, 0]
+const n400: Stock = [0.708, 0, 0]
+const n500: Stock = [0.556, 0, 0]
+const n600: Stock = [0.439, 0, 0]
+const n700: Stock = [0.371, 0, 0]
+const n800: Stock = [0.269, 0, 0]
+const n900: Stock = [0.205, 0, 0]
+const n950: Stock = [0.145, 0, 0]
+const STOCK: Record<string, { light: Stock; dark: Stock }> = {
+  background: { light: white, dark: n950 },
+  foreground: { light: n950, dark: n50 },
+  card: { light: white, dark: n900 },
+  'card-foreground': { light: n950, dark: n50 },
+  popover: { light: white, dark: n900 },
+  'popover-foreground': { light: n950, dark: n50 },
+  primary: { light: n900, dark: n200 },
+  'primary-foreground': { light: n50, dark: n900 },
+  secondary: { light: n100, dark: n800 },
+  'secondary-foreground': { light: n900, dark: n50 },
+  muted: { light: n100, dark: n800 },
+  'muted-foreground': { light: n500, dark: n400 },
+  accent: { light: n100, dark: n800 },
+  'accent-foreground': { light: n900, dark: n50 },
+  destructive: { light: [0.577, 0.245, 27.325], dark: [0.704, 0.191, 22.216] },
+  border: { light: n200, dark: [1, 0, 0, 0.1] },
+  input: { light: n200, dark: [1, 0, 0, 0.15] },
+  ring: { light: n400, dark: n500 },
+  'chart-1': { light: n300, dark: n300 },
+  'chart-2': { light: n500, dark: n500 },
+  'chart-3': { light: n600, dark: n600 },
+  'chart-4': { light: n700, dark: n700 },
+  'chart-5': { light: n800, dark: n800 },
+  sidebar: { light: n50, dark: n900 },
+  'sidebar-foreground': { light: n950, dark: n50 },
+  'sidebar-primary': { light: n900, dark: [0.488, 0.243, 264.376] },
+  'sidebar-primary-foreground': { light: n50, dark: n50 },
+  'sidebar-accent': { light: n100, dark: n800 },
+  'sidebar-accent-foreground': { light: n900, dark: n50 },
+  'sidebar-border': { light: n200, dark: [1, 0, 0, 0.1] },
+  'sidebar-ring': { light: n400, dark: n500 },
+}
 
+/** The roles `docs/design/TOKENS.md` § Changed from stock lists: the owner's colour changes (D-43). */
+function changedRoles(): Set<string> {
+  const doc = readFileSync(join(REPO_ROOT, 'docs/design/TOKENS.md'), 'utf8')
+  const section = doc.slice(doc.indexOf('\n## Changed from stock')).split('\n## ')[1] ?? ''
+  return new Set([...section.matchAll(/^\| `color\.([\w-]+)` \|/gm)].map(([, role]) => role))
+}
+
+describe('stock theme (D-43)', () => {
   it('every colour role has a light and a dark value', () => {
     expect(roles('light').length).toBeGreaterThan(0)
     expect(roles('dark').sort()).toEqual(roles('light').sort())
   })
 
-  it('has every shadcn/ui role, destructive and the chart roles included', () => {
-    const expected = [
-      'background', 'foreground', 'card', 'card-foreground', 'popover', 'popover-foreground',
-      'primary', 'primary-foreground', 'secondary', 'secondary-foreground', 'muted', 'muted-foreground',
-      'accent', 'accent-foreground', 'destructive', 'border', 'input', 'ring',
-      'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5',
-      'sidebar', 'sidebar-foreground', 'sidebar-primary', 'sidebar-primary-foreground',
-      'sidebar-accent', 'sidebar-accent-foreground', 'sidebar-border', 'sidebar-ring',
-    ].map((role) => `color.${role}`)
-    expect(roles('light').sort()).toEqual(expected.sort())
+  it('has every shadcn/ui role, and no other', () => {
+    expect(roles('light').sort()).toEqual(Object.keys(STOCK).map((role) => `color.${role}`).sort())
   })
 
-  it('every colour role is a step of the neutral ramp in both modes', () => {
-    for (const token of semantic.filter(isRole))
-      expect(aliasTarget(token.value), `${token.path} (${token.mode})`).toMatch(/^color\.neutral\.\d+$/)
+  it('every colour role holds its stock value in both modes, unless TOKENS.md § Changed from stock lists it', () => {
+    const changed = changedRoles()
+    const differing = new Set<string>()
+    for (const [role, stock] of Object.entries(STOCK))
+      for (const mode of ['light', 'dark'] as const) {
+        const { oklch, alpha } = resolveRawColor(`color.${role}`, mode, tokens)
+        const [lightness, chroma, hue, opacity = 1] = stock[mode]
+        if (oklch[0] !== lightness || oklch[1] !== chroma || oklch[2] !== hue || alpha !== opacity) differing.add(role)
+      }
+    // A changed colour is recorded where the owner reads it; a row for an unchanged role is stale.
+    expect([...differing].sort(), 'list a changed role in TOKENS.md § Changed from stock, and remove stale rows').toEqual(
+      [...changed].sort(),
+    )
   })
 
-  it('ring sits on the same step as foreground in both modes', () => {
-    for (const mode of ['light', 'dark'] as const) {
-      const step = (path: string) => semantic.find((token) => token.mode === mode && token.path === path)?.value
-      expect(step('color.ring')).toBe(step('color.foreground'))
-      expect(step('color.sidebar-ring')).toBe(step('color.sidebar-foreground'))
-    }
+  it('the base radius is the stock 0.625rem', () => {
+    expect(primitiveByPath.get('radius.lg')?.value).toEqual({ value: 0.625, unit: 'rem' })
+  })
+
+  it('the font stack is the stock typeface followed by the system CJK fonts (D-25)', () => {
+    expect(primitiveByPath.get('font.stack.sans')?.value).toEqual([
+      'Geist Variable',
+      'PingFang SC',
+      'Microsoft YaHei',
+      'Noto Sans CJK SC',
+      'sans-serif',
+    ])
+    expect(indexCss).toContain('@import "@fontsource-variable/geist";')
   })
 
   it('the forced-colours focus colour is a system colour with one value and no mode', () => {
@@ -101,12 +160,13 @@ describe('placeholder theme', () => {
     expect(primitiveByPath.get('color.system.highlight')?.value).toBe('Highlight')
   })
 
-  it('the purpose tokens alias the steps the spec names', () => {
+  it('the purpose tokens alias their steps: the target floor is WCAG 2.2 AA\'s 24 CSS px', () => {
     const alias = (path: string) => semantic.find((token) => token.path === path)?.value
-    expect(alias('size.target.min')).toBe('{space.11}')
+    expect(alias('size.target.min')).toBe('{space.6}')
+    expect(primitiveByPath.get('space.6')?.value).toEqual({ value: 1.5, unit: 'rem' })
     expect(alias('border.width.focus')).toBe('{border.width.2}')
-    expect(alias('radius.base')).toBe('{radius.sm}')
-    expect(alias('font.family.sans')).toBe('{font.stack.system}')
+    expect(alias('radius.base')).toBe('{radius.lg}')
+    expect(alias('font.family.sans')).toBe('{font.stack.sans}')
   })
 })
 
@@ -142,8 +202,8 @@ describe('src/index.css', () => {
     expect(mapped.map(([, key]) => `color.${key}`).sort()).toEqual(roles('light').sort())
   })
 
-  it('resets the stock palette and the shadow scale', () => {
-    expect(indexCss).toMatch(/--color-\*:\s*initial/)
-    expect(indexCss).toMatch(/--shadow-\*:\s*initial/)
+  it('leaves Tailwind\'s stock palette and shadow scale in place (D-43)', () => {
+    expect(indexCss).not.toMatch(/--color-\*:\s*initial/)
+    expect(indexCss).not.toMatch(/--(inset-|drop-)?shadow-\*:\s*initial/)
   })
 })

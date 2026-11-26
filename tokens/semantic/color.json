@@ -1,7 +1,7 @@
 {
   "color": {
     "$type": "color",
-    "$description": "shadcn/ui's colour roles, light mode (the default). Dark values: color.dark.json. Every role is grey in the placeholder theme (task 1); danger is carried by icon and text.",
+    "$description": "shadcn/ui's colour roles, light mode (the default). Dark values: color.dark.json. The values are shadcn/ui's stock `neutral` theme (D-43). To change a colour: point the role at another primitive of tokens/primitive/color.json (add the value there first), here and in color.dark.json, then npm run tokens:build.",
     "background": { "$value": "{color.neutral.0}" },
     "foreground": { "$value": "{color.neutral.950}" },
     "card": { "$value": "{color.neutral.0}" },
@@ -13,13 +13,13 @@
     "secondary": { "$value": "{color.neutral.100}" },
     "secondary-foreground": { "$value": "{color.neutral.900}" },
     "muted": { "$value": "{color.neutral.100}" },
-    "muted-foreground": { "$value": "{color.neutral.600}" },
+    "muted-foreground": { "$value": "{color.neutral.500}" },
     "accent": { "$value": "{color.neutral.100}" },
     "accent-foreground": { "$value": "{color.neutral.900}" },
-    "destructive": { "$value": "{color.neutral.600}" },
-    "border": { "$value": "{color.neutral.500}" },
-    "input": { "$value": "{color.neutral.500}" },
-    "ring": { "$value": "{color.neutral.950}" },
+    "destructive": { "$value": "{color.red.600}" },
+    "border": { "$value": "{color.neutral.200}" },
+    "input": { "$value": "{color.neutral.200}" },
+    "ring": { "$value": "{color.neutral.400}" },
     "chart-1": { "$value": "{color.neutral.300}" },
     "chart-2": { "$value": "{color.neutral.500}" },
     "chart-3": { "$value": "{color.neutral.600}" },
@@ -31,8 +31,8 @@
     "sidebar-primary-foreground": { "$value": "{color.neutral.50}" },
     "sidebar-accent": { "$value": "{color.neutral.100}" },
     "sidebar-accent-foreground": { "$value": "{color.neutral.900}" },
-    "sidebar-border": { "$value": "{color.neutral.500}" },
-    "sidebar-ring": { "$value": "{color.neutral.950}" },
+    "sidebar-border": { "$value": "{color.neutral.200}" },
+    "sidebar-ring": { "$value": "{color.neutral.400}" },
     "focus": {
       "$type": "string",
       "forced": {
