@@ -37,6 +37,19 @@ export function markedItems(container: HTMLElement): Record<string, string | nul
   return marked
 }
 
+// Plain assertions only: this file is compiled with the application, where
+// the DOM and axe matchers of the test setup are not declared.
+
+/** The ids of the axe rules a tree breaks. */
+async function findings(container: HTMLElement): Promise<string[]> {
+  return (await axe(container)).violations.map((violation) => violation.id)
+}
+
+/** Which of its four states the block's `DataState` shows. */
+function shownState(container: HTMLElement): string | null {
+  return container.querySelector('[data-slot="data-state"]')?.getAttribute('data-state') ?? null
+}
+
 type Options<Id extends BlockId> = {
   /** The block's own sentence for the empty state. */
   emptyKey: MessageKey<'data-blocks'>
@@ -61,8 +74,8 @@ export function describeBlockStates<Id extends BlockId>(definition: BlockDefinit
       expect(drawnItems(container)).toEqual(options.itemIds(demo.props))
       expect(Object.keys(demo.changes).length).toBeGreaterThan(0)
       expect(markedItems(container)).toEqual(demo.changes)
-      expect(container.querySelector('[data-slot="data-state"]')).toHaveAttribute('data-state', 'ready')
-      expect(await axe(container)).toHaveNoViolations()
+      expect(shownState(container)).toBe('ready')
+      expect(await findings(container)).toEqual([])
     })
 
     it('ready with no change set: nothing is marked', () => {
@@ -77,38 +90,38 @@ export function describeBlockStates<Id extends BlockId>(definition: BlockDefinit
       const ids = options.itemIds(demo.long)
       expect(ids.length).toBeGreaterThan(options.itemIds(demo.props).length)
       expect(drawnItems(container)).toEqual(ids)
-      expect(await axe(container)).toHaveNoViolations()
+      expect(await findings(container)).toEqual([])
     })
 
     it('loading: busy, a status text, no item', async () => {
       const demo = definition.demo('en')
       const { container } = renderBlock('en', <Component props={demo.props} changes={demo.changes} state="loading" />)
       expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()
-      expect(screen.getByRole('status')).toHaveTextContent(translate('en', 'common', 'status.loading'))
+      expect(screen.getByRole('status').textContent).toContain(translate('en', 'common', 'status.loading'))
       expect(drawnItems(container)).toEqual([])
-      expect(await axe(container)).toHaveNoViolations()
+      expect(await findings(container)).toEqual([])
     })
 
     it.each(localesUnderTest)('%s, empty: the block’s own sentence, in the status region', async (locale) => {
       const demo = definition.demo(locale)
       const { container } = renderBlock(locale, <Component props={demo.props} changes={{}} state="empty" />)
-      expect(screen.getByRole('status')).toHaveTextContent(translate(locale, 'data-blocks', options.emptyKey))
+      expect(screen.getByRole('status').textContent).toContain(translate(locale, 'data-blocks', options.emptyKey))
       expect(drawnItems(container)).toEqual([])
-      expect(await axe(container)).toHaveNoViolations()
+      expect(await findings(container)).toEqual([])
     })
 
     it('ready with nothing to show is the empty state', () => {
       const { container } = renderBlock('en', <Component props={options.emptyProps} changes={{}} state="ready" />)
-      expect(screen.getByRole('status')).toHaveTextContent(translate('en', 'data-blocks', options.emptyKey))
-      expect(container.querySelector('[data-slot="data-state"]')).toHaveAttribute('data-state', 'empty')
+      expect(screen.getByRole('status').textContent).toContain(translate('en', 'data-blocks', options.emptyKey))
+      expect(shownState(container)).toBe('empty')
     })
 
     it.each(localesUnderTest)('%s, error: the shared failure text, no item', async (locale) => {
       const demo = definition.demo(locale)
       const { container } = renderBlock(locale, <Component props={demo.props} changes={{}} state="error" />)
-      expect(screen.getByRole('status')).toHaveTextContent(translate(locale, 'feedback', 'dataState.error.title'))
+      expect(screen.getByRole('status').textContent).toContain(translate(locale, 'feedback', 'dataState.error.title'))
       expect(drawnItems(container)).toEqual([])
-      expect(await axe(container)).toHaveNoViolations()
+      expect(await findings(container)).toEqual([])
     })
 
     it('the demo has a title and differs between the locales', () => {
