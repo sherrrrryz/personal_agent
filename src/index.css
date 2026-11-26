@@ -1,12 +1,110 @@
 /*
- * Non-visual base only. Every colour, size, space, radius, shadow, blur and
- * duration is a CSS custom property generated from the token source
- * (tokens/ → src/tokens/generated/tokens.css, task 2). The placeholder theme
- * (task 1) imports that file here. No literal visual value may appear in this
- * file or anywhere under src/ — see CLAUDE.md § Hard rules.
+ * Theme entry. No visual value lives here: every colour, size, radius and
+ * font comes from src/tokens/generated/tokens.css, which is generated from
+ * tokens/ (npm run tokens:build) and never edited by hand. This file only
+ * maps those custom properties onto Tailwind's theme keys and holds the two
+ * global accessibility rules. See docs/design/TOKENS.md.
  */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@import "tailwindcss" source(".");
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./tokens/generated/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* No stock palette: a colour utility exists only for the roles mapped below. */
+  --color-*: initial;
+  /* No shadow scale in the placeholder theme: overlays separate by border. */
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: var(--radius-step-sm);
+  --radius-md: var(--radius-step-md);
+  --radius-lg: var(--radius-step-lg);
+  --radius-xl: var(--radius-step-xl);
+  --radius-2xl: var(--radius-step-2xl);
+  --radius-3xl: var(--radius-step-3xl);
+  --radius-4xl: var(--radius-step-4xl);
+
+  --font-sans: var(--font-family-sans);
+  --font-heading: var(--font-sans);
+
+  /* size.target.min as a sizing step: min-h-target, min-w-target, size-target. */
+  --spacing-target: var(--size-target-min);
+}
+
+/* The kit's base layer, as `shadcn init` writes it. */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /*
+   * Reduced motion. The kit animates dialogs, sheets and menus
+   * unconditionally and is not edited for it, so the preference is honoured
+   * here for everything. In a layer and important: that beats every utility.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * Forced colours. The kit's focus ring is a box-shadow, which forced-colors
+ * removes, and its controls set `outline: none`. Unlayered, so it beats the
+ * utilities. Width and colour are tokens; the system-colour keyword itself is
+ * written only in the token source.
+ */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: var(--border-width-focus) solid var(--focus-forced);
+  }
 }

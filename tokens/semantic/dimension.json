@@ -1,0 +1,37 @@
+{
+  "size": {
+    "target": {
+      "$type": "dimension",
+      "min": {
+        "$value": "{space.11}",
+        "$description": "Minimum block and inline size of every interactive control (44 CSS px at the default text size; grows with it)."
+      }
+    }
+  },
+  "border": {
+    "width": {
+      "$type": "dimension",
+      "focus": {
+        "$value": "{border.width.2}",
+        "$description": "Width of the focus outline (the forced-colors rule; the canvas node focus)."
+      }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "base": {
+      "$value": "{radius.sm}",
+      "$description": "shadcn's --radius: the radius every step is derived from."
+    },
+    "step": {
+      "$description": "The derived steps of FOUNDATIONS.md § Base values: the base radius × the factor in $extensions['pa.scale']. Mapped to Tailwind's --radius-sm … --radius-4xl in src/index.css.",
+      "sm": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 0.6 } },
+      "md": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 0.8 } },
+      "lg": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 1 } },
+      "xl": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 1.4 } },
+      "2xl": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 1.8 } },
+      "3xl": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 2.2 } },
+      "4xl": { "$value": "{radius.sm}", "$extensions": { "pa.scale": 2.6 } }
+    }
+  }
+}

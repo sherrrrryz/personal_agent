@@ -1,0 +1,44 @@
+{
+  "color": {
+    "$type": "color",
+    "$description": "shadcn/ui's colour roles, light mode (the default). Dark values: color.dark.json. Every role is grey in the placeholder theme (task 1); danger is carried by icon and text.",
+    "background": { "$value": "{color.neutral.0}" },
+    "foreground": { "$value": "{color.neutral.950}" },
+    "card": { "$value": "{color.neutral.0}" },
+    "card-foreground": { "$value": "{color.neutral.950}" },
+    "popover": { "$value": "{color.neutral.0}" },
+    "popover-foreground": { "$value": "{color.neutral.950}" },
+    "primary": { "$value": "{color.neutral.900}" },
+    "primary-foreground": { "$value": "{color.neutral.50}" },
+    "secondary": { "$value": "{color.neutral.100}" },
+    "secondary-foreground": { "$value": "{color.neutral.900}" },
+    "muted": { "$value": "{color.neutral.100}" },
+    "muted-foreground": { "$value": "{color.neutral.600}" },
+    "accent": { "$value": "{color.neutral.100}" },
+    "accent-foreground": { "$value": "{color.neutral.900}" },
+    "destructive": { "$value": "{color.neutral.600}" },
+    "border": { "$value": "{color.neutral.500}" },
+    "input": { "$value": "{color.neutral.500}" },
+    "ring": { "$value": "{color.neutral.950}" },
+    "chart-1": { "$value": "{color.neutral.300}" },
+    "chart-2": { "$value": "{color.neutral.500}" },
+    "chart-3": { "$value": "{color.neutral.600}" },
+    "chart-4": { "$value": "{color.neutral.700}" },
+    "chart-5": { "$value": "{color.neutral.800}" },
+    "sidebar": { "$value": "{color.neutral.50}" },
+    "sidebar-foreground": { "$value": "{color.neutral.950}" },
+    "sidebar-primary": { "$value": "{color.neutral.900}" },
+    "sidebar-primary-foreground": { "$value": "{color.neutral.50}" },
+    "sidebar-accent": { "$value": "{color.neutral.100}" },
+    "sidebar-accent-foreground": { "$value": "{color.neutral.900}" },
+    "sidebar-border": { "$value": "{color.neutral.500}" },
+    "sidebar-ring": { "$value": "{color.neutral.950}" },
+    "focus": {
+      "$type": "string",
+      "forced": {
+        "$value": "{color.system.highlight}",
+        "$description": "Outline colour of the focus indicator under forced-colors. One value, no mode."
+      }
+    }
+  }
+}

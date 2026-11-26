@@ -1,0 +1,28 @@
+{
+  "color": {
+    "neutral": {
+      "$type": "color",
+      "$description": "The one neutral ramp: the twelve lightness steps of FOUNDATIONS.md § Base values (shadcn neutral), OKLCH, chroma 0. Step names follow Tailwind's neutral scale; 0 is white.",
+      "0": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0] } },
+      "50": { "$value": { "colorSpace": "oklch", "components": [0.985, 0, 0] } },
+      "100": { "$value": { "colorSpace": "oklch", "components": [0.97, 0, 0] } },
+      "200": { "$value": { "colorSpace": "oklch", "components": [0.922, 0, 0] } },
+      "300": { "$value": { "colorSpace": "oklch", "components": [0.87, 0, 0] } },
+      "400": { "$value": { "colorSpace": "oklch", "components": [0.708, 0, 0] } },
+      "500": { "$value": { "colorSpace": "oklch", "components": [0.556, 0, 0] } },
+      "600": { "$value": { "colorSpace": "oklch", "components": [0.439, 0, 0] } },
+      "700": { "$value": { "colorSpace": "oklch", "components": [0.371, 0, 0] } },
+      "800": { "$value": { "colorSpace": "oklch", "components": [0.269, 0, 0] } },
+      "900": { "$value": { "colorSpace": "oklch", "components": [0.205, 0, 0] } },
+      "950": { "$value": { "colorSpace": "oklch", "components": [0.145, 0, 0] } }
+    },
+    "system": {
+      "$type": "string",
+      "$description": "CSS system colours, stored as keywords (string tokens — TOKENS.md § One source). They have no mode: the user agent resolves them.",
+      "highlight": {
+        "$value": "Highlight",
+        "$description": "The system colour for selected and focused items; the only colour that survives forced-colors."
+      }
+    }
+  }
+}

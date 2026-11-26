@@ -1,0 +1,11 @@
+{
+  "font": {
+    "stack": {
+      "$type": "fontFamily",
+      "system": {
+        "$value": ["system-ui", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif"],
+        "$description": "The system UI font, then the system CJK stack of D-25, then the generic family."
+      }
+    }
+  }
+}

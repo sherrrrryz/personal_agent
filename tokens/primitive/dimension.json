@@ -1,0 +1,27 @@
+{
+  "space": {
+    "$type": "dimension",
+    "$description": "Steps of Tailwind's shipped spacing scale (0.25rem × n) that a semantic token needs. The rest of the scale is used as shipped until task 2.",
+    "11": { "$value": { "value": 2.75, "unit": "rem" } }
+  },
+  "border": {
+    "width": {
+      "$type": "dimension",
+      "$description": "Steps of Tailwind's shipped border-width scale. Fixed unit: RESPONSIVE.md § Unit policy allowlist.",
+      "2": { "$value": { "value": 2, "unit": "px" } }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "sm": {
+      "$value": { "value": 0.375, "unit": "rem" },
+      "$description": "The shipped radius (0.625rem) × 0.6 — the only radius primitive of the placeholder theme."
+    }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "$description": "Tailwind's shipped md and lg breakpoints. Emitted as literals in a generated @theme block and in breakpoints.ts, because a media query cannot read a custom property.",
+    "md": { "$value": { "value": 48, "unit": "rem" } },
+    "lg": { "$value": { "value": 64, "unit": "rem" } }
+  }
+}
