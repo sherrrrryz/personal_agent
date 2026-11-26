@@ -1,5 +1,5 @@
 import { HistoryIcon, MessageSquareIcon, MessagesSquareIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Link, useLocation } from 'react-router'
 
 import { DataState } from '@/components/feedback'
@@ -44,6 +44,18 @@ function writeOpen(open: boolean): void {
 export function RecentGroup() {
   const t = useT('chat')
   const [open, setOpen] = useState(readOpen)
+  const end = useRef<HTMLAnchorElement>(null)
+  const opened = useRef(false)
+
+  // The sidebar's middle scrolls and the group is its last one: opened in a full sidebar, its rows
+  // would appear below the edge and the click would seem to do nothing. Bring the rows into view —
+  // when she opens the group, not when the page loads with it open.
+  useEffect(() => {
+    if (!open || !opened.current) return
+    opened.current = false
+    end.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [open])
+
   return (
     <SidebarGroup
       label={t('recent.label')}
@@ -51,23 +63,24 @@ export function RecentGroup() {
       icon={<HistoryIcon />}
       open={open}
       onOpenChange={(next) => {
+        opened.current = next
         setOpen(next)
         writeOpen(next)
       }}
     >
-      <RecentList />
+      <RecentList end={end} />
     </SidebarGroup>
   )
 }
 
-/** The rows of the open group. A child of the group, so a reload of the list starts it afresh. */
-function RecentList() {
+/** The rows of the open group. A child of the group, so a reload of the list starts it afresh. `end` is its last row. */
+function RecentList({ end }: { end: RefObject<HTMLAnchorElement | null> }) {
   const t = useT('chat')
   const [attempt, setAttempt] = useState(0)
   return (
     <>
       <RecentRows key={attempt} onRetry={() => setAttempt((count) => count + 1)} />
-      <SidebarItem icon={<MessagesSquareIcon />} label={t('recent.all')} render={<Link to="/topics" />} />
+      <SidebarItem icon={<MessagesSquareIcon />} label={t('recent.all')} render={<Link ref={end} to="/topics" />} />
     </>
   )
 }

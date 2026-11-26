@@ -56,6 +56,19 @@ function ScreenBar({ screen }: { screen: ChatScreen }) {
   const suggestions =
     text === '' && !sending ? suggestedPrompts(state, screen.context).filter((script) => !asked.has(script.id)) : []
 
+  // The panel grows as the answer arrives. In a window too small for the header, `main` and the
+  // bar together the shell scrolls as a whole, and the growth would push the composer she is
+  // typing in out of view: keep the bar's end — the composer — in the window while it has focus.
+  useLayoutEffect(() => {
+    const bar = region.current
+    if (!bar || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => {
+      if (document.activeElement === composer.current) bar.scrollIntoView({ block: 'end' })
+    })
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [])
+
   function onSend(message: string) {
     const sent = send(message, open?.conversationId)
     if (!sent) return
@@ -138,24 +151,44 @@ function ScreenBar({ screen }: { screen: ChatScreen }) {
   )
 }
 
-/** Half of the shell's block size, measured: the panel's upper limit. `undefined` outside the shell. */
-function useHalfOfShell(inside: { current: HTMLElement | null }): number | undefined {
-  const [half, setHalf] = useState<number>()
+/**
+ * The panel's upper limit, measured in the shell it stands in (`undefined` outside one): half of
+ * the shell's block size, and less when the window is too short for that — whatever the header,
+ * `main` at its minimum and the rest of the bar leave, so that opening the panel does not make the
+ * whole shell scroll. It never falls under the minimum `main` itself is given: in a window too
+ * small for both, the shell scrolls as a whole (its own fallback) rather than the panel vanishing.
+ */
+function usePanelLimit(inside: { current: HTMLElement | null }): number | undefined {
+  const [limit, setLimit] = useState<number>()
   useLayoutEffect(() => {
-    const shell = inside.current?.closest('[data-shell]')
-    if (!shell || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setHalf(Math.floor(shell.clientHeight / 2)))
+    const panel = inside.current
+    const shell = panel?.closest<HTMLElement>('[data-shell]')
+    const row = panel?.closest<HTMLElement>('[data-shell-bar]')
+    if (!panel || !shell || !row || typeof ResizeObserver === 'undefined') return
+    const main = shell.querySelector<HTMLElement>(':scope > main')
+    const measure = () => {
+      const floor = main ? parseFloat(getComputedStyle(main).minHeight) || 0 : 0
+      let chrome = 0
+      for (const part of shell.children) {
+        if (part !== main && part !== row && part instanceof HTMLElement) chrome += part.offsetHeight
+      }
+      // The row's size less the panel's does not change as the panel grows: no loop.
+      const room = shell.clientHeight - chrome - floor - (row.offsetHeight - panel.offsetHeight)
+      setLimit(Math.floor(Math.max(floor, Math.min(shell.clientHeight / 2, room))))
+    }
+    const observer = new ResizeObserver(measure)
     observer.observe(shell)
+    observer.observe(row)
     return () => observer.disconnect()
   }, [inside])
-  return half
+  return limit
 }
 
 /**
  * The in-place panel: heading 关于：<screen>, the conversation, then one row —
  * the persistence switch, 在专门对话中打开, 关闭. Not a dialog: the screen
- * behind stays in use. It is never taller than half the shell and scrolls
- * inside, so `main` keeps its room.
+ * behind stays in use. It is never taller than half the shell — less in a
+ * short window (`usePanelLimit`) — and scrolls inside, so `main` keeps its room.
  */
 function InPlacePanel({
   panel,
@@ -176,8 +209,45 @@ function InPlacePanel({
   const { locale } = useLocale()
   const headingId = useId()
   const scroller = useRef<HTMLDivElement>(null)
-  // A measured limit, not a design value: half of whatever block size the shell has in this window.
-  const maxBlockSize = useHalfOfShell(scroller)
+  // A measured limit, not a design value: it follows whatever block size the shell has in this window.
+  const maxBlockSize = usePanelLimit(scroller)
+
+  // The panel is the scroller, so it decides what a new message shows: the newest exchange from
+  // its start — her question, or the answer's first line when the question alone would fill the
+  // panel — whatever the panel's size and however long the answer grows. Only the panel moves (the
+  // shell around it stays), and it stops as soon as she scrolls: a new message starts it again.
+  const messages = messagesOf(conversation, locale)
+  const last = messages.at(-1)
+  const newest = `${messages.length}:${last?.id}`
+  const grown = `${last?.status}:${last?.text.length}`
+  const pin = useRef({ newest: '', top: 0, on: true })
+  useLayoutEffect(() => {
+    const panel = scroller.current
+    if (!panel) return
+    const kept = pin.current
+    if (kept.newest !== newest) {
+      kept.newest = newest
+      kept.on = true
+    } else if (Math.abs(panel.scrollTop - kept.top) > 1) {
+      kept.on = false
+    }
+    if (!kept.on) return
+    const items = [...panel.querySelectorAll<HTMLElement>('[data-slot="chat-message-list"] [data-author]')]
+    const answer = items.at(-1)
+    if (!answer) return
+    const question = answer.dataset.author === 'user' ? answer : items.findLast((item) => item.dataset.author === 'user')
+    const top = (item: HTMLElement) => item.getBoundingClientRect().top
+    const whole = question !== undefined && top(answer) - top(question) < panel.clientHeight / 2
+    const from = whole ? question : answer
+    if (from === items[0]) {
+      // The first message: the heading above it stays in view too.
+      panel.scrollTop = 0
+    } else {
+      const inset = parseFloat(getComputedStyle(panel).paddingBlockStart) || 0
+      panel.scrollTop += top(from) - panel.getBoundingClientRect().top - inset
+    }
+    kept.top = panel.scrollTop
+  }, [newest, grown, maxBlockSize])
 
   return (
     <div
@@ -194,7 +264,9 @@ function InPlacePanel({
       </h2>
       <ChatMessageList
         label={t('panel.log')}
-        messages={messagesOf(conversation, locale)}
+        messages={messages}
+        // The list's own following scrolls every scroller around it; here the panel does it (above).
+        follow={false}
         onRetry={onRetry}
         renderAttachment={(attachment, message) => (
           <MessageAttachmentBlock

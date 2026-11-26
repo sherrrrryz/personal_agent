@@ -260,20 +260,62 @@ describe('the chat bar and its in-place panel (R-17)', () => {
     expect(runtime.getState().conversations[0]?.messages).toHaveLength(2)
   })
 
-  it('long: the panel is a named, focusable scroller and the newest message is brought into view', async () => {
-    const scrolled = vi.spyOn(Element.prototype, 'scrollIntoView')
-    open(`/m/${appointments}`)
-    await screen.findByRole('heading', { level: 1, name: '预约' })
-    for (const text of ['第一句', '第二句', '第三句']) {
-      await ask(text)
+  it('long: the panel is a named, focusable scroller and shows the newest exchange from its start', async () => {
+    // jsdom lays nothing out: every message gets a box 100 px under the one before, in a panel 300 px tall.
+    const boxes = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const scroller = this.closest('[data-chat-panel]')
+      const index = scroller ? [...scroller.querySelectorAll('[data-author]')].indexOf(this) : -1
+      return new DOMRect(0, index < 0 ? 0 : 100 + index * 100 - (scroller?.scrollTop ?? 0), 0, 100)
+    })
+    const size = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(300)
+    try {
+      open(`/m/${appointments}`)
+      await screen.findByRole('heading', { level: 1, name: '预约' })
+      await ask('第一句')
       await waitFor(() => expect(composer()).toHaveValue(''))
+      const opened = panel()
+      expect(opened).toHaveAttribute('tabindex', '0')
+      expect(opened).toHaveClass('overflow-y-auto')
+      // The first exchange: from the top, the heading 关于：… with it.
+      expect(opened.scrollTop).toBe(0)
+
+      for (const text of ['第二句', '第三句']) {
+        await ask(text)
+        await waitFor(() => expect(composer()).toHaveValue(''))
+      }
+      expect(within(opened).getAllByText(canned)).toHaveLength(3)
+      // The third question (the fifth message, 500 px down) at the panel's top, its answer under it.
+      expect(opened.scrollTop).toBe(500)
+
+      // She scrolls back to read; the next message brings the newest exchange into view again.
+      opened.scrollTop = 120
+      await ask('第四句')
+      await waitFor(() => expect(composer()).toHaveValue(''))
+      expect(opened.scrollTop).toBe(700)
+    } finally {
+      boxes.mockRestore()
+      size.mockRestore()
     }
-    const opened = panel()
-    expect(opened).toHaveAttribute('tabindex', '0')
-    expect(opened).toHaveClass('overflow-y-auto')
-    expect(within(opened).getAllByText(canned)).toHaveLength(3)
-    expect(scrolled).toHaveBeenCalled()
-    scrolled.mockRestore()
+  })
+
+  it('long: a question that would fill the panel gives way to the answer’s first line', async () => {
+    const boxes = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const scroller = this.closest('[data-chat-panel]')
+      const index = scroller ? [...scroller.querySelectorAll('[data-author]')].indexOf(this) : -1
+      return new DOMRect(0, index < 0 ? 0 : 100 + index * 100 - (scroller?.scrollTop ?? 0), 0, 100)
+    })
+    // A panel 150 px tall: the answer begins 100 px under its question, past the panel's middle.
+    const size = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(150)
+    try {
+      open(`/m/${appointments}`)
+      await screen.findByRole('heading', { level: 1, name: '预约' })
+      await ask('第一句')
+      await within(panel()).findByText(canned)
+      await waitFor(() => expect(panel().scrollTop).toBe(200))
+    } finally {
+      boxes.mockRestore()
+      size.mockRestore()
+    }
   })
 
   it('en: the bar, the panel and the toast are in English', async () => {
