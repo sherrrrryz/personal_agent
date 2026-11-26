@@ -2,19 +2,14 @@
 import { describe, expect, it } from 'vitest'
 
 import { locales } from '@/i18n'
-import { awaitingCount, findModule, isText, openProposals, sceneIds, subModulesOf, tableOf, versionOf, workflowOf } from '@/runtime'
+import { awaitingCount, findModule, openProposals, sceneIds, subModulesOf, tableOf, versionOf, workflowOf } from '@/runtime'
+import { textsIn } from '@/runtime/test-support'
 
 import { basis, chatScripts, column, moduleId, scene, sceneNames, tableId } from '.'
 
-// What S6 leaves for the scenes `e1`–`s1`. The scene invariants of the whole
-// story (R-03) and the story facts (R-04) are S6b's, on top of these.
-
-/** Every two-locale text anywhere in a value. */
-function textsIn(value: unknown, path = ''): Array<{ path: string; text: Record<string, string> }> {
-  if (isText(value)) return [{ path, text: value }]
-  if (typeof value !== 'object' || value === null) return []
-  return Object.entries(value).flatMap(([key, child]) => textsIn(child, `${path}/${key}`))
-}
+// The scenes `e1`–`s1` one by one. The invariants of the whole story (R-03)
+// are in `story.test.ts`, the story facts and the variants (R-04) in
+// `story-facts.test.ts`.
 
 describe('scenes', () => {
   it.each(sceneIds)('%s is deterministic, a copy, and named in both locales', (id) => {

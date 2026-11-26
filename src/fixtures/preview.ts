@@ -1,40 +1,79 @@
-import type { Conversation, FailureReason, MemoryRow, Message, Proposal, Snapshot } from '@/runtime/model'
-import { addModule } from '@/runtime/reduce'
+import type { Conversation, FailureReason, MemoryRow, Message, Proposal, Snapshot, TaskKind } from '@/runtime/model'
+import { addModule, replayScript } from '@/runtime/reduce'
+import { actionsOfKind } from '@/runtime/selectors'
 import { isText, tx, type Text } from '@/runtime/text'
+import { addDays, datePart } from '@/runtime/time'
 
 import { wf } from './build'
-import { accountId, moduleId } from './keys'
+import { accountId, column, moduleId, tableId } from './keys'
+import { interviewMessages } from './onboarding'
+import { chatScripts } from './scripts'
 import { stubWorkflow } from './templates'
+import { staff } from './vocabulary'
 
 // What 状态预览 shows (spec part 2 § Fake workflow runtime, "Async facade and
 // the preview"): the long and the empty variant of the state, and the reason
 // each resource fails with when 出错 is forced. The facade applies these; a
 // screen never calls them.
 //
-// S6b: the variants below are generic — they stretch or empty whatever the
-// scene holds. Replace or extend them where part 3's Screens table names a
-// number the generic rule misses; keep the two signatures.
+// The long variant stretches whatever the scene holds to the sizes part 3's
+// Screens table names (`longSizes`); the empty one empties it. Both are
+// state → state, so every scene has both.
 
-/** How many of each thing the long variant holds. */
+/** How many of each thing the long variant holds — the numbers of part 3's Screens table. */
 export const longSizes = {
+  /** `onboarding.modules`, `settings.profession`: 12 modules. */
   professionModules: 12,
+  /** The memory view: 40 rows scroll inside the table. Every table without its own number below. */
   rows: 40,
+  /** `notifications`: 30 items. */
+  notices: 30,
+  /** `profession.inventory`: 30 rows. */
+  products: 30,
+  /** 预约确认: 20 customers. */
+  customers: 20,
+  /** `profession.appointments`: 14 bookings a day. */
+  bookingsPerDay: 14,
+  /** `calendar`: six overlapping bookings stack. */
+  overlappingBookings: 6,
+  /** The pet file: 30 visits (so 服务时长's home has its 30 rows too). */
+  visitsPerDog: 30,
+  /** The pet file: a 300-character note. */
+  noteCharacters: 300,
+  /** `messages`: a 200-character message. */
+  customerMessageCharacters: 200,
   runs: 30,
+  /** `notifications`: a five-part proposal. */
   proposalParts: 5,
+  /** `topics.<topic>`: 20 conversations — in every topic she has talked in. */
   conversations: 20,
+  /** …and a 60-message record. */
   messages: 60,
   messageCharacters: 2000,
+  /** `topics`: 40 topics. */
   topics: 40,
+  /** The workflow editor: a 25-node workflow. */
   workflowNodes: 25,
+  /** `settings.accounts`: a connector feeding eight modules. */
   accountFeeds: 8,
+  /** `settings.ai-modes`: a row capping 12 actions (`cappedTaskKind`). */
+  cappedActions: 12,
+  /** `onboarding.profession`: a 40-message interview. */
+  interviewMessages: 40,
 } as const
+
+/** The kind of task whose row in `settings.ai-modes` caps `longSizes.cappedActions` actions. */
+export const cappedTaskKind: TaskKind = 'change-rules'
+
+/** The start times of the long day: the second to the seventh all cover 11:00–12:00. */
+const longDay = ['09:30', '10:00', '10:00', '10:00', '10:30', '10:30', '11:00', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'] as const
 
 const longPhrase = tx(
   '这是一段特意写得很长的内容，用来检查文字在窄屏幕和大字号下会不会被截断或者溢出',
   'This text is long on purpose, to check that nothing is clipped or spills over on a narrow screen at a large text size',
 )
 
-/** A long text of about `characters` characters in each locale. */
+/** A long text of exactly `characters` characters in each locale. */
 export function longText(characters: number = longPhrase.en.length): Text {
   const stretch = (phrase: string, joiner: string) =>
     (phrase + joiner).repeat(Math.ceil(characters / (phrase.length + joiner.length))).slice(0, characters)
@@ -51,6 +90,75 @@ function padTo<Item>(items: Item[], size: number, clone: (item: Item, n: number)
   return padded
 }
 
+const rowSizes: Record<string, number> = {
+  [tableId.notices]: longSizes.notices,
+  [tableId.products]: longSizes.products,
+  [tableId.confirmations]: longSizes.customers,
+}
+
+/** 14 bookings today, six of them at once; nothing else on that day. */
+function longDayOf(draft: Snapshot): void {
+  const appointments = draft.memory.find((table) => table.id === tableId.appointments)
+  if (!appointments) return
+  const a = column.appointments
+  const today = datePart(draft.storyTime)
+  const groomers = Object.keys(staff)
+  let placed = 0
+  for (const row of appointments.rows) {
+    const start = row.cells[a.start]
+    if (typeof start !== 'string') continue
+    if (placed < longDay.length) {
+      row.cells[a.start] = `${today}T${longDay[placed]}`
+      row.cells[a.groomer] = groomers[placed % groomers.length]
+      placed++
+    } else if (start.startsWith(today)) {
+      row.cells[a.start] = `${addDays(today, 1)}${start.slice(10)}`
+    }
+  }
+}
+
+/** The first dog's file: long names, a 300-character note, 30 visits. */
+function longPetFile(draft: Snapshot): void {
+  const dog = draft.memory.find((table) => table.id === tableId.dogs)?.rows[0]
+  const visits = draft.memory.find((table) => table.id === tableId.visits)
+  if (!dog) return
+  const d = column.dogs
+  if (isText(dog.cells[d.owner])) dog.cells[d.owner] = longer(dog.cells[d.owner] as Text)
+  dog.cells[d.note] = longText(longSizes.noteCharacters)
+  if (!visits) return
+  const v = column.visits
+  const today = datePart(draft.storyTime)
+  const own = visits.rows.filter((row) => row.cells[v.dog] === dog.id)
+  const seed: MemoryRow[] = own.length > 0 ? own : [{ id: 'visit-long', cells: { [v.dog]: dog.id, [v.date]: today, [v.estimate]: 240, [v.actual]: 200, [v.groomer]: 'lan' } }]
+  const thirty = padTo(seed, longSizes.visitsPerDog, (row, n) => ({ id: `${row.id}~v${n}`, cells: { ...row.cells, [v.date]: addDays(today, -7 * n) } }))
+  visits.rows = [...thirty.slice(0, longSizes.visitsPerDog), ...visits.rows.filter((row) => row.cells[v.dog] !== dog.id)]
+}
+
+/** 20 conversations in every topic she has talked in, 40 topics, each record 60 messages long. */
+function longTopics(draft: Snapshot): void {
+  if (draft.conversations.length === 0) replayScript(draft, chatScripts[0].id, { moduleId: moduleId.appointments, view: 'page' })
+  draft.conversations = draft.topics.flatMap((topic) =>
+    padTo(
+      draft.conversations.filter((conversation) => conversation.topicId === topic.id),
+      longSizes.conversations,
+      (conversation, n) => ({ ...conversation, id: `${conversation.id}~${n}`, title: longer(conversation.title) }),
+    ),
+  )
+  for (const conversation of draft.conversations) {
+    conversation.messages = padTo(conversation.messages, longSizes.messages, (message, n) => ({ ...message, id: `${message.id}~${n}`, attachments: undefined }))
+    const last = conversation.messages.at(-1)
+    if (last) last.text = longText(longSizes.messageCharacters)
+  }
+  // A topic always has a conversation: each added topic gets a copy of the first one's.
+  const records = [...draft.conversations]
+  draft.topics = padTo(draft.topics, longSizes.topics, (topic, n) => {
+    const id = `${topic.id}~${n}`
+    const record = records.find((conversation) => conversation.topicId === topic.id)
+    if (record) draft.conversations.push({ ...structuredClone(record), id: `${record.id}~t${n}`, topicId: id })
+    return { ...topic, id, title: longer(topic.title) }
+  })
+}
+
 /** 超长内容: every list at the length that strains its screen, with one long text in each. */
 export function longVariant<State extends Snapshot>(state: State): State {
   const draft = structuredClone(state)
@@ -62,10 +170,14 @@ export function longVariant<State extends Snapshot>(state: State): State {
 
   for (const table of draft.memory) {
     const text = table.columns.find((column) => column.type === 'text')
-    table.rows = padTo<MemoryRow>(table.rows, longSizes.rows, (row, n) => ({ ...row, id: `${row.id}~${n}` }))
+    table.rows = padTo<MemoryRow>(table.rows, rowSizes[table.id] ?? longSizes.rows, (row, n) => ({ ...row, id: `${row.id}~${n}` }))
     const first = table.rows[0]
     if (text && first && isText(first.cells[text.id])) first.cells[text.id] = longer(first.cells[text.id] as Text)
   }
+  longDayOf(draft)
+  longPetFile(draft)
+  const message = draft.memory.find((table) => table.id === tableId.messages)?.rows[0]
+  if (message) message.cells.text = longText(longSizes.customerMessageCharacters)
 
   for (const module of draft.modules) {
     const runs = draft.runs.filter((run) => run.moduleId === module.id)
@@ -88,24 +200,20 @@ export function longVariant<State extends Snapshot>(state: State): State {
   }
   draft.proposals.push(fiveParts)
 
-  draft.topics = padTo(draft.topics, longSizes.topics, (topic, n) => ({ ...topic, id: `${topic.id}~${n}`, title: longer(topic.title) }))
-  draft.conversations = padTo(draft.conversations, longSizes.conversations, (conversation, n) => ({
-    ...conversation,
-    id: `${conversation.id}~${n}`,
-    title: longer(conversation.title),
-  }))
-  for (const conversation of draft.conversations) {
-    conversation.messages = padTo(conversation.messages, longSizes.messages, (message, n) => ({ ...message, id: `${message.id}~${n}`, attachments: undefined }))
-    const last = conversation.messages.at(-1)
-    if (last) last.text = longText(longSizes.messageCharacters)
-  }
+  longTopics(draft)
 
+  let capped = actionsOfKind(draft, cappedTaskKind).length
   for (const workflow of draft.workflows) {
     const version = workflow.versions.find((each) => each.n === workflow.current)
     if (!version) continue
     for (let n = 1; version.nodes.length < longSizes.workflowNodes; n++) {
       const previous = version.nodes[version.nodes.length - 1]
-      const step = wf.step(`long-${n}`, longer(tx(`补充步骤 ${n}`, `Extra step ${n}`)), { detail: longText() })
+      const live = draft.modules.some((module) => module.id === workflow.moduleId && !module.archived)
+      // One of the added steps is an action of the capped kind, until its row in `settings.ai-modes` caps twelve.
+      const step =
+        n === 1 && live && capped < longSizes.cappedActions
+          ? wf.action(`long-${n}`, longer(tx(`补充的规则修改 ${++capped}`, `Extra rule change ${capped}`)), 'autonomous', cappedTaskKind)
+          : wf.step(`long-${n}`, longer(tx(`补充步骤 ${n}`, `Extra step ${n}`)), { detail: longText() })
       version.nodes.push(step)
       version.edges.push({ id: `${previous.id}>${step.id}`, from: previous.id, to: step.id })
     }
@@ -116,6 +224,14 @@ export function longVariant<State extends Snapshot>(state: State): State {
     if (wechat && wechat.feeds.length < longSizes.accountFeeds && !wechat.feeds.includes(module.id)) wechat.feeds.push(module.id)
   }
   return draft
+}
+
+/** `onboarding.profession` under 超长内容: the interview stretched to 40 messages, the summary last. */
+export function longInterview(): Message[] {
+  const all = interviewMessages()
+  const exchanges = all.slice(0, -1)
+  const padded = padTo(exchanges, longSizes.interviewMessages - 1, (message, n) => ({ ...message, id: `${message.id}~${n}` }))
+  return [...padded, all[all.length - 1]]
 }
 
 /**

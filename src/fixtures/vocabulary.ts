@@ -55,6 +55,7 @@ export const breedBasisNames = {
 }
 
 export const appointmentStatusNames = {
+  requested: tx('待安排', 'To be placed'),
   booked: tx('已预约', 'Booked'),
   started: tx('已开始', 'Started'),
   done: tx('已完成', 'Done'),

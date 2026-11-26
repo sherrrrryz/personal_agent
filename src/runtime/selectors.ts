@@ -1,5 +1,5 @@
 import { formatDate, formatDateTime, formatDuration, formatNumber, type Locale } from '@/i18n'
-import { capMode, isAboveCeiling, type BehaviourMode } from '@/lib/vocab'
+import { capMode, isAboveCeiling, type BehaviourMode, type ChangeKind } from '@/lib/vocab'
 
 import type {
   Account,
@@ -191,6 +191,16 @@ export function tableOf(state: Snapshot, id: string): MemoryTable | undefined {
 /** The tables a module owns, in the order its memory view shows them. */
 export function tablesOf(state: Snapshot, module: Module): MemoryTable[] {
   return module.memoryTableIds.flatMap((id) => tableOf(state, id) ?? [])
+}
+
+/**
+ * The rows of a memory table that changed lately, for the memory view's
+ * markers: what the owner's last run reported plus what has changed since
+ * (a recorded visit, an accepted proposal). Keyed by row id.
+ */
+export function memoryChanges(state: Snapshot, table: MemoryTable): Record<string, ChangeKind> {
+  const key = `memory:${table.id}`
+  return { ...latestRun(state, table.ownerModuleId)?.changes.blocks[key], ...state.pendingChanges[table.ownerModuleId]?.blocks[key] }
 }
 
 export function rowOf(table: MemoryTable | undefined, rowId: string): MemoryRow | undefined {

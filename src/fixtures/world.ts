@@ -280,11 +280,37 @@ const dogSeeds: DogSeed[] = [
   ['kele', tx('可乐', 'Kele'), 'alaskan', 'long', 'large', tx('吴先生', 'Mr Wu'), null],
   ['tudou', tx('土豆', 'Tudou'), 'corgi', 'short', 'small', tx('郑女士', 'Ms Zheng'), null],
   ['panghu', tx('胖虎', 'Panghu'), 'frenchie', 'short', 'small', tx('冯先生', 'Mr Feng'), null],
+  ['nuomi', tx('糯米', 'Nuomi'), 'corgi', 'short', 'small', tx('许女士', 'Ms Xu'), null],
+  ['pidan', tx('皮蛋', 'Pidan'), 'frenchie', 'short', 'small', tx('蒋先生', 'Mr Jiang'), null],
 ]
+
+/** Dogs that become customers later in the story; a scene adds each with `newDog`. */
+const newcomers: DogSeed[] = [
+  ['buding', tx('布丁', 'Buding'), 'golden', 'long', 'large', tx('沈女士', 'Ms Shen'), null],
+  ['niangao', tx('年糕', 'Niangao'), 'bichon', 'long', 'small', tx('韩先生', 'Mr Han'), null],
+  ['yuanbao', tx('元宝', 'Yuanbao'), 'collie', 'long', 'medium', tx('曹女士', 'Ms Cao'), tx('第一次来，容易紧张。', 'First time here; gets nervous easily.')],
+]
+
+function dogRow([id, name, breed, coat, size, owner, note]: DogSeed): MemoryRow {
+  const d = column.dogs
+  return row(id, { [d.name]: name, [d.breed]: breed, [d.coat]: coat, [d.size]: size, [d.owner]: owner, [d.note]: note, [d.nextDue]: null })
+}
+
+/** The file of a dog that comes to the shop for the first time (布丁 in `s3`). */
+export function newDog(id: string): MemoryRow {
+  const seed = newcomers.find(([each]) => each === id)
+  if (!seed) throw new Error(`No dog "${id}" in the story`)
+  return dogRow(seed)
+}
 
 /** The owner of a dog, for scenes that write about customers. */
 export function ownerOf(dog: string): Text {
-  return dogSeeds.find(([id]) => id === dog)?.[5] ?? tx('', '')
+  return [...dogSeeds, ...newcomers].find(([id]) => id === dog)?.[5] ?? tx('', '')
+}
+
+/** The name of a dog, for scenes that write about it. */
+export function nameOf(dog: string): Text {
+  return [...dogSeeds, ...newcomers].find(([id]) => id === dog)?.[1] ?? tx('', '')
 }
 
 /** A booking row: two hours by default, until a rule says otherwise. */
@@ -299,7 +325,40 @@ export function booking(dog: string, date: string, time: string, groomer: keyof 
     [c.basis]: basis.default,
     [c.actual]: null,
     [c.status]: appointmentStatus.booked,
+    [c.previous]: null,
+    [c.extra]: null,
   })
+}
+
+/** 待安排 — a customer asked for a booking; no groomer and no time yet. */
+export function requested(dog: string): MemoryRow {
+  const c = column.appointments
+  const cells = { ...booking(dog, '0000-00-00', '00:00', 'lan').cells, [c.groomer]: null, [c.start]: null, [c.status]: appointmentStatus.requested }
+  return row(`apt-request-${dog}`, cells)
+}
+
+/** A booking that is over and was never timed — before 服务时长 existed nobody recorded durations. */
+function over(appointment: MemoryRow): MemoryRow {
+  appointment.cells[column.appointments.status] = appointmentStatus.done
+  return appointment
+}
+
+/**
+ * 下次到店 of every dog: the day of its next open booking, or none. A scene
+ * calls this once it is built, so the pet files agree with the schedule.
+ */
+export function syncNextDue(snapshot: Pick<Snapshot, 'memory' | 'storyTime'>): void {
+  const find = (id: string) => snapshot.memory.find((each) => each.id === id)
+  const a = column.appointments
+  const today = snapshot.storyTime.slice(0, 10)
+  for (const dog of find(tableId.dogs)?.rows ?? []) {
+    const days = (find(tableId.appointments)?.rows ?? [])
+      .filter((each) => each.cells[a.dog] === dog.id && each.cells[a.status] === appointmentStatus.booked)
+      .map((each) => String(each.cells[a.start]).slice(0, 10))
+      .filter((day) => day >= today)
+      .sort()
+    dog.cells[column.dogs.nextDue] = days[0] ?? null
+  }
 }
 
 function memory(now: string): MemoryTable[] {
@@ -364,8 +423,19 @@ function memory(now: string): MemoryTable[] {
         col(a.basis, 'code', '依据', 'Based on', { options: basisNames }),
         col(a.actual, 'duration', '实际耗时', 'Actual time'),
         col(a.status, 'code', '状态', 'Status', { options: appointmentStatusNames }),
+        col(a.previous, 'duration', '调整前', 'Before the change'),
+        col(a.extra, 'duration', '首次到店加时', 'First-visit extra'),
       ],
-      [booking('xueqiu', tomorrow, '10:00', 'lan'), booking('max', tomorrow, '13:00', 'chen'), booking('tudou', tomorrow, '15:00', 'jie'), booking('panghu', tomorrow, '16:30', 'lan')],
+      [
+        // Today's two are over; tomorrow's four are what the first conversation is about.
+        over(booking('nuomi', today, '10:00', 'lan')),
+        over(booking('pidan', today, '14:00', 'jie')),
+        booking('xueqiu', tomorrow, '10:00', 'lan'),
+        booking('max', tomorrow, '13:00', 'chen'),
+        booking('tudou', tomorrow, '15:00', 'jie'),
+        booking('panghu', tomorrow, '16:30', 'lan'),
+        requested('maiya'),
+      ],
       [m.calendar, m.shifts, m.clients, m.notifications],
     ),
     table(
@@ -381,9 +451,7 @@ function memory(now: string): MemoryTable[] {
         col(d.note, 'text', '性格备注', 'Temperament notes'),
         col(d.nextDue, 'date', '下次到店', 'Next due'),
       ],
-      dogSeeds.map(([id, name, breed, coat, size, owner, note]) =>
-        row(id, { [d.name]: name, [d.breed]: breed, [d.coat]: coat, [d.size]: size, [d.owner]: owner, [d.note]: note, [d.nextDue]: null }),
-      ),
+      dogSeeds.map(dogRow),
       [m.appointments],
     ),
     table(
@@ -458,7 +526,7 @@ const ceilings: Partial<Record<(typeof taskKinds)[number], ModeSetting['ceiling'
 
 /** The shop as onboarding left it. A new object on every call. */
 export function world(): Snapshot {
-  return {
+  const snapshot: Snapshot = {
     scene: 'e1',
     storyTime: firstEvening,
     ...modulesAndWorkflows(firstEvening),
@@ -472,4 +540,6 @@ export function world(): Snapshot {
     removedModules: [],
     seq: 0,
   }
+  syncNextDue(snapshot)
+  return snapshot
 }

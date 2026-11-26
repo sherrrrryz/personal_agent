@@ -41,6 +41,36 @@ export function nextAt(now: string, time: string): string {
   return today > now ? today : addDays(today, 1)
 }
 
+/** The latest moment the clock showed `time` at or before `now`. */
+export function lastAt(now: string, time: string): string {
+  const today = `${datePart(now)}T${time}`
+  return today <= now ? today : addDays(today, -1)
+}
+
+/** 0 Sunday … 6 Saturday. */
+export function weekdayOf(at: string): number {
+  return new Date(toUtc(datePart(at))).getUTCDay()
+}
+
+/** The Monday of the week `at` falls in, as a date. */
+export function mondayOf(at: string): string {
+  return addDays(datePart(at), -((weekdayOf(at) + 6) % 7))
+}
+
+/** The next moment after `now` that is `weekday` at `time` — 每周一 18:00. */
+export function nextWeekdayAt(now: string, weekday: number, time: string): string {
+  let at = nextAt(now, time)
+  while (weekdayOf(at) !== weekday) at = addDays(at, 1)
+  return at
+}
+
+/** The latest moment at or before `now` that was `weekday` at `time`. */
+export function lastWeekdayAt(now: string, weekday: number, time: string): string {
+  let at = lastAt(now, time)
+  while (weekdayOf(at) !== weekday) at = addDays(at, -1)
+  return at
+}
+
 /** A story time as a `Date` in the browser's zone — only for `Intl` formatting. */
 export function toDate(at: string): Date {
   const [year, month, day] = datePart(at).split('-').map(Number)

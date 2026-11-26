@@ -6,8 +6,10 @@ import {
   column,
   defaultEstimate,
   firstVisitParam,
+  memoryBlock,
   tableId,
 } from '@/fixtures/keys'
+import { shiftSuggestion } from '@/fixtures/proposals'
 import { cannedReply, chatScripts, miscTopic } from '@/fixtures/scripts'
 import { customModule, stubWorkflow, subModuleTemplates } from '@/fixtures/templates'
 import type { BehaviourMode, ChangeKind } from '@/lib/vocab'
@@ -27,9 +29,11 @@ import type {
   Snapshot,
   TaskKind,
   TriggerKind,
+  Workflow,
 } from './model'
 import {
   blockingAccount,
+  effectiveMode,
   findAccount,
   findConversation,
   findModule,
@@ -68,6 +72,9 @@ export function markChange(draft: Snapshot, module: string, block: string, item:
  * first-visit condition (`s4`), a dog with no visit yet gets its extra.
  * 适用 values change only through an accepted proposal, so recording a
  * duration alone never moves a booking.
+ *
+ * A booking that already stood on a rule keeps what it was booked for in
+ * 调整前; when such bookings move, the workflow's 建议排班调整 tells 排班.
  */
 export function applyEstimates(draft: Snapshot): void {
   const appointments = tableOf(draft, tableId.appointments)
@@ -80,27 +87,69 @@ export function applyEstimates(draft: Snapshot): void {
   const firstVisitNode = workflow && versionOf(workflow).nodes.find((node) => firstVisitParam in node.params)
   const firstVisitExtra = Number(firstVisitNode?.params[firstVisitParam] ?? 0)
   const c = column.appointments
+  let moved = false
 
   for (const row of appointments.rows) {
-    if (row.cells[c.status] !== appointmentStatus.booked) continue
+    const status = row.cells[c.status]
+    if (status !== appointmentStatus.booked && status !== appointmentStatus.requested) continue
     const dog = stringCell(row, c.dog) ?? ''
     const own = numberCell(rowOf(records, dog), column.dogDurations.applied)
     const breed = numberCell(rowOf(breeds, stringCell(rowOf(dogs, dog), column.dogs.breed) ?? ''), column.breeds.applied)
     const visited = visits?.rows.some((visit) => visit.cells[column.visits.dog] === dog) ?? false
     let estimate = defaultEstimate
     let rests: string = basis.default
+    let extra: number | null = null
     if (own !== null) {
       estimate = own
       rests = basis.own
     } else if (breed !== null) {
-      estimate = breed + (visited ? 0 : firstVisitExtra)
+      if (!visited && firstVisitExtra > 0) extra = firstVisitExtra
+      estimate = breed + (extra ?? 0)
       rests = basis.breed
     }
-    if (row.cells[c.estimate] === estimate && row.cells[c.basis] === rests) continue
+    if (row.cells[c.estimate] === estimate && row.cells[c.basis] === rests && (row.cells[c.extra] ?? null) === extra) continue
+    if (row.cells[c.basis] !== basis.default && row.cells[c.estimate] !== estimate) {
+      row.cells[c.previous] = row.cells[c.estimate]
+      moved = true
+    }
     row.cells[c.estimate] = estimate
     row.cells[c.basis] = rests
-    markChange(draft, appointments.ownerModuleId, blockKey.appointments.schedule, row.id, 'updated')
+    row.cells[c.extra] = extra
+    const block = status === appointmentStatus.requested ? blockKey.appointments.unplaced : blockKey.appointments.schedule
+    markChange(draft, appointments.ownerModuleId, block, row.id, 'updated')
   }
+  if (moved) suggestShifts(draft, workflow)
+}
+
+/**
+ * 建议排班调整: open bookings moved, so the action tells its target module how
+ * much time that frees or takes — one proposal in the action's effective mode.
+ * A suggestion she has not answered gives way to the new one.
+ */
+function suggestShifts(draft: Snapshot, workflow: Workflow | undefined): void {
+  const node = workflow && versionOf(workflow).nodes.find((each) => each.kind === 'action' && each.taskKind === 'adjust-shifts')
+  const target = node?.targetModuleId
+  const appointments = tableOf(draft, tableId.appointments)
+  if (!node || !target || !appointments) return
+  const c = column.appointments
+  let freed = 0
+  for (const row of appointments.rows) {
+    const previous = numberCell(row, c.previous)
+    const estimate = numberCell(row, c.estimate)
+    if (row.cells[c.status] === appointmentStatus.booked && previous !== null && estimate !== null) freed += previous - estimate
+  }
+  draft.proposals = draft.proposals.filter(
+    (each) => !(each.nodeId === node.id && each.moduleId === target && each.parts.every((part) => part.state === 'pending')),
+  )
+  if (freed === 0) return
+  draft.proposals.push({
+    ...shiftSuggestion(freed, target, draft.storyTime),
+    id: newId(draft, 'proposal'),
+    moduleId: target,
+    nodeId: node.id,
+    mode: effectiveMode(draft, node),
+    at: draft.storyTime,
+  })
 }
 
 // ── Sub-modules and the module set ──────────────────────────────────────────
@@ -345,9 +394,16 @@ function runEffect(draft: Snapshot, proposal: Proposal): string | null {
       return null
     case 'promoteSubModule':
       return promoteSubModule(draft, effect.input.moduleId)
-    case 'updateMemory':
-      updateMemory(draft, effect.input.patches.filter((patch) => !patch.partId || accepted.has(patch.partId)))
+    case 'updateMemory': {
+      const patches = effect.input.patches.filter((patch) => !patch.partId || accepted.has(patch.partId))
+      // What an accepted proposal changed is marked in the memory view until the owner's next run.
+      for (const patch of patches) {
+        const table = tableOf(draft, patch.tableId)
+        if (table) markChange(draft, table.ownerModuleId, memoryBlock(table.id), patch.rowId, rowOf(table, patch.rowId) ? 'updated' : 'new')
+      }
+      updateMemory(draft, patches)
       return null
+    }
     default:
       return null
   }
@@ -462,7 +518,9 @@ export function recordActualDuration(draft: Snapshot, input: { appointmentId: st
     const cells: Record<string, CellValue> = { [d.dog]: dog, [d.breed]: breed, [d.applied]: null, [d.note]: dogRow.cells[column.dogs.note] ?? null }
     record = { id: dog, cells }
     records.rows.push(record)
+    markChange(draft, records.ownerModuleId, memoryBlock(records.id), dog, 'new')
   }
+  markChange(draft, records.ownerModuleId, memoryBlock(records.id), dog, 'updated')
   const own = visits.rows.filter((visit) => visit.cells[column.visits.dog] === dog).map((visit) => Number(visit.cells[column.visits.actual]))
   record.cells[d.visits] = own.length
   record.cells[d.average] = mean(own)
@@ -482,6 +540,7 @@ export function recordActualDuration(draft: Snapshot, input: { appointmentId: st
     [b.updatedAt]: draft.storyTime,
   })
   breeds.updatedAt = draft.storyTime
+  markChange(draft, breeds.ownerModuleId, memoryBlock(breeds.id), breedRow.id, 'updated')
 }
 
 // ── Settings ────────────────────────────────────────────────────────────────
@@ -586,7 +645,8 @@ export function beginMessage(
       }
       draft.conversations.push(conversation)
     }
-    conversation.messages.push({ id: newId(draft, 'msg'), author: 'user', text: typed(input.text.trim()), at: draft.storyTime, status: 'done' })
+    // A scripted prompt is hers in both languages; anything else stays as she typed it.
+    conversation.messages.push({ id: newId(draft, 'msg'), author: 'user', text: script?.prompt ?? typed(input.text.trim()), at: draft.storyTime, status: 'done' })
   }
 
   conversation.messages.push({

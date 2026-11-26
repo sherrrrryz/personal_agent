@@ -48,6 +48,10 @@ export const column = {
     basis: 'basis',
     actual: 'actual',
     status: 'status',
+    /** 调整前 — the estimate a rule change replaced; `null` when no change has moved this booking. */
+    previous: 'previous',
+    /** 首次到店加时 — the minutes the first-visit condition adds (`s4`); `null` when it adds none. */
+    extra: 'extra',
   },
   dogs: { name: 'name', breed: 'breed', coat: 'coat', size: 'size', owner: 'owner', note: 'note', nextDue: 'nextDue' },
   visits: { dog: 'dog', date: 'date', estimate: 'estimate', actual: 'actual', groomer: 'groomer' },
@@ -80,7 +84,8 @@ export const column = {
 /** What an estimate rests on: 默认 · 按品种表 · 按它自己的记录. */
 export const basis = { default: 'default', breed: 'breed', own: 'own' } as const
 
-export const appointmentStatus = { booked: 'booked', started: 'started', done: 'done' } as const
+/** `requested` 待安排: a customer asked, no groomer or time yet — `groomer` and `start` are `null`. */
+export const appointmentStatus = { requested: 'requested', booked: 'booked', started: 'started', done: 'done' } as const
 
 /** Minutes a booking gets when no rule applies — the two hours 可乐 is booked for in `s0`. */
 export const defaultEstimate = 120
@@ -89,14 +94,42 @@ export const defaultEstimate = 120
 export const firstVisitParam = 'firstVisitExtraMinutes'
 
 /** Workflow node ids other code points at. */
-export const nodeId = { review: 'review', estimate: 'estimate', setDuration: 'set-duration' } as const
+export const nodeId = {
+  review: 'review',
+  estimate: 'estimate',
+  setDuration: 'set-duration',
+  /** 建议排班调整 — raises the suggestion on 排班 when a rule change moves open bookings. */
+  suggestShifts: 'suggest-shifts',
+  /** The condition `s4` adds: 第一次来的狗 +30 分钟. */
+  firstVisit: 'first-visit',
+} as const
+
+/** Ids of the proposals the story itself raises (a chat proposal's id comes from the counter). */
+export const proposalId = {
+  /** `s3`: the Monday review's two parts — the breed row, and the dogs with their own record. */
+  review: 'proposal-duration-review',
+  /** Between `s3` and `s4`: more dogs reach two visits. */
+  moreDogs: 'proposal-duration-more-dogs',
+  /** `s4`: add the first-visit condition to the workflow. */
+  firstVisit: 'proposal-first-visit',
+  /** From `s4`: promote 服务时长 to a top-level module (D-38), shown in `settings.profession`. */
+  promote: 'proposal-promote-duration',
+} as const
+
+/**
+ * The key under which a module's change set names the rows of one of its
+ * memory tables: `changes.blocks['memory:breed-durations'].golden`. Rows changed
+ * by a recorded visit or an accepted proposal are marked there
+ * (`memoryChanges` in `@/runtime` reads them).
+ */
+export const memoryBlock = (table: string) => `memory:${table}`
 
 /**
  * Block keys of the pages whose items the runtime marks as changed. A page
  * builder (part 3) gives these keys to the blocks that show the same rows.
  */
 export const blockKey = {
-  appointments: { schedule: 'schedule' },
+  appointments: { schedule: 'schedule', unplaced: 'unplaced' },
   clients: { dogs: 'dogs', visits: 'visits' },
   duration: { records: 'records' },
 } as const

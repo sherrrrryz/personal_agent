@@ -80,7 +80,8 @@ const longShaped: Check = {
   memory: (data) => expect(data.tables[0].rows).toHaveLength(longSizes.rows),
   runs: (data) => expect(data).toHaveLength(longSizes.runs),
   proposals: (data) => expect(Math.max(...data.map((proposal) => proposal.parts.length))).toBe(longSizes.proposalParts),
-  conversations: (data) => expect(data).toHaveLength(longSizes.conversations),
+  // 20 in every topic she has talked in (S6b), so at least 20 in all.
+  conversations: (data) => expect(data.length).toBeGreaterThanOrEqual(longSizes.conversations),
   conversation: (data) => {
     expect(data.messages).toHaveLength(longSizes.messages)
     expect(data.messages.at(-1)?.text.en).toHaveLength(longSizes.messageCharacters)

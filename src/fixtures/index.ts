@@ -11,12 +11,16 @@ export {
   column,
   defaultEstimate,
   firstVisitParam,
+  memoryBlock,
   moduleId,
   nodeId,
+  proposalId,
   tableId,
 } from './keys'
-export { emptyThread, emptyVariant, longSizes, longText, longVariant, previewErrors, withoutSource, withoutSummaries } from './preview'
+export { cappedTaskKind, emptyThread, emptyVariant, longInterview, longSizes, longText, longVariant, previewErrors, withoutSource, withoutSummaries } from './preview'
 export type { PreviewError } from './preview'
+export { interview, interviewMessages } from './onboarding'
+export { firstVisitNode } from './proposals'
 export { scene, sceneGroupNames, sceneNames } from './scenes'
 export { cannedReply, chatScripts, miscTopic, scriptId } from './scripts'
 export { customModule, stubWorkflow, subModuleTemplates } from './templates'

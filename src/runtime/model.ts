@@ -255,6 +255,8 @@ export type Proposal = {
   id: string
   /** The module the proposal comes from. */
   moduleId: string
+  /** The workflow action that raised it, when one did: 建议排班调整 raises the suggestion on 排班. */
+  nodeId?: string
   mode: BehaviourMode
   title: Text
   summary?: Text

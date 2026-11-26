@@ -61,7 +61,7 @@ const duration: SubModuleTemplate = {
       wf.action(nodeId.setDuration, tx('设置预约时长', 'Set the booking’s duration'), 'autonomous', 'change-appointments', {
         targetModuleId: parentId,
       }),
-      wf.action('suggest-shifts', tx('建议排班调整', 'Suggest shift changes'), 'assisted', 'adjust-shifts', {
+      wf.action(nodeId.suggestShifts, tx('建议排班调整', 'Suggest shift changes'), 'assisted', 'adjust-shifts', {
         targetModuleId: moduleId.shifts,
       }),
       wf.step('record-actual', tx('记录实际耗时', 'Record the time actually taken'), {
@@ -75,7 +75,7 @@ const duration: SubModuleTemplate = {
       wf.output('out-rule', 'block.text', 'rule', tx('现在的规则', 'The rule right now')),
     ],
     edges: [
-      ...chain('booking-changed', 'pet-files', nodeId.estimate, nodeId.setDuration, 'suggest-shifts'),
+      ...chain('booking-changed', 'pet-files', nodeId.estimate, nodeId.setDuration, nodeId.suggestShifts),
       ...chain(nodeId.setDuration, 'record-actual', 'deviation', 'propose-rule'),
       ...chain(nodeId.review, 'deviation'),
       ...chain('memory', nodeId.estimate),

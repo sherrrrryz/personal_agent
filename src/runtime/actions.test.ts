@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { accountId, basis, chatScripts, column, firstVisitParam, moduleId, nodeId, scene, scriptId, tableId, cannedReply } from '@/fixtures'
+import { accountId, basis, chatScripts, column, firstVisitParam, memoryBlock, moduleId, nodeId, scene, scriptId, tableId, cannedReply } from '@/fixtures'
 import { behaviourModes, type BehaviourMode } from '@/lib/vocab'
 
 import {
@@ -216,7 +216,7 @@ const effects: Record<keyof RuntimeActions, () => void | Promise<void>> = {
     expect(approved.proposed).toBeUndefined()
     expect(versionOf(approved).nodes).toHaveLength(current.nodes.length + 1)
     expect(versionOf(approved, 1).nodes).toHaveLength(current.nodes.length)
-    expect(runtime.getState().proposals.at(-1)).toMatchObject({ applied: true, parts: [{ state: 'accepted' }] })
+    expect(runtime.getState().proposals.find((each) => each.id === 'proposal-first-visit')).toMatchObject({ applied: true, parts: [{ state: 'accepted' }] })
     // The new condition is in force: no dog has a recorded visit yet, so each booking gets the extra.
     expect(booked(runtime, 'kele').cells[column.appointments.estimate]).toBe(270)
     expect(runtime.actions.approveWorkflowChange({ workflowId: workflow.id })).toBe(false)
@@ -274,7 +274,14 @@ const effects: Record<keyof RuntimeActions, () => void | Promise<void>> = {
     const run = latestRun(runtime.getState(), moduleId.duration)!
     expect(run).toMatchObject({ id, result: 'ok', at: runtime.getState().storyTime })
     // The run reports what changed since the last one…
-    expect(run.changes).toEqual({ blocks: { records: { [first.id]: 'new' } } })
+    expect(run.changes).toEqual({
+      blocks: {
+        records: { [first.id]: 'new' },
+        // …and which rows of its memory moved (S6b: the memory view's markers).
+        [memoryBlock(tableId.dogDurations)]: { doudou: 'new' },
+        [memoryBlock(tableId.breeds)]: { golden: 'updated' },
+      },
+    })
     // …and the next run, with nothing new, clears the markers.
     await runtime.actions.runModule(moduleId.duration)
     expect(latestRun(runtime.getState(), moduleId.duration)?.changes).toEqual({ blocks: {} })

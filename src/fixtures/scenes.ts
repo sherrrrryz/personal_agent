@@ -5,20 +5,23 @@ import { tx, type Text } from '@/runtime/text'
 import { addDays, datePart, nextAt } from '@/runtime/time'
 
 import { row } from './build'
-import { appointmentStatus, column, moduleId, tableId } from './keys'
+import { column, moduleId, tableId } from './keys'
+import { closeBookingsBefore, notice, ranAt, request } from './scene-tools'
 import { scriptId } from './scripts'
-import { booking, ownerOf, world } from './world'
+import { acceptReview, approveFirstVisit, firstChange, learning, lookingBack, workflowChanges } from './story'
+import { booking, ownerOf, syncNextDue, world } from './world'
 
 // The scenes of the story (spec part 2 § Fake workflow runtime, "Scenes").
 // Each is built from the one before by the runtime's own reducers plus what
 // time brought, so a scene's key action, done live, lands on the next scene's
 // state: accepting the proposal in `s0` yields `s1`.
 //
-// To add a scene (S6b: `s2`…`s5`): write `(draft: Snapshot) => void` that
-// mutates the previous scene's snapshot — call reducers for what she did,
-// `updateMemory` or direct edits for what time brought — set `draft.storyTime`,
-// and put it in `steps` below. `s3` and `s4` have a second step in `resolved`
-// that takes the pending half to the resolved one.
+// The warm-up and the first two stages are below; `s2`…`s5` are in `story.ts`.
+// A step is `(draft: Snapshot) => void`: it mutates the previous scene's
+// snapshot — reducers for what she did, the helpers of `scene-tools.ts` for
+// what time brought — and sets `draft.storyTime`. `s3` and `s4` have a second
+// step in `resolved`: her key action, and nothing else, so that doing it live
+// on the pending half gives the resolved one.
 
 /** What the 时间推进 menu calls each scene. */
 export const sceneNames: Record<SceneId, Text> = {
@@ -36,26 +39,6 @@ export const sceneGroupNames = { warmup: tx('热身', 'Warm-up'), main: tx('主�
 
 const a = column.appointments
 
-/** Bookings that started before `date` are over. */
-function closeBookingsBefore(draft: Snapshot, date: string): void {
-  for (const each of tableOf(draft, tableId.appointments)?.rows ?? []) {
-    if (String(each.cells[a.start]) < date) each.cells[a.status] = appointmentStatus.done
-  }
-}
-
-/** A scheduled run that happened at `at`, reporting what is pending for the module. */
-function ranAt(draft: Snapshot, module: string, at: string): void {
-  const now = draft.storyTime
-  draft.storyTime = at
-  const run = startRun(draft, { moduleId: module, trigger: 'schedule' })
-  if (run) finishRun(draft, run)
-  draft.storyTime = now
-}
-
-function notice(draft: Snapshot, id: string, text: Text, source: string): void {
-  updateMemory(draft, [{ tableId: tableId.notices, rowId: id, cells: { text, source, at: draft.storyTime }, insert: true }])
-}
-
 /** `e2` 第二晚 — she made the confirmations persistent; tonight it ran for the first time. */
 function secondEvening(draft: Snapshot): void {
   const conversation = replayScript(draft, scriptId.confirmations, { moduleId: moduleId.appointments, view: 'page' })
@@ -66,6 +49,8 @@ function secondEvening(draft: Snapshot): void {
   const today = datePart(draft.storyTime)
   const tomorrow = addDays(today, 1)
   closeBookingsBefore(draft, tomorrow)
+  // 麦芽's request has been placed.
+  request(draft, null)
   const bookings = [booking('maiya', tomorrow, '10:00', 'chen'), booking('naicha', tomorrow, '13:30', 'jie'), booking('lucky', tomorrow, '15:30', 'lan')]
   tableOf(draft, tableId.appointments)?.rows.push(...bookings)
 
@@ -134,6 +119,7 @@ function today(draft: Snapshot): void {
   ]
   const appointments = tableOf(draft, tableId.appointments)
   appointments?.rows.push(...bookings)
+  request(draft, 'tudou')
 
   // Last night's run confirmed today's two bookings; both customers answered.
   const confirmations = tableOf(draft, tableId.confirmations)
@@ -164,11 +150,6 @@ function becomesWorkflow(draft: Snapshot): void {
   if (run) finishRun(draft, run)
 }
 
-/** Until S6b writes it, a later scene is the one before it at a later time. */
-const later = (storyTime: string) => (draft: Snapshot) => {
-  draft.storyTime = storyTime
-}
-
 type Step = (draft: Snapshot) => void
 
 /** What turns each scene's predecessor into it; `e1` starts from `world()`. */
@@ -177,16 +158,16 @@ const steps: Record<SceneId, Step> = {
   e2: secondEvening,
   s0: today,
   s1: becomesWorkflow,
-  s2: later('2026-11-19T10:00'),
-  s3: later('2026-11-23T09:05'),
-  s4: later('2027-01-04T09:05'),
-  s5: later('2027-01-06T10:00'),
+  s2: learning,
+  s3: firstChange,
+  s4: workflowChanges,
+  s5: lookingBack,
 }
 
 /** What her key action does in the scenes that have two halves: pending → resolved. */
 const resolved: Partial<Record<SceneId, Step>> = {
-  s3: () => {},
-  s4: () => {},
+  s3: acceptReview,
+  s4: approveFirstVisit,
 }
 
 const order = Object.keys(steps) as SceneId[]
@@ -200,12 +181,14 @@ function build(id: SceneId, half: SceneHalf): Snapshot {
   if (half === 'resolved' && resolved[id]) {
     draft = structuredClone(build(id, 'pending'))
     resolved[id](draft)
+    syncNextDue(draft)
   } else {
     const index = order.indexOf(id)
     // A scene follows the resolved half of the one before it.
     draft = index === 0 ? world() : structuredClone(build(order[index - 1], 'resolved'))
     steps[id](draft)
     draft.scene = id
+    syncNextDue(draft)
   }
   built.set(key, draft)
   return draft
