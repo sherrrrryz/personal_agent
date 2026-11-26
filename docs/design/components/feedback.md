@@ -27,7 +27,7 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 | --- | --- | --- | --- | --- |
 | `Badge` | `kit` | `variant: default · secondary · outline · destructive · ghost · link` | `lofi` | A short status word, never a control. The kit keeps it on one line at a fixed height, so the text is a word or two — a sentence goes into an `Alert`. In the grey theme `destructive` differs by wording and icon only. Behaviour modes and change kinds have their own badges (`data-display.md`) |
 | `Alert` | `kit` | `variant: default · destructive`; sub-parts `AlertTitle`, `AlertDescription`, `AlertAction` | `lofi` | A message in place, with an icon as first child. `role="alert"` (assertive) by default: pass `role={undefined}` for one that is on the page from the start. `AlertAction` is positioned over the corner and does not wrap — put a `Button` in the description instead |
-| `Sonner` | `wrapped` | `position: top-center · top-right · bottom-center · bottom-right` (default `bottom-right`); `id` | `lofi` | The toaster, mounted once near the end of the root; `toast(message, { kind: plain · success · warning · error, description, action, persistent, id, toasterId })` raises one, `toast.dismiss(id?)` removes. The library's own styling is switched off: a toast is written in our tokens, its action and close control take `Button`'s look and target minimum, toasts are listed in full, every toast has a close control. § Pitfalls |
+| `Sonner` | `wrapped` | `position: top-center · top-right · bottom-center · bottom-right` (default `bottom-right`); `id` with `label` (a second toaster only) | `lofi` | The toaster, mounted once as the last element of the root (`src/app/RootLayout.tsx`), after `main` and whatever the shell adds; a screen never mounts another, except a second one with its own `id` and `label`; `toast(message, { kind: plain · success · warning · error, description, action, persistent, id, toasterId })` raises one, `toast.dismiss(id?)` removes. The library's own styling is switched off: a toast is written in our tokens, its action and close control take `Button`'s look and target minimum, toasts are listed in full, every toast has a close control. § Pitfalls |
 | `Skeleton` | `kit` | — (shape by `className`) | `lofi` | A placeholder shape with no text. Stands inside `DataState`'s `loading` slot, which hides it from assistive technology; on its own, inside an `aria-hidden` holder in a region with `aria-busy` |
 | `Spinner` | `kit` | — | `lofi` | No built-in name (kit patch): either `aria-label` from the messages, or `role={undefined} aria-hidden="true"` beside status text |
 | `Empty` | `kit` | sub-parts `EmptyHeader`, `EmptyMedia` (`variant: default · icon`), `EmptyTitle`, `EmptyDescription`, `EmptyContent` | `lofi` | What an empty collection shows: a title, one line on what will appear, optionally one action. Goes into `DataState`'s `empty` slot. A workflow that emits an empty page uses `block.empty` instead |
@@ -44,7 +44,7 @@ through `size.target.min` for anything interactive.
 | --- | --- | --- | --- | --- | --- | --- |
 | `Badge` | None (`span`) | Its text; an icon in it is `aria-hidden` | Not focusable | — | — | Nothing by itself: it is part of what contains it |
 | `Alert` | `alert` | — (its title and description are its content) | Not focusable; a control inside it is a `Button` | — | — (the `Button` inside: 44 × 44 CSS px) | Assertively when it appears. Present from the start: no role, read in order |
-| `Sonner` | `section` (a region) holding a list; each toast a `listitem` | The region: `sonner.region` plus the key chord the library appends; the close control: `sonner.close`; the action: its label | Tab reaches a toast, then its close control, then its action, and goes on past it. Alt+T moves focus to the toasts. Enter or Space on a button, or Escape, returns focus to where it was | The kit's ring on the toast and on its buttons | Close and action 44 × 44 CSS px | Politely (`aria-live="polite"`). Never the only place an error appears: the screen shows it too |
+| `Sonner` | `section` (a region) holding a list; each toast a `listitem` | The region: `sonner.region` plus the key chord the library appends (a second toaster: its `label`); the close control: `sonner.close`; the action: its label | Tab reaches a toast, then its close control, then its action, and goes on past it. Alt+T moves focus to the toasts. Enter or Space on a button, or Escape, returns focus to where it was | The kit's ring on the toast and on its buttons | Close and action 44 × 44 CSS px | Politely (`aria-live="polite"`). Never the only place an error appears: the screen shows it too |
 | `Skeleton` | None | — | Not focusable | — | — | Nothing: hidden from assistive technology; the status text beside it speaks |
 | `Spinner` | `status` when named; none when `aria-hidden` | `aria-label` from the caller | Not focusable | — | — | Its name, when it has one |
 | `Empty` | None | — (title and description are text) | A control inside it is a `Button` | — | — (the `Button` inside: 44 × 44 CSS px) | Through `DataState` when it is in its slot |
@@ -74,6 +74,15 @@ leaves the list of toasts — so while a toast is open, Tab from its last
 button returns to where the user was, and the matrix reports
 `keyboard-trap`. `Sonner` stops the library's bookkeeping and returns focus
 only when a button in a toast is pressed or on Escape (`Sonner.test.tsx`).
+
+### Two toasters on one page fail `landmark-unique`
+
+**Rule:** the app's toaster is the one `RootLayout` mounts; a second `Sonner` on a page takes an `id` and a `label` of its own (the type requires both together).
+
+Each toaster is a region, drawn even while it holds no toast, and two regions
+with one name cannot be told apart. The `Sonner` demo passed alone and failed
+axe in the gallery once the root mounted the app's toaster (`I3`); its own
+toaster is now named `sonner.demo.region`.
 
 ### Every matrix cell of a screen takes eight more seconds
 

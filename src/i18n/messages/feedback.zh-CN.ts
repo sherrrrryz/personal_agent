@@ -28,6 +28,7 @@ const messages: Translation<typeof en> = {
   'alert.demo.dangerBody': '新的预约不会写入你的日历。请到设置里重新连接；已经保存的内容不会丢失。',
   'alert.demo.plain': '提醒会在前一天晚上 19:00 发出。',
 
+  'sonner.demo.region': '演示里的通知',
   'sonner.demo.intro': '通知只重复页面上已经显示的内容，或者提供一次撤销。错误从不只出现在通知里。',
   'sonner.demo.show': '显示一条通知',
   'sonner.demo.showUndo': '显示一条可撤销的通知',

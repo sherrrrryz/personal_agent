@@ -10,12 +10,22 @@ import { toastClassNames } from './toast-class'
 export type SonnerProps = {
   /** Where toasts appear. Default `bottom-right`; under the narrow breakpoint of the library a toast spans the width. */
   position?: SonnerPosition
-  /**
-   * Set only for a second toaster on the same page: it then shows the toasts
-   * raised with this `toasterId` and no others.
-   */
-  id?: string
-}
+} & (
+  | { id?: undefined; label?: undefined }
+  | {
+      /**
+       * Set only for a second toaster on the same page: it then shows the toasts
+       * raised with this `toasterId` and no others.
+       */
+      id: string
+      /**
+       * The name of this second toaster's region, from the messages. The app's
+       * toaster is the one named `sonner.region`; two regions with one name
+       * cannot be told apart (axe `landmark-unique`).
+       */
+      label: string
+    }
+)
 
 /**
  * The toaster: mounted once, near the root, it shows what `toast(…)` raises.
@@ -24,7 +34,7 @@ export type SonnerProps = {
  * close control, and toasts are listed in full instead of stacked behind one
  * another.
  */
-export function Sonner({ position = 'bottom-right', id }: SonnerProps) {
+export function Sonner({ position = 'bottom-right', id, label }: SonnerProps) {
   const t = useT('feedback')
   const { resolvedTheme } = useTheme()
 
@@ -64,7 +74,7 @@ export function Sonner({ position = 'bottom-right', id }: SonnerProps) {
         id={id}
         position={position}
         theme={resolvedTheme}
-        containerAriaLabel={t('sonner.region')}
+        containerAriaLabel={label ?? t('sonner.region')}
         closeButton
         expand
         toastOptions={{

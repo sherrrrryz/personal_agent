@@ -31,6 +31,7 @@ const messages = {
   'alert.demo.dangerBody': 'New bookings are not written to your calendar. Connect it again in Settings; nothing already saved is lost.',
   'alert.demo.plain': 'Reminders go out at 19:00 the evening before.',
 
+  'sonner.demo.region': 'Notifications of this demo',
   'sonner.demo.intro': 'A toast repeats something the screen already shows, or offers an undo. It is never the only place an error appears.',
   'sonner.demo.show': 'Show a notification',
   'sonner.demo.showUndo': 'Show one with an undo',

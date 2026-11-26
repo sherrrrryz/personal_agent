@@ -78,3 +78,14 @@ result.
 
 Tailwind reads class names from the source text. `` `has-${selector}:ring-3` ``
 compiles, renders the class on the element, and has no rule behind it.
+
+### A test of a kit popup passes alone and fails in the full suite
+
+**Rule:** after a press, wait for what the kit does next — `findByRole` for the popup, `waitFor(… toHaveFocus())` for focus inside it — before the next key; never assert that a popup is absent straight after a click.
+
+Base UI draws a popup, and moves focus into it, a moment after the press. A
+key sent in between is lost (`End` in a menu that has not focused its first
+item yet), and "no listbox after a click" is true only for that moment: a
+read-only `Select` does open, to be read, and locks only the value. Both
+passed in their own package and failed about one run in four once the merged
+suite loaded the machine (`I3`).

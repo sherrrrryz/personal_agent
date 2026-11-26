@@ -5,8 +5,8 @@ import { useT } from '@/i18n'
 import { Sonner } from './Sonner'
 import { toast } from './toast'
 
-// The demo has a toaster of its own (`id`), so it shows its toasts once even
-// when the page around it mounts the app's toaster too.
+// The demo has a toaster of its own (`id`, with a name of its own), so it shows
+// its toasts once even when the page around it mounts the app's toaster too.
 const toasterId = 'sonner-demo'
 
 export default function SonnerDemo() {
@@ -54,7 +54,7 @@ export default function SonnerDemo() {
           {t('sonner.demo.keep')}
         </Button>
       </Inline>
-      <Sonner id={toasterId} />
+      <Sonner id={toasterId} label={t('sonner.demo.region')} />
     </Stack>
   )
 }

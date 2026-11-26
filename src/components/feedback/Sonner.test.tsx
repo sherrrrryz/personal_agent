@@ -101,15 +101,20 @@ describe('Sonner', () => {
     }
   })
 
-  it('a second toaster shows only the toasts raised for it', async () => {
+  it('a second toaster has a name of its own and shows only the toasts raised for it', async () => {
     show(
       <>
         <Sonner />
-        <Sonner id="side" />
+        <Sonner id="side" label="侧栏里的通知" />
       </>,
     )
+    // Two regions with one name could not be told apart (axe `landmark-unique`; the merged gallery, I3).
+    const names = [...document.querySelectorAll('section[aria-live]')].map((section) => section.getAttribute('aria-label'))
+    expect(names).toEqual([`${translate('zh-CN', 'feedback', 'sonner.region')} alt+T`, '侧栏里的通知 alt+T'])
     raise('只在第二个里', { toasterId: 'side' })
     expect(await screen.findAllByRole('listitem')).toHaveLength(1)
+    expect(screen.getByRole('region', { name: /^侧栏里的通知/ })).toContainElement(screen.getByRole('listitem'))
+    expect(await axe(document.body)).toHaveNoViolations()
   })
 
   it('Tab goes into a toast and on past it; pressing a button in it, or Escape, returns focus to where it was', async () => {
