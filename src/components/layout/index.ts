@@ -1,0 +1,13 @@
+// Family `layout` — registry and contract: docs/design/components/layout.md.
+export { gaps } from './gap'
+export type { Gap } from './gap'
+export { Grid, GridItem } from './Grid'
+export type { GridItemProps, GridMin, GridProps } from './Grid'
+export { Inline } from './Inline'
+export type { InlineProps } from './Inline'
+export { Page } from './Page'
+export type { PageProps, PageWidth } from './Page'
+export { Section } from './Section'
+export type { SectionLevel, SectionProps } from './Section'
+export { Stack } from './Stack'
+export type { StackProps } from './Stack'
