@@ -84,7 +84,7 @@ push the focused composer under the window's edge: a `ResizeObserver` on the
 bar scrolls its end into view while the composer has focus. Both limits are
 measured in px at run time and set as an inline style — there is no token for
 "what is left". Observed with Chromium, task 1, S12; `flow panel-open` asserts
-it at 1440 and at 320 × root 24 px.
+it at 1440 (its 320 × root 24 px cell went when phone widths left the scope).
 
 ### A sidebar group is opened and nothing seems to happen
 

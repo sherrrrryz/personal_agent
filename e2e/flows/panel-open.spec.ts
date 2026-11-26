@@ -1,7 +1,7 @@
 // Flow `panel-open` (R-20, spec part 2 § Chat): in the shell the chat bar
 // follows `main` in the tab order and, with the in-place panel open, never
 // covers content or the focused element. Run by
-// `npm run matrix -- --flows panel-open`, at 1440 and at 320 × root 24 px.
+// `npm run matrix -- --flows panel-open`, at 1440.
 //
 // The flow opens `/dev/shell`. While that page still shows the shell
 // package's stand-in bar (the chat's slots are registered for every screen by
@@ -20,7 +20,9 @@ const heroPrompt = '我给长毛大狗做一次要 4 小时，短毛小狗 2 小
 const proposalTitle = '把这条规则设为长期'
 const barLabel = '与 AI 对话'
 
-const cells = [{ width: 1440 }, { width: 320, text: 'root24' }] as const
+// Desktop only: the owner dropped phone and tablet widths on 2026-11-26 (acceptance at 1024 px
+// and wider). A cell is `{ width, text? }` — add one here if a narrower window is asked for again.
+const cells: { width: number; text?: 'zoom200' | 'root24' }[] = [{ width: 1440 }]
 
 /** A box may differ from its neighbour by a rounding step, not by more. */
 const SLACK = 1
@@ -117,7 +119,7 @@ function expectBarAfterMain(stops: Stop[]): void {
 }
 
 for (const cell of cells) {
-  const id = `w${cell.width}-${'text' in cell ? cell.text : '100'}`
+  const id = `w${cell.width}-${cell.text ?? '100'}`
 
   test(`panel-open — ${id}: the bar follows main, the open panel covers nothing`, async ({ browser }) => {
     const { context, page, route } = await openShell(browser, cell)
