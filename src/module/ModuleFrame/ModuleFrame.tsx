@@ -111,7 +111,8 @@ function PageControls({ module, name }: { module: Module; name: string }) {
         <ApprovalsSheet module={module} name={name} />
         <HistorySheet module={module} name={name} />
         <Button loading={run.status === 'running'} onClick={start}>
-          <PlayIcon aria-hidden="true" />
+          {/* While it runs the button's own spinner stands where the icon was. */}
+          {run.status !== 'running' && <PlayIcon aria-hidden="true" />}
           {t('run.now')}
         </Button>
       </div>
