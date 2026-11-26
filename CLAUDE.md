@@ -74,6 +74,13 @@ of a heading. Everything under `docs/`, one line per document: `docs/README.md`.
 10. Components are theme-blind and carry no outer margin; nothing containing
     text has a fixed height.
 
+**Kit-code exception (D-06):** files copied from shadcn/ui into
+`src/components/ui/` are the kit, not our code. Rules 1, 6 and 10 and
+`check:design-values` do not apply inside them (`design-values.config.json`
+§ exclude). They are never edited to add literals. Everything we author —
+wrappers, compositions, screens, tokens — follows every rule and is scanned.
+Reviewers check every kit control in use for clipped text at 200% zoom.
+
 **Responsive and accessible from the first commit**
 
 11. Works across the whole verification matrix: every width, largest text

@@ -50,10 +50,12 @@ After G-0, change this file only through a spec.
   mapped to Tailwind utilities through `@theme inline`; dark mode is the
   `.dark` class on `<html>` (shadcn's `@custom-variant dark`); no value is
   written in a component
-- **Open at `G-0`:** shadcn's own component code carries literals the gate
-  rejects (`check:design-values` flags 6 arbitrary utilities in `button.tsx`)
-  and fixed button heights (`h-6`…`h-9`, hard rule 10). How the kit's copied
-  code is treated is decided in `.orchestration/G0-decision-packet.md` § 8
+- **Kit-code exemption (D-06):** shadcn's own component code carries literals
+  the gate rejects (6 arbitrary utilities in `button.tsx`) and fixed button
+  heights (`h-6`…`h-9`). It is kit code: `src/components/ui/` is excluded from
+  `check:design-values` and from hard rules 1, 6 and 10, and is never edited to
+  add literals. Wrappers, compositions and screens we write follow every rule.
+  Reviewers check kit controls for clipped text at 200% zoom instead
 - **Known gaps:** `<filled once the IA map names the components the product needs>`
 
 Building a component the kit already provides is forbidden. Wrapping one to
@@ -65,9 +67,11 @@ bind it to tokens is the normal case.
   Style Dictionary (version pinned in task 2) · **Outputs:**
   `src/tokens/generated/tokens.css` (proposed — `G-0`)
 - **Check config:** `design-values.config.json` at the repo root lists the UI
-  source folders to scan (`include: ["src"]`) and the token source and
-  generated outputs to exempt (`tokenPaths: ["tokens/", "src/tokens/generated/"]`).
-  The check fails if it finds nothing to scan.
+  source folders to scan (`include: ["src"]`), the token source and
+  generated outputs to exempt (`tokenPaths: ["tokens/", "src/tokens/generated/"]`)
+  and the kit code that is not ours (`exclude: ["src/components/ui/"]`, D-06;
+  the script reports how many files it skipped). The check fails if it finds
+  nothing to scan.
 
 ## Figma
 

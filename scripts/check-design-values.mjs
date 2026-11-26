@@ -26,6 +26,7 @@
  * Config: design-values.config.json at the repo root (all keys optional)
  *   { "include": ["src", "app", "packages"],
  *     "tokenPaths": ["tokens/", "src/theme/"],
+ *     "exclude": ["src/components/ui/"],   // kit code copied in as-is: not scanned, count reported
  *     "extensions": [".ts", ".tsx", ".js", ".jsx", ".css", ".scss"],
  *     "allowPx": ["1px"] }
  *
@@ -43,6 +44,7 @@ const ROOT =
 const DEFAULTS = {
   include: ["src", "app", "apps", "packages"],
   tokenPaths: ["tokens/", "src/tokens/", "src/theme/"],
+  exclude: [],
   extensions: [".ts", ".tsx", ".js", ".jsx", ".css", ".scss"],
   allowPx: ["1px"],
 };
@@ -85,7 +87,8 @@ function listFiles(dir, config, out = []) {
     else if (
       config.extensions.some((ext) => name.endsWith(ext)) &&
       !SKIP_FILE.test(name) &&
-      !config.tokenPaths.some((path) => rel.startsWith(path))
+      !config.tokenPaths.some((path) => rel.startsWith(path)) &&
+      !config.exclude.some((path) => rel.startsWith(path))
     )
       out.push(rel);
   }
@@ -119,6 +122,11 @@ export function scan(content, config = DEFAULTS) {
 function main() {
   const config = loadConfig();
   const files = config.include.flatMap((dir) => listFiles(dir, config));
+  const excluded = config.include
+    .flatMap((dir) => listFiles(dir, { ...config, exclude: [] }))
+    .filter((file) => !files.includes(file));
+  if (excluded.length > 0)
+    console.log(`  not scanned: ${excluded.length} kit file(s) under ${config.exclude.join(", ")} (design-values.config.json § exclude)`);
   if (files.length === 0) {
     console.error(`check:design-values — nothing to scan. None of [${config.include.join(", ")}] holds UI source; set "include" in design-values.config.json.`);
     process.exit(1);
