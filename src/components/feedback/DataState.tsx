@@ -87,14 +87,16 @@ export function DataState({ state, children, loading, loadingLabel, empty, error
           <Alert role={undefined} variant="destructive">
             <CircleAlert aria-hidden="true" />
             <AlertTitle>{errorTitle ?? t('dataState.error.title')}</AlertTitle>
-            <AlertDescription>
-              <p>{error ?? t('dataState.error.reason')}</p>
-              {onRetry && (
+            <AlertDescription>{error ?? t('dataState.error.reason')}</AlertDescription>
+            {onRetry && (
+              // Under the text, in the text's column, in the surface's own foreground: inside the
+              // description the button would inherit its fainter colour and miss 4.5:1 in dark.
+              <div className="col-start-2 pt-2 text-card-foreground">
                 <Button variant="secondary" size="sm" onClick={retry}>
                   {common('action.retry')}
                 </Button>
-              )}
-            </AlertDescription>
+              </div>
+            )}
           </Alert>
         )}
         {state === 'ready' && changed && <p className="sr-only">{t('dataState.loaded')}</p>}
