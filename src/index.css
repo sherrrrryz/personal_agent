@@ -1,0 +1,12 @@
+/*
+ * Non-visual base only. Every colour, size, space, radius, shadow, blur and
+ * duration is a CSS custom property generated from the token source
+ * (tokens/ → src/tokens/generated/tokens.css, task 2). The placeholder theme
+ * (task 1) imports that file here. No literal visual value may appear in this
+ * file or anywhere under src/ — see CLAUDE.md § Hard rules.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

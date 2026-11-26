@@ -1,0 +1,6 @@
+{
+  "include": ["src"],
+  "tokenPaths": ["tokens/", "src/tokens/generated/"],
+  "extensions": [".ts", ".tsx", ".js", ".jsx", ".css", ".scss"],
+  "allowPx": ["1px"]
+}
