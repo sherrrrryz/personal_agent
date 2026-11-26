@@ -92,10 +92,7 @@ Not checked by `check:docs`; listed so nothing is invisible.
 
 ## Design specs (`specs/`)
 
-<!--
-One row per spec as they appear.
-
 | Spec | Status | The question it answers |
 | --- | --- | --- |
-| [lofi-prototype.md](specs/lofi-prototype.md) | `approved` | Which screens and base components make up the first prototype? |
--->
+| [specs/lofi-prototype-system.md](specs/lofi-prototype-system.md) | `draft` | Task 1, part 1: which tooling, placeholder theme, base components, shell, chat surfaces, module frame, blocks and fake runtime does the prototype stand on, and who builds each? |
+| [specs/lofi-prototype-screens.md](specs/lofi-prototype-screens.md) | `draft` | Task 1, part 2: what does every IA screen, the workflow editor and the memory panel show, and how are the hero flow and the matrix accepted? |
