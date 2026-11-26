@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix fixture — passes</title>
+    <!--
+      Self-test only: a page that passes every assertion and every pass of the
+      matrix in all 44 cells. It loads the real theme entry (src/index.css), so
+      it also shows the two global rules — reduced motion, forced colours — as
+      rendered. Its own rules sit in the `components` layer, as a kit
+      component's utilities sit in a layer: the unlayered forced-colours rule
+      must beat them. It reads `pa.theme` and `pa.locale` the way the app does.
+    -->
+    <script>
+      ;(function () {
+        var theme = null
+        var locale = null
+        try {
+          theme = localStorage.getItem('pa.theme')
+          locale = localStorage.getItem('pa.locale')
+        } catch (error) {
+          // Storage can be blocked; fall back to the system.
+        }
+        var dark =
+          theme === 'dark' ||
+          (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        var root = document.documentElement
+        root.classList.toggle('dark', dark)
+        root.style.colorScheme = dark ? 'dark' : 'light'
+        if (!locale) locale = /^zh/i.test(navigator.language) ? 'zh-CN' : 'en'
+        root.lang = locale
+      })()
+    </script>
+    <link rel="stylesheet" href="/src/index.css" />
+    <style>
+      @layer components {
+        body {
+          line-height: 1.5;
+          overflow-wrap: anywhere;
+        }
+        header,
+        main,
+        footer {
+          padding: 1rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+        h2 {
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+        .stack > * + * {
+          margin-block-start: 1rem;
+        }
+        .cluster {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          align-items: center;
+        }
+        .columns {
+          display: grid;
+          gap: 1rem;
+        }
+        @media (min-width: 48rem) {
+          .columns {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        .target {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          min-block-size: var(--size-target-min);
+          min-inline-size: var(--size-target-min);
+          padding: 0.5rem 1rem;
+          border: 1px solid var(--foreground);
+          border-radius: var(--radius);
+          background-color: var(--background);
+          color: var(--foreground);
+          text-align: start;
+          transition: background-color 150ms;
+        }
+        .target[aria-pressed='true'] {
+          border-style: double;
+          border-width: 4px;
+          text-decoration-line: underline;
+        }
+        nav a,
+        p a {
+          text-decoration-line: underline;
+        }
+        input[type='text'] {
+          display: block;
+          inline-size: 100%;
+          max-inline-size: 20rem;
+          min-block-size: var(--size-target-min);
+          padding: 0.5rem;
+          border: 1px solid var(--foreground);
+          border-radius: var(--radius);
+        }
+        .row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          min-block-size: var(--size-target-min);
+          min-inline-size: var(--size-target-min);
+        }
+        fieldset > legend {
+          font-weight: 600;
+        }
+        summary {
+          display: flex;
+          align-items: center;
+          min-block-size: var(--size-target-min);
+          cursor: pointer;
+        }
+        .scroller {
+          overflow-x: auto;
+          border: 1px solid var(--border);
+        }
+        table {
+          min-inline-size: 48rem;
+        }
+        th,
+        td {
+          padding: 0.5rem;
+          text-align: start;
+        }
+        .truncate {
+          max-inline-size: 12rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .visually-hidden {
+          position: absolute;
+          inline-size: 1px;
+          block-size: 1px;
+          overflow: hidden;
+          clip-path: inset(50%);
+          white-space: nowrap;
+        }
+        :focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 var(--border-width-focus) var(--ring);
+        }
+        @keyframes fixture-fade {
+          from {
+            opacity: 0;
+          }
+        }
+        dialog {
+          margin: auto;
+          max-inline-size: min(90vw, 30rem);
+          padding: 1rem;
+          border: 1px solid var(--foreground);
+          border-radius: var(--radius);
+          background-color: var(--popover);
+          color: var(--popover-foreground);
+        }
+        dialog[open] {
+          animation: fixture-fade 200ms ease-out;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="stack">
+      <p data-zh="矩阵自检页">Matrix self-test page</p>
+      <nav aria-label="Sections" data-zh-label="分区">
+        <ul class="cluster">
+          <li><a class="target" href="#form" data-zh="表单">Form</a></li>
+          <li><a class="target" href="#actions" data-zh="操作">Actions</a></li>
+          <li><a class="target" href="#data" data-zh="数据">Data</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main class="stack">
+      <h1 data-zh="通过全部检查的页面">A page that passes every check</h1>
+      <p>
+        <span data-zh="正文里的链接不受目标尺寸约束，例如">A link inside running text is exempt from the target size, like</span>
+        <a href="#data" data-zh="这一个">this one</a><span data-zh="，其余每个控件至少 44 × 44。">, and every other control is at least 44 × 44.</span>
+      </p>
+      <p id="state"></p>
+      <div class="columns">
+        <section id="form" class="stack" aria-labelledby="form-title">
+          <h2 id="form-title" data-zh="表单">Form</h2>
+          <div>
+            <label for="name" data-zh="称呼">Name</label>
+            <input id="name" type="text" placeholder="Lin" autocomplete="off" />
+          </div>
+          <label class="row">
+            <input type="checkbox" />
+            <span data-zh="整行都是这个复选框的点击目标">The whole row is the target of this checkbox</span>
+          </label>
+          <fieldset>
+            <legend data-zh="行为模式">Behaviour mode</legend>
+            <label class="row"><input type="radio" name="mode" checked /> <span data-zh="自主">Autonomous</span></label>
+            <label class="row"><input type="radio" name="mode" /> <span data-zh="协助">Assisted</span></label>
+          </fieldset>
+        </section>
+        <section id="actions" class="stack" aria-labelledby="actions-title">
+          <h2 id="actions-title" data-zh="操作">Actions</h2>
+          <div class="cluster">
+            <button class="target" id="open" type="button" aria-haspopup="dialog" aria-expanded="false" data-zh="打开对话框">
+              Open the dialog
+            </button>
+            <button class="target" id="pressed" type="button" aria-pressed="false" data-zh="置顶">Pin</button>
+            <button class="target" type="button" aria-label="More options" data-zh-label="更多选项">
+              <span aria-hidden="true">⋯</span>
+            </button>
+          </div>
+          <details>
+            <summary data-zh="展开说明">Show the explanation</summary>
+            <p data-zh="这段文字在展开后出现。">This text appears once the section is open.</p>
+          </details>
+          <p class="truncate" data-matrix-allow="clip" data-zh="这一行被有意截断，并通过豁免标记记录在报告里，所以它很长很长很长。">
+            This line is truncated on purpose and the waiver is listed in the report, so it is long.
+          </p>
+          <p>
+            <span class="visually-hidden" data-zh="仅供读屏软件的文字">Text for screen readers only</span>
+          </p>
+        </section>
+      </div>
+      <section id="data" class="stack" aria-labelledby="data-title">
+        <h2 id="data-title" data-zh="数据">Data</h2>
+        <div class="scroller" role="region" tabindex="0" aria-label="Durations by breed" data-zh-label="各品种时长">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" data-zh="品种">Breed</th>
+                <th scope="col" data-zh="适用时长">Applied duration</th>
+                <th scope="col" data-zh="实测平均">Measured average</th>
+                <th scope="col" data-zh="记录数">Records</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-zh="金毛">Golden retriever</td>
+                <td data-zh="3 小时 30 分">3 h 30 min</td>
+                <td data-zh="3 小时 45 分">3 h 45 min</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td data-zh="贵宾">Poodle</td>
+                <td data-zh="2 小时">2 h</td>
+                <td data-zh="2 小时 10 分">2 h 10 min</td>
+                <td>8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <dialog id="dialog" aria-labelledby="dialog-title">
+        <div class="stack">
+          <h2 id="dialog-title" data-zh="对话框">Dialog</h2>
+          <p data-zh="按 Esc 或下面的按钮关闭。">Close it with Escape or the button below.</p>
+          <button class="target" id="close" type="button" data-zh="关闭">Close</button>
+        </div>
+      </dialog>
+    </main>
+    <footer>
+      <p data-zh="仅用于矩阵自检，不属于原型。">For the matrix self-test only; not part of the prototype.</p>
+    </footer>
+    <script>
+      ;(function () {
+        var zh = document.documentElement.lang === 'zh-CN'
+        if (zh) {
+          document.querySelectorAll('[data-zh]').forEach(function (element) {
+            element.textContent = element.getAttribute('data-zh')
+          })
+          document.querySelectorAll('[data-zh-label]').forEach(function (element) {
+            element.setAttribute('aria-label', element.getAttribute('data-zh-label'))
+          })
+        }
+        var query = new URLSearchParams(location.search)
+        document.getElementById('state').textContent =
+          (zh ? '当前：' : 'Now: ') +
+          [
+            'scene=' + (query.get('scene') || '—'),
+            'preview=' + (query.get('preview') || '—'),
+            'theme=' + (document.documentElement.classList.contains('dark') ? 'dark' : 'light'),
+            'locale=' + document.documentElement.lang,
+          ].join(' · ')
+
+        var dialog = document.getElementById('dialog')
+        var open = document.getElementById('open')
+        open.addEventListener('click', function () {
+          dialog.showModal()
+          open.setAttribute('aria-expanded', 'true')
+        })
+        dialog.addEventListener('close', function () {
+          open.setAttribute('aria-expanded', 'false')
+        })
+        document.getElementById('close').addEventListener('click', function () {
+          dialog.close()
+        })
+        var pressed = document.getElementById('pressed')
+        pressed.addEventListener('click', function () {
+          pressed.setAttribute('aria-pressed', String(pressed.getAttribute('aria-pressed') !== 'true'))
+        })
+      })()
+    </script>
+  </body>
+</html>

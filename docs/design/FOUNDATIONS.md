@@ -312,12 +312,55 @@ done. Reviewers re-run it. Web only; the app column is empty by D-01.
 | Motion | default · reduced | n/a |
 | Direction | LTR only; both locales (zh-CN, en) checked for text length | n/a |
 
-**How to run it:** `npm run dev`, then open the prototype in the Claude
-desktop app's browser pane or Chrome; widths and zoom via the browser's
-device toolbar; reduced motion and colour scheme via the rendering emulation
-panel; screenshots per cell with the browser tools; screen-reader pass with
-VoiceOver on macOS (a session that cannot drive it reports the pass as not
-checked, `REVIEW.md` protocol 7).
+**How to run it:** `npm run matrix -- <route…>` (Playwright, Chromium only;
+`scripts/matrix.mjs`, harness and fixtures under `e2e/matrix/`). Once per
+machine: `npx playwright install chromium`.
+
+```bash
+npm run matrix -- '/dev/components?family=layout' # one screen, the 44 cells (quote a route with ? — the shell globs it)
+npm run matrix -- --all                           # every route in a matrixRoutes export, its scenes and previews
+npm run matrix -- /dev/shell --cells stress       # full (44, default) · stress (4) · smoke (4)
+npm run matrix -- /dev/shell --keyboard --reduced-motion --forced-colors --text-spacing
+npm run matrix -- --flows panel-open              # e2e/flows/<name>.spec.ts; no name = every flow
+npm run matrix -- --self-test                     # the harness proved on its own fixture pages
+```
+
+Also `--scene <id>` and `--preview <state>` (sent as `?scene=&preview=`),
+`--out <dir>`, `--dry-run` (write the plan only), `--help`.
+
+- **Cells — 44 per screen:** 100% at 320 · 768 · 1024 · 1440; 200% zoom at
+  768 · 1024 · 1440, run as 384 · 512 · 720 CSS px viewports at a device
+  pixel ratio of 2; root 24 px at all four widths; each × light/dark ×
+  zh-CN/en. Root 24 px is the **browser's default font size**, never a style
+  on `html`, so `rem` media and container queries move with it; every run
+  measures that first and writes the proof into its report.
+- **Asserted in every cell:** no sideways page scroll; no clipped text; every
+  target ≥ 44 × 44 CSS px, measured as the box that answers a click (a link
+  inside running text is exempt); a full-page screenshot. `axe` with zero
+  violations in four cells: 320 and 1440 at 100%, light zh-CN and dark en.
+- **Passes, at 320 and 1440, light zh-CN:** `--keyboard` (every focusable
+  reached, focus visible, no trap), `--reduced-motion` (nothing animates for
+  a non-zero time at load, after opening each overlay, or as focus moves),
+  `--forced-colors` (focus still visible; the screenshot is for a person to
+  judge selected, pressed and current), `--text-spacing` (WCAG 1.4.12
+  overrides; nothing clipped).
+- **Output:** `.matrix/<run>/` in the working directory (git-ignored) —
+  `index.html`, `report.json`, `screens/<route>/<cell>.png`. Exit 0 only with
+  zero failures; otherwise each defect is named with the cells it is in.
+- **Each run starts its own dev server** from the working directory on a free
+  port and never reuses one, so parallel worktrees do not collide.
+- **A waiver is explicit and reported:** `data-matrix-allow="clip"`,
+  `"target"` or `"scroll"` on an element exempts it and what is inside it
+  from that one assertion — for a truncation decided per text slot
+  (`RESPONSIVE.md`), never to quiet a defect. Every run lists the waivers in
+  use.
+- **What it does not replace:** the screen-reader pass with VoiceOver on
+  macOS (a session that cannot drive it reports the pass as not checked,
+  `REVIEW.md` protocol 7), real touch, and Lighthouse at review time (D-35).
+  For a look by hand: `npm run dev`, then the Claude desktop app's browser
+  pane or Chrome, widths and zoom via the device toolbar.
+
+Details for flow authors and reviewers: `e2e/matrix/README.md`.
 
 ## Commands
 
@@ -332,5 +375,5 @@ npm test                     # vitest run — component, token, contrast and reg
 npm run verify               # both checks + lint + build + npm test
 ```
 
-`npm run matrix` (the verification matrix, Playwright) is added by its own
-package and documented under § Verification matrix.
+`npm run matrix` (the verification matrix, Playwright) is documented under
+§ Verification matrix.

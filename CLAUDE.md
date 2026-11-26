@@ -145,5 +145,6 @@ npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (St
 npm run check:design-values  # node scripts/check-design-values.mjs — no raw visual values under src/
 npm run check:docs           # node scripts/check-docs.mjs — docs index and status headers
 npm run verify               # both checks + lint + build
+npm run matrix -- <route…>   # node scripts/matrix.mjs — the verification matrix (Playwright): 44 cells per screen; --all, --cells, --flows, the four passes; --self-test
 npm test                     # vitest run — component, token and registry-parity tests; also the last step of verify
 ```

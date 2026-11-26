@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix fixture — defects only the passes see</title>
+    <!--
+      Self-test only, deliberately wrong, outside src/. Clean in the plain
+      cells; each optional pass must find its defect:
+        --keyboard        .no-ring (no focus indicator) and #trap (Tab does not leave)
+        --forced-colors   .no-ring
+        --reduced-motion  #panel animates for 300 ms whatever the user asked
+        --text-spacing    .tight is cut off once the line-height is 1.5
+    -->
+    <style>
+      button,
+      input {
+        min-width: 44px;
+        min-height: 44px;
+        font: inherit;
+      }
+      .no-ring:focus-visible {
+        outline: none;
+      }
+      .tight {
+        height: 1.2em;
+        overflow: hidden;
+        line-height: 1.2;
+      }
+      @keyframes grow {
+        from {
+          opacity: 0;
+        }
+      }
+      #panel {
+        animation: grow 300ms ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Defects only the passes see</h1>
+      <p class="tight">Fits until the spacing changes.</p>
+      <p><button type="button" class="no-ring">No focus indicator</button></p>
+      <p>
+        <button type="button" id="more" aria-expanded="false" aria-controls="panel">Show more</button>
+      </p>
+      <p id="panel" hidden>Shown with an animation that ignores reduced motion.</p>
+      <p>
+        <label for="trap">Keyboard trap</label>
+        <input id="trap" type="text" />
+      </p>
+    </main>
+    <script>
+      const more = document.getElementById('more')
+      const panel = document.getElementById('panel')
+      more.addEventListener('click', () => {
+        const open = more.getAttribute('aria-expanded') !== 'true'
+        more.setAttribute('aria-expanded', String(open))
+        panel.hidden = !open
+      })
+      document.getElementById('trap').addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') event.preventDefault()
+      })
+    </script>
+  </body>
+</html>
