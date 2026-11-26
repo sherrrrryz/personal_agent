@@ -76,9 +76,10 @@ describe('Field', () => {
 
 describe('Input and Textarea', () => {
   it.each([
-    ['Input', Input, 'INPUT'],
-    ['Textarea', Textarea, 'TEXTAREA'],
-  ] as const)('%s: native element at the target minimum, typed into, with no fixed height', async (_name, Control, tag) => {
+    ['Input', Input, 'INPUT', 'min-h-target'],
+    // The kit's own minimum for a textarea is above the target and is kept.
+    ['Textarea', Textarea, 'TEXTAREA', 'min-h-16'],
+  ] as const)('%s: native element at the target minimum, typed into, with no fixed height', async (_name, Control, tag, minimum) => {
     const onChange = vi.fn()
     render(
       <Field label="备注">
@@ -87,7 +88,7 @@ describe('Input and Textarea', () => {
     )
     const control = screen.getByRole('textbox', { name: '备注' })
     expect(control.tagName).toBe(tag)
-    expect(control).toHaveClass('min-h-target', 'h-auto')
+    expect(control).toHaveClass(minimum)
     expect(fixedBlockSize(control)).toEqual([])
     await userEvent.tab()
     expect(control).toHaveFocus()

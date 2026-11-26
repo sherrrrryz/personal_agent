@@ -59,6 +59,17 @@ const messages: Translation<typeof en> = {
   'group.demo.currency': '元',
   'group.demo.message': '给主人的消息',
   'group.demo.send': '发送',
+  'toggle.demo.pin': '置顶',
+  'toggle.demo.mute': '静音提醒',
+  'toggle.demo.star': '收藏',
+  'toggleGroup.demo.view': '日历视图',
+  'toggleGroup.demo.day': '日',
+  'toggleGroup.demo.week': '周',
+  'toggleGroup.demo.month': '月',
+  'toggleGroup.demo.days': '营业日',
+  'toggleGroup.demo.weekdays': '工作日',
+  'toggleGroup.demo.saturday': '周六',
+  'toggleGroup.demo.sunday': '周日和法定节假日',
 }
 
 export default messages

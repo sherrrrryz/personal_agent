@@ -65,6 +65,18 @@ const messages = {
   'group.demo.currency': 'yuan',
   'group.demo.message': 'Message to the owner',
   'group.demo.send': 'Send',
+  // Toggle and ToggleGroup demos.
+  'toggle.demo.pin': 'Pin to the top',
+  'toggle.demo.mute': 'Mute reminders',
+  'toggle.demo.star': 'Favourite',
+  'toggleGroup.demo.view': 'Calendar view',
+  'toggleGroup.demo.day': 'Day',
+  'toggleGroup.demo.week': 'Week',
+  'toggleGroup.demo.month': 'Month',
+  'toggleGroup.demo.days': 'Opening days',
+  'toggleGroup.demo.weekdays': 'Weekdays',
+  'toggleGroup.demo.saturday': 'Saturday',
+  'toggleGroup.demo.sunday': 'Sunday and public holidays',
 } satisfies Messages
 
 export default messages
