@@ -5,12 +5,15 @@
 > against. Filled in task 0 and approved at gate `G-0`; every later task reads it.
 
 <!--
-TASK 0 STATE (2026-11-26): draft complete — no placeholder left. Items marked
-"proposed — G-0" (Vite, Style Dictionary, the verification matrix) are the
-drafting session's recommendation and become binding at G-0. Next: a fresh
-session reviews this file, IA-MAP.md and DECISIONS.md with the spec-review
-checklist (REVIEW.md); then the owner decides at G-0. After G-0, change this
-file only through a spec.
+TASK 0 STATE (2026-11-26): draft complete — no placeholder left; rewritten
+the same day for the single workspace (D-28–D-30). Items marked "proposed —
+G-0" are the drafting session's recommendation and become binding only when
+the owner passes G-0 and each is recorded in DECISIONS.md: Vite 8, Style
+Dictionary + tokens.css, the verification matrix (here), axe-core + Lighthouse
+(stacks/react-web.md), chat.recent collapsed by default and onboarding shown
+once (IA-MAP.md), which base modules the prototype builds in full or as stubs
+(§ Product brief, Prototype scope). Gate G-0 has NOT been held yet. After G-0,
+change this file only through a spec.
 -->
 
 ## Product and platforms
@@ -27,7 +30,7 @@ file only through a spec.
   by each task's confidence, stakes and reversibility), while a chat bar fixed
   to the bottom of every screen answers in place or opens a dedicated chat;
   the user sees work kept in order, not a transcript. (Rewritten 2026-11-26
-  after D-28–D-30; approved at `G-0`)
+  after D-28–D-30; to be confirmed at `G-0`)
 - **Platforms:** web only; no native app for now (D-01)
 - **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (proposed — `G-0`);
   styling system: Tailwind v4 reading the CSS custom properties generated from
@@ -54,9 +57,12 @@ is not itself a spec.
 - **Profession modules, generated per user (D-29):** in the place the earlier
   design had "projects", the workspace holds modules specific to the user's
   profession. They are **pre-generated at onboarding** from a conversation
-  about what the user does, confirmed by the user, and can be added to later
-  from conversations (D-08). For the pet-grooming shop: appointments, clients
-  and pets, products and inventory, staff shifts. A profession module is a
+  about what the user does and confirmed by the user. Later changes to the
+  set — adding, removing or regenerating a top-level profession module —
+  happen in `settings.profession`; a conversation grows a **sub-module** under
+  an existing module (D-08), and the AI may propose promoting a sub-module to
+  a top-level profession module there (proposed — `G-0`). For the pet-grooming
+  shop: appointments, clients and pets, products and inventory, staff shifts. A profession module is a
   module like any other: workflow, memory, frame.
 - **Onboarding (D-30):** before the shell, a first-run flow in three steps —
   (1) a **profession interview**: a detailed conversation in which the AI asks
@@ -130,12 +136,17 @@ module. Flow scripts: `IA-MAP.md` § Prototype flows — the hero story is the
 AI learning her grooming times per breed and per dog and changing the
 appointment and shift rules over the following weeks. The task-1 spec sizes
 this into work packages; backends are faked. Market competition is out of
-scope — this is a design exercise.
+scope — this is a design exercise. **Base modules in the prototype**
+(proposed — `G-0`): `notifications`, `messages`, `calendar` and `topics` are
+built in full because the flows use them; `todo`, `mail` and `files` are built
+as **stubs** — the shared module frame with an empty state and a placeholder
+workflow — so that every IA node is reachable (`WORKFLOW.md` row 1) without
+faking content the story never touches.
 
 ## Information architecture
 
 - **IA map:** `IA-MAP.md` — the source for task 1. Format: Mermaid tree plus
-  a node table (rewritten 2026-11-26 for the single workspace; confirmed at `G-0`)
+  a node table (rewritten 2026-11-26 for the single workspace; to be confirmed at `G-0`)
 - **Node ids:** every IA node has a stable id that screens, specs and the
   component registry refer to.
 
