@@ -46,8 +46,10 @@ export function ShellHeader({ heading }: { heading: string }) {
       </div>
       {device.preview !== 'normal' && (
         <div className="flex basis-full flex-wrap items-center gap-x-2 gap-y-1 px-2 text-sm" data-shell-preview="">
-          <FlaskConicalIcon aria-hidden="true" className="size-4 shrink-0" />
-          <p className="min-w-0 wrap-anywhere">{t('device.previewing', { state: t(previewKey[device.preview]) })}</p>
+          <div className="flex min-w-0 items-center gap-2">
+            <FlaskConicalIcon aria-hidden="true" className="size-4 shrink-0" />
+            <p className="min-w-0 wrap-anywhere">{t('device.previewing', { state: t(previewKey[device.preview]) })}</p>
+          </div>
           <Button variant="secondary" size="sm" onClick={() => device.setPreview('normal')}>
             {t('device.restore')}
           </Button>

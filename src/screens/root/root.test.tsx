@@ -87,14 +87,14 @@ describe('/dev/shell', () => {
     await screen.findByRole('heading', { level: 1, name: '外壳演示' })
     const nav = screen.getByRole('navigation', { name: '模块导航' })
     await userEvent.click(screen.getByRole('button', { name: '重命名「预约」' }))
-    expect(within(nav).getByRole('link', { name: '预约（已重命名）' })).toBeInTheDocument()
+    expect(within(nav).getByRole('link', { name: '预约与到店（已重命名）' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '添加一个模块' }))
     expect(within(nav).getByRole('link', { name: '会员' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '移除「排班」' }))
     expect(within(nav).queryByRole('link', { name: '排班' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '在「预约」下添加子模块' }))
-    const parent = within(nav).getByRole('link', { name: '预约（已重命名）' }).closest('li') as HTMLElement
-    expect(within(parent).getByRole('link', { name: '生日提醒' })).toBeInTheDocument()
+    const parent = within(nav).getByRole('link', { name: '预约与到店（已重命名）' }).closest('li') as HTMLElement
+    expect(within(parent).getByRole('link', { name: '老顾客的生日提醒' })).toBeInTheDocument()
   })
 
   it('en: the demo and the shell around it are in English', async () => {
