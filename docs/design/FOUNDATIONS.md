@@ -5,15 +5,13 @@
 > against. Filled in task 0 and approved at gate `G-0`; every later task reads it.
 
 <!--
-TASK 0 STATE (2026-11-26): draft complete — no placeholder left; rewritten
-the same day for the single workspace (D-28–D-30). Items marked "proposed —
-G-0" are the drafting session's recommendation and become binding only when
-the owner passes G-0 and each is recorded in DECISIONS.md: Vite 8, Style
-Dictionary + tokens.css, the verification matrix (here), axe-core + Lighthouse
-(stacks/react-web.md), chat.recent collapsed by default and onboarding shown
-once (IA-MAP.md), which base modules the prototype builds in full or as stubs
-(§ Product brief, Prototype scope). Gate G-0 has NOT been held yet. After G-0,
-change this file only through a spec.
+TASK 0 STATE (2026-11-26): approved at G-0 — the owner passed the gate on
+2026-11-26 with every recommended item as proposed; the former "proposed —
+G-0" items are recorded as D-32…D-39 (Vite 8, Style Dictionary + tokens.css,
+the verification matrix, axe-core + Lighthouse, onboarding shown once, the
+base modules built in full vs as stubs, sub-module promotion in
+settings.profession, chat.recent collapsed) and D-40 (orchestration). From
+here on this file changes only through a spec.
 -->
 
 ## Product and platforms
@@ -30,9 +28,9 @@ change this file only through a spec.
   by each task's confidence, stakes and reversibility), while a chat bar fixed
   to the bottom of every screen answers in place or opens a dedicated chat;
   the user sees work kept in order, not a transcript. (Rewritten 2026-11-26
-  after D-28–D-30; to be confirmed at `G-0`)
+  after D-28–D-30; confirmed at `G-0` the same day)
 - **Platforms:** web only; no native app for now (D-01)
-- **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (proposed — `G-0`);
+- **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (D-32);
   styling system: Tailwind v4 reading the CSS custom properties generated from
   the token source (follows D-03). Rules per stack: `stacks/react-web.md`.
   `stacks/react-native.md` is not in use.
@@ -61,7 +59,7 @@ is not itself a spec.
   set — adding, removing or regenerating a top-level profession module —
   happen in `settings.profession`; a conversation grows a **sub-module** under
   an existing module (D-08), and the AI may propose promoting a sub-module to
-  a top-level profession module there (proposed — `G-0`). For the pet-grooming
+  a top-level profession module there (D-38). For the pet-grooming
   shop: appointments, clients and pets, products and inventory, staff shifts. A profession module is a
   module like any other: workflow, memory, frame.
 - **Onboarding (D-30):** before the shell, a first-run flow in three steps —
@@ -137,7 +135,7 @@ AI learning her grooming times per breed and per dog and changing the
 appointment and shift rules over the following weeks. The task-1 spec sizes
 this into work packages; backends are faked. Market competition is out of
 scope — this is a design exercise. **Base modules in the prototype**
-(proposed — `G-0`): `notifications`, `messages`, `calendar` and `topics` are
+(D-37): `notifications`, `messages`, `calendar` and `topics` are
 built in full because the flows use them; `todo`, `mail` and `files` are built
 as **stubs** — the shared module frame with an empty state and a placeholder
 workflow — so that every IA node is reachable (`WORKFLOW.md` row 1) without
@@ -146,7 +144,7 @@ faking content the story never touches.
 ## Information architecture
 
 - **IA map:** `IA-MAP.md` — the source for task 1. Format: Mermaid tree plus
-  a node table (rewritten 2026-11-26 for the single workspace; to be confirmed at `G-0`)
+  a node table (rewritten 2026-11-26 for the single workspace; confirmed at `G-0` the same day)
 - **Node ids:** every IA node has a stable id that screens, specs and the
   component registry refer to.
 
@@ -209,7 +207,7 @@ bind it to tokens is the normal case.
 
 - **Source:** `tokens/` (DTCG JSON, one file per type) · **Build tool:**
   Style Dictionary (version pinned in task 2) · **Outputs:**
-  `src/tokens/generated/tokens.css` (proposed — `G-0`)
+  `src/tokens/generated/tokens.css` (D-33)
 - **Check config:** `design-values.config.json` at the repo root lists the UI
   source folders to scan (`include: ["src"]`), the token source and
   generated outputs to exempt (`tokenPaths: ["tokens/", "src/tokens/generated/"]`)
@@ -263,7 +261,7 @@ re-read them from the installed version in task 2.
 Every screen and component is checked at every required cell before a task is
 done. Reviewers re-run it. Web only; the app column is empty by D-01.
 
-| Axis | Web (proposed — `G-0`) | App |
+| Axis | Web (D-34) | App |
 | --- | --- | --- |
 | Width | 320 · 768 · 1024 · 1440 CSS px | n/a |
 | Text size | 100% · 200% browser zoom; root font size 24px | n/a |

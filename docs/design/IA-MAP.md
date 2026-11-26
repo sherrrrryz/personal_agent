@@ -7,8 +7,8 @@
 <!--
 TASK 0 STATE (2026-11-26): rewritten for a single workspace after D-28–D-30
 (the Life layer is gone; profession modules replace "projects"; onboarding
-starts with a profession interview). To be confirmed by the owner at G-0 —
-the gate has not been held yet. After G-0 a
+starts with a profession interview) and confirmed by the owner at G-0 the
+same day (D-36…D-39 record the items that were proposed here). From here on a
 new node or a moved node is a big task (WORKFLOW.md § Big task or small task).
 -->
 
@@ -76,17 +76,17 @@ edited; content changes per run, with what-changed markers.
 
 | IA id | Node | Parent | Screen type | Notes |
 | --- | --- | --- | --- | --- |
-| `onboarding` | Onboarding | — | first-run flow | Before the shell; three steps below (D-30). "Shown once" is proposed, `G-0` |
+| `onboarding` | Onboarding | — | first-run flow | Before the shell; three steps below (D-30). Shown once; re-enterable from `settings.profession` (D-36) |
 | `onboarding.profession` | Profession interview | `onboarding` | conversation | The AI asks in detail what the user does, how the work is organised, what recurs, which tools they use; this is a chat, in the same chat components as `chat.thread` |
 | `onboarding.modules` | Confirm the module set | `onboarding` | wizard step | The AI proposes the profession modules it will pre-generate, each with one line on what its workflow will do; the user removes, renames or adds, then confirms (D-29) |
 | `onboarding.accounts` | Connect accounts | `onboarding` | wizard step | Connects the platforms the confirmed modules draw on; same connectors as `settings.accounts` |
 | `root` | App shell | — | shell | Chat bar, sidebar toggle, module navigation; opens on `notifications` after onboarding |
 | `notifications` | 通知 | `root` | module | A workflow that reads every other module's output and surfaces the most important items (D-13) |
-| `messages` | 消息 | `root` | module | Messages from connected channels, triaged into the modules they concern. Prototype: built in full (proposed — `G-0`) |
-| `calendar` | 日程 | `root` | module | The user's calendar across connected accounts; profession modules such as `profession.appointments` write into it. Prototype: built in full (proposed — `G-0`) |
-| `todo` | 待办 | `root` | module | Prototype: **stub** — module frame, empty state, placeholder workflow (proposed — `G-0`) |
-| `mail` | 邮件 | `root` | module | Prototype: **stub**, as `todo` (proposed — `G-0`) |
-| `files` | 文件 | `root` | module | Prototype: **stub**, as `todo` (proposed — `G-0`) |
+| `messages` | 消息 | `root` | module | Messages from connected channels, triaged into the modules they concern. Prototype: built in full (D-37) |
+| `calendar` | 日程 | `root` | module | The user's calendar across connected accounts; profession modules such as `profession.appointments` write into it. Prototype: built in full (D-37) |
+| `todo` | 待办 | `root` | module | Prototype: **stub** — module frame, empty state, placeholder workflow (D-37) |
+| `mail` | 邮件 | `root` | module | Prototype: **stub**, as `todo` (D-37) |
+| `files` | 文件 | `root` | module | Prototype: **stub**, as `todo` (D-37) |
 | `topics` | 话题 | `root` | module index | Every conversation with the AI, filed automatically by theme (D-07, D-20) |
 | `topics.<topic>` | One topic | `topics` | topic home | AI-written summary of the important information from the records, then every related conversation; dynamic node; a filing, not a module |
 | `profession` | Profession modules | `root` | module group | A navigation heading for the modules generated for this user's profession at onboarding (D-29); not a page — its modules sit beside the base modules in navigation (see conventions) |
@@ -100,11 +100,11 @@ edited; content changes per run, with what-changed markers.
 | `<module>.memory` | Module memory | any module or sub-module | panel | What the module remembers and which modules **read** it. Memory is shared across the whole workspace (D-28), so this is a view of readers, not a sharing setting |
 | `chat.bar` | Chat bar | `root` | global element | Fixed to the bottom of every screen; from each input it either answers **in place** — a panel expanding above the bar, in the current screen's context, filed into Topics afterwards (D-23) — or opens a dedicated chat; carries the **one-off / persistent** switch (D-08) |
 | `chat.thread` | Dedicated chat | `chat.bar` | chat window | Opened by the bar for a topic that needs its own thread; filed into Topics afterwards; can be switched to *persistent* at any time, which creates `<module>.sub.<name>` under the module it concerns |
-| `chat.recent` | Recent conversations | `root` | global element | Left sidebar, expandable, listing the user's recent conversations (D-15). Collapsed by default: proposed, `G-0` |
+| `chat.recent` | Recent conversations | `root` | global element | Left sidebar, expandable, listing the user's recent conversations (D-15). Collapsed by default (D-39) |
 | `settings` | Settings | `root` | settings home | |
 | `settings.accounts` | Connected accounts | `settings` | settings page | Google, Slack, Figma, GitHub and the shop's booking, messaging and payment tools |
 | `settings.ai-modes` | AI behaviour modes | `settings` | settings page | Autonomous / assisted / deferred per kind of task — the user's ceiling (D-22) |
-| `settings.profession` | Profession module set | `settings` | settings page | Re-opens the onboarding interview's result: add, remove or regenerate top-level profession modules later (D-29); promoting a sub-module to a top-level module happens here (proposed — `G-0`) |
+| `settings.profession` | Profession module set | `settings` | settings page | Re-opens the onboarding interview's result: add, remove or regenerate top-level profession modules later (D-29); promoting a sub-module to a top-level module happens here, proposed by the AI and confirmed by the user (D-38) |
 
 ## Prototype flows (D-26, D-27; confirmed by the owner 2026-11-26)
 
@@ -174,12 +174,12 @@ onboarding** · **D-30 onboarding = profession interview → module set →
 accounts**. Superseded by D-28: D-09 (calendar bridge), D-14 (no cross-layer
 notifications), D-21 (accounts per layer; shell opens in Life).
 
-## Open at G-0
+## Closed at G-0
 
-Still marked "proposed" for the G-0 pass itself: `chat.recent` collapsed by
-default; `onboarding` shown once; which base modules the prototype builds in
-full (`notifications`, `messages`, `calendar`, `topics`) and which as stubs
-(`todo`, `mail`, `files`); promotion of a sub-module to a top-level
-profession module in `settings.profession`; and the tooling items — Vite,
-Style Dictionary and the verification matrix in `FOUNDATIONS.md`, axe-core +
-Lighthouse in `stacks/react-web.md`.
+Passed by the owner on 2026-11-26 with every recommendation as proposed:
+`chat.recent` collapsed by default (D-39); `onboarding` shown once (D-36);
+`notifications`, `messages`, `calendar` and `topics` built in full, `todo`,
+`mail` and `files` as stubs (D-37); promotion of a sub-module to a top-level
+profession module in `settings.profession` (D-38); and the tooling items —
+Vite 8 (D-32), Style Dictionary (D-33), the verification matrix (D-34) in
+`FOUNDATIONS.md`, axe-core + Lighthouse (D-35) in `stacks/react-web.md`.

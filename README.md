@@ -8,9 +8,10 @@
 
 ## 现在在哪一步
 
-**任务 0（Foundations intake）进行中。** `docs/design/FOUNDATIONS.md`
-里还有要你拍板的占位符；汇总的决定清单在 `.orchestration/G0-decision-packet.md`。
-G-0 通过之前不写任何界面代码。
+**任务 0（Foundations intake）已于 2026-11-26 通过 G-0**（D-01…D-40 见
+`docs/design/DECISIONS.md`）。**任务 1（低保真原型）进行中**：spec 在
+`docs/specs/lofi-prototype-*.md`（先 `draft`，经独立评审后由 owner 在 G-SPEC
+批准），之后由编排 session 切工作包交子 session 实现，owner 在 G-1 看运行中的原型。
 
 **Figma 相关流程在本项目置灰（D-04）**：任务 4、门禁 G-MIRROR、`FIGMA-SYNC.md`、
 `figma-file-map.md` 和 `figma-mirror` skill 都保留在仓库里但标为不启用，每个阶段

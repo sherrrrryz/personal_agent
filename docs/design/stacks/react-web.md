@@ -88,7 +88,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
 - Hover- or focus-triggered content is dismissible with Escape, hoverable and
   persistent.
 - Status messages use live regions and do not move focus.
-- Tools: axe-core (`vitest-axe` in component tests) and Lighthouse in CI (proposed in task 0, confirmed at `G-0`) — necessary, not sufficient.
+- Tools: axe-core (`vitest-axe` in component tests) and Lighthouse at review time (D-35) — necessary, not sufficient.
 
 ## UI kits
 

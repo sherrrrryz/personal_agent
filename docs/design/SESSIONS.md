@@ -15,9 +15,9 @@ HOW TO BUILD THIS DOC
 
 | Role | Started by | Lifetime | May write code | May start sessions |
 | --- | --- | --- | --- | --- |
-| **Spec session** | Owner | One spec | No — the spec only | No |
-| **Spec-review session** | Owner | One review | No — the report only | No |
-| **Lead session** | Owner, after approval | One approved spec | No — board, briefs, close-out docs only | Yes — child and review sessions |
+| **Spec session** | Owner, or the orchestration session the owner designated (D-40) | One spec | No — the spec only | No |
+| **Spec-review session** | Owner, or the orchestration session (D-40) | One review | No — the report only | No |
+| **Lead session** | Owner, after approval — in this project the owner-designated orchestration session is the lead (D-40) | One approved spec | No — board, briefs, close-out docs only | Yes — child and review sessions |
 | **Child session** | Lead | One work package (or one leg of it) | Yes | No |
 | **Review session** | Lead | One review | No — the report only | No |
 
