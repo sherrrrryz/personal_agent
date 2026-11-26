@@ -26,6 +26,7 @@ flowchart LR
   root -.-> chat.recent[Recent conversations · left sidebar]
   root --> settings[Settings]
 
+  life --> life.notifications[Notifications]
   life --> life.messages[Messages]
   life --> life.calendar[Calendar]
   life --> life.todo[To-do]
@@ -37,6 +38,7 @@ flowchart LR
   life.mail --> life.mail.custom["Sub-module ‹workflow› · e.g. promotions digest"]
   life.topics --> life.topic["Topic ‹name› · e.g. fitness"]
 
+  work --> work.notifications[Notifications]
   work --> work.messages[Messages]
   work --> work.calendar[Calendar]
   work --> work.todo[To-do]
@@ -63,6 +65,12 @@ the module's screen, and by a **memory**. Both are reached from inside the
 module (`<module>.workflow`, `<module>.memory`), not from the tree; the
 workflow opens as a node-based editor (D-10).
 
+**Every module shares one frame (D-12):** a run-state header (last run and
+result, next run, running now, failure, items awaiting approval, history), a
+body assembled from registered blocks by the workflow's output, and the
+entries to workflow and memory. Layout changes only when the workflow is
+edited; content changes per run, with what-changed markers.
+
 `life.mail.custom` stands for a pattern, not one node: **any base module in
 either layer** can grow user-created sub-modules out of conversations the
 user marks persistent (or the AI converts). The diagram shows one example.
@@ -75,6 +83,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `onboarding.accounts` | Connect accounts | `onboarding` | wizard step | The user connects the platforms the modules draw on (Google, Slack, Figma, GitHub …); same connectors as `settings.accounts`, which is where they are changed later |
 | `root` | App shell | — | shell | Layer switch (Life / Work), chat bar, sidebar toggle; reached after onboarding |
 | `life` | Life | `root` | layer home | Overview of the life modules |
+| `life.notifications` | Notifications | `life` | module | A workflow that reads every other Life module's output and surfaces the most important items (D-13) |
 | `life.messages` | Messages | `life` | module | Connected messaging accounts |
 | `life.calendar` | Calendar | `life` | module | The one module whose data is shared with `work.calendar` (D-09) |
 | `life.todo` | To-do | `life` | module | |
@@ -86,6 +95,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 | `life.topics` | Topics | `life` | module index | Every conversation with the AI, filed automatically by theme |
 | `life.topics.<topic>` | One topic (e.g. fitness) | `life.topics` | topic home | AI-written summary of the important information from the records, then every related conversation; dynamic node |
 | `work` | Work | `root` | layer home | Overview of the work modules |
+| `work.notifications` | Notifications | `work` | module | Same mechanism as `life.notifications`, over the Work modules (D-13) |
 | `work.messages` | Messages | `work` | module | |
 | `work.calendar` | Calendar | `work` | module | Shares data with `life.calendar`; the only Life ↔ Work bridge (D-09) |
 | `work.todo` | To-do | `work` | module | |
@@ -135,3 +145,21 @@ user marks persistent (or the AI converts). The diagram shows one example.
   logic is shown and edited on a **node-based canvas**, never as skill text.
 - The **prototype shows every core differentiator** (list in
   `FOUNDATIONS.md` § Product brief); the task-1 spec sizes it.
+
+## Decided (D-12, D-13, 2026-11-26)
+
+- A workflow rewrites its screen through a **page description that references
+  registered blocks only**; layout changes only when the workflow is edited.
+- Workflows start on **schedule, event, by hand, or from another module of
+  the same layer**; triggers are nodes.
+- Every module shares **one frame** with a run-state header.
+- A **notifications module per layer** extracts the most important items from
+  every module of that layer.
+
+## Open at G-0
+
+- Is one **cross-layer** notifications view wanted in addition to the two
+  per-layer modules? Under D-09 it would be the second thing, after calendar,
+  to cross Life ↔ Work.
+- Does `chat.recent` list conversations from **both layers** or only the
+  current one (D-09 question raised earlier)?

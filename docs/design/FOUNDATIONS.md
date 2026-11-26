@@ -50,6 +50,23 @@ every spec; it is not itself a spec.
   runs on a schedule and rewrites the module's screen with its results, plus a
   memory. The user changes both by talking to the AI, and can also open the
   workflow and edit it directly.
+- **How a workflow "rewrites" its screen (D-12):** the workflow's output
+  nodes emit a page description that may only reference **registered blocks**
+  (`COMPONENTS.md`) and tokens; the module screen is assembled from it. Content
+  changes on every run; **layout changes only when the workflow itself is
+  edited**. Each run marks what changed since the last one, and the user can
+  pin a block in place. Free-form generated UI is never produced.
+- **Triggers, not only schedules (D-12):** a workflow starts on a schedule, on
+  an event from a connected account, by hand, or from another module of the
+  same layer. Triggers are nodes in the editor.
+- **One module frame for every module (D-12):** a run-state header (last run
+  and result, next run, running now, failure reason, items waiting for the
+  user's approval in *deferred* mode, run history), the block body, and the
+  entries to the module's workflow and memory.
+- **Notifications module (D-13):** one per layer. It is itself a workflow
+  that reads the outputs of every other module in its layer and surfaces the
+  most important items in one place. Whether a single cross-layer
+  notifications view is also wanted is open at `G-0`.
 - **Workflows are shown as nodes, not text:** the logic of a workflow is
   presented in a form an everyday user can read and edit — a node-based canvas
   (steps, conditions, schedules, outputs as connected blocks) in the manner of
@@ -90,7 +107,8 @@ bridge; a module as a scheduled workflow that rewrites its own screen; the
 node-based workflow editor; topics filed automatically with AI summaries; a
 conversation switching from one-off to persistent and becoming a sub-module;
 the three behaviour modes; the bottom chat bar with dedicated chats; the
-onboarding flow. The task-1 spec sizes this into work packages; backends may
+onboarding flow; the shared module frame with run state; the notifications
+module drawing from every module of its layer. The task-1 spec sizes this into work packages; backends may
 be faked.
 
 ## Information architecture
@@ -107,8 +125,8 @@ element is `IA-MAP.md` § Nodes.
 | --- | --- | --- | --- |
 | `onboarding` | First-run setup: connect platform accounts | — | first-run flow |
 | `root` | App shell — layer switch, chat bar, sidebar toggle | — | shell |
-| `life` | Life layer: messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
-| `work` | Work layer: messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
+| `life` | Life layer: notifications, messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
+| `work` | Work layer: notifications, messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
 | `chat.bar` · `chat.thread` · `chat.recent` | Chat bar (bottom, every screen), dedicated chat, recent-conversations sidebar (left) | `root` | global elements |
 | `settings` | Connected accounts, AI behaviour modes; per-module workflow and memory panels | `root` | settings |
 
