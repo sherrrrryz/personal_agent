@@ -374,7 +374,7 @@ describe('the inputs family as a whole', () => {
   it('every component of the family has a demo', () => {
     expect(demos.map(([path]) => path).sort()).toEqual(
       expect.arrayContaining(
-        ['Field', 'Input', 'InputGroup', 'RadioGroup', 'Select', 'Switch', 'Textarea'].map((name) => `./${name}.demo.tsx`),
+        ['BehaviourModePicker', 'Field', 'Input', 'InputGroup', 'RadioGroup', 'Select', 'Switch', 'Textarea'].map((name) => `./${name}.demo.tsx`),
       ),
     )
   })

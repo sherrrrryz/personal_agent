@@ -1,5 +1,7 @@
 // Family `inputs` — registry and contract: docs/design/components/inputs.md.
 export { Label } from '@/components/ui/label'
+export { BehaviourModePicker } from './BehaviourModePicker'
+export type { BehaviourModePickerProps } from './BehaviourModePicker'
 export { Field } from './Field'
 export type { FieldProps } from './Field'
 export { Input } from './Input'
