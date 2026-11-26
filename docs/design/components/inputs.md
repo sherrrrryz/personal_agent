@@ -25,6 +25,14 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 | Component | Source | Variants | Status | Notes |
 | --- | --- | --- | --- | --- |
+| `Field` | `wrapped` | Slots `label`, `description`, `error`; `disabled` | `lofi` | Label above, then one control, its description and its error text (an icon and words). Gives the control inside it its `id`, description, validity and `disabled` — a screen wires nothing. Holds `Input`, `Textarea`, `Select` or an `InputGroup` |
+| `Label` | `kit` | — | `lofi` | Re-exported unchanged. `Field`, `Switch` and `RadioGroup` already label their control; use it alone only for a control none of them can hold |
+| `Input` | `wrapped` | Native `type`; states by `disabled`, `readOnly`, `aria-invalid` | `lofi` | One line, target minimum, height `auto`. Read-only is a dashed edge on `muted`, not a fill alone |
+| `Textarea` | `wrapped` | States as `Input` | `lofi` | Several lines; grows with what is typed (the kit's minimum height, never a fixed one) |
+| `Select` | `wrapped` | `options` (`value`, `label`, `lang?`, `disabled?`), `placeholder`; states by `disabled`, `readOnly`, validity | `lofi` | Fills its field; a long value and a long option wrap instead of being clamped; each option is at the target minimum; the list opens under the trigger and separates by a border |
+| `Switch` | `wrapped` | Slots `label`, `description`; states by `checked`, `disabled`, `readOnly` | `lofi` | A bordered labelled row that toggles as a whole; takes effect at once. Carries its own label, so it does not go inside `Field` |
+| `RadioGroup` | `wrapped` | Slots `legend`, `description`, `error`; `options` (`value`, `label`, `description?`, `disabled?`); states by `disabled`, `readOnly`, validity | `lofi` | One bordered labelled row per option, the row is the target; carries its own legend, so it does not go inside `Field` |
+| `InputGroup` | `wrapped` | Slots `start`, `end`; `align: inline · block` (default `inline`) | `lofi` | One border around a control and what is attached to it. Attached actions are our `Button` (never the kit's small group button); `block` puts `end` under a `Textarea` |
 
 ## Accessibility contract
 
@@ -34,3 +42,11 @@ through `size.target.min` for anything interactive.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |
+| `Field` | `group` (the kit's, unnamed); the label is a native `label` | — | Not interactive; a click on the label focuses the control | — | — | The error text is an `alert`, and is the control's description together with the help text |
+| `Label` | Native `label` | Its text | Not interactive | — | — | — |
+| `Input` | Native `input` (`textbox`, `searchbox`…) | The `Field` label; alone, `aria-label` | Tab; typing | The focus ring of `actions.md`, kept while invalid | 44 CSS px high, as wide as its field | `aria-invalid` with the error as description; `readonly`; `disabled` |
+| `Textarea` | Native `textarea` | As `Input` | Tab; typing; Enter is a new line | As `Input` | As `Input` | As `Input` |
+| `Select` | `combobox` button with a `listbox` of `option`s | The `Field` label; alone, `aria-label` | Enter, Space or the arrows open; arrows move; Enter chooses; Escape closes and returns focus to the trigger; typing jumps to an option | Ring on the trigger; in the open list the active option is filled | Trigger and every option 44 CSS px high | The chosen value as the trigger's text; `aria-expanded`; a disabled option is `aria-disabled`; an option in another language carries `lang` |
+| `Switch` | `switch` | Its `label` (the description is its description) | Tab; Space or Enter toggles | Ring around the whole row | The row, at least 44 CSS px high; the control's own hit box is 44 × 44 too | `aria-checked`; `aria-readonly`; `aria-disabled` |
+| `RadioGroup` | `radiogroup` of `radio`s | Group: its `legend`. Option: its `label` (the option's description is its description) | One tab stop; arrows move and choose, skipping disabled options; Tab leaves | Ring around the focused option's row | Each row, at least 44 CSS px high; each control's own hit box 44 × 44 | `aria-checked`; the error is an `alert` and the group's description; `aria-invalid` on the group |
+| `InputGroup` | `group` (the kit's, unnamed) | — (the control inside is named by its `Field`) | Tab order follows reading order: `start`, the control, `end` | The group draws the ring of the control inside it, kept while invalid | The control 44 CSS px high; an attached `Button` 44 × 44 | — |
