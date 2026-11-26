@@ -42,7 +42,7 @@ describe('BehaviourModePicker', () => {
         expect(radios[index]).toHaveAccessibleDescription(meaningOf(locale, mode))
         expect(radios[index]).not.toHaveAttribute('aria-disabled', 'true')
         const row = radios[index].closest('label')!
-        expect(row).toHaveClass('min-h-target', 'w-full')
+        expect(row).toHaveClass('w-full')
         expect(row.querySelectorAll('svg[aria-hidden="true"]')).toHaveLength(1)
       })
       // Nothing is chosen until the caller or the user chooses.

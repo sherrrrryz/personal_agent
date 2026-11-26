@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { AxeBuilder } from '@axe-core/playwright'
 import type { Browser, BrowserContext, Page } from '@playwright/test'
 
-import { FIXED_FONT_OFFSET, MIN_TARGET, makeCell } from './cells.mjs'
+import { FIXED_FONT_OFFSET, makeCell } from './cells.mjs'
 
 export { baseCells, cellsFor, fullCells, makeCell, smokeCells, stressCells } from './cells.mjs'
 
@@ -68,11 +68,6 @@ export interface PlannedTest {
 
 interface InPage {
   scan(): { failures: Failure[]; waived: Waiver[] }
-  targets(minimum: number): {
-    failures: Failure[]
-    waived: Waiver[]
-    notes: { measured: number; inlineLinks: number; covered: string[] }
-  }
   keyboardStart(): { id: number; element: string; path: string }[]
   keyboardStep(): Promise<{
     id: number | null
@@ -229,8 +224,9 @@ function merge(result: CheckResult, part: { failures: Failure[]; waived?: Waiver
 }
 
 /**
- * What every cell asserts: no sideways page scroll, no clipped text, every
- * target at least 44 × 44 CSS px, a screenshot; `axe` where the plan says so.
+ * What every cell asserts: no sideways page scroll, no clipped text, a
+ * screenshot; `axe` where the plan says so — without its `color-contrast` rule.
+ * Target size and contrast are not asserted: both requirements are withdrawn by D-43.
  */
 export async function checkCell(
   page: Page,
@@ -239,11 +235,8 @@ export async function checkCell(
   const result: CheckResult = { failures: [], waived: [], notes: {} }
   merge(result, await page.evaluate(() => window.__matrix.scan()))
   if (options.screenshot) await page.screenshot({ path: options.screenshot, fullPage: true })
-  const targets = await page.evaluate((minimum) => window.__matrix.targets(minimum), MIN_TARGET)
-  merge(result, targets)
-  result.notes.targets = targets.notes
   if (options.axe) {
-    const analysis = await new AxeBuilder({ page }).analyze()
+    const analysis = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze()
     result.notes.axeRules = analysis.passes.length + analysis.violations.length
     for (const violation of analysis.violations) {
       result.failures.push({

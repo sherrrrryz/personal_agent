@@ -38,6 +38,7 @@ platform/version it was observed.>
 | `<Figma shows a different value from the code>` | `FIGMA-SYNC.md` § Drift check |
 | `<The gate is green and a raw value is still there>` | [§6](#6-token-pipeline) |
 | A screen inside the shell is too wide and the matrix reports no sideways scroll — or a full-page screenshot of it stops at the window's edge | [§2](#2-layout-and-reflow) |
+| A kit control looks different from shadcn/ui's own — taller, bordered, underlined, grey — or a dialog has no scrim and no shadow | [§5](#5-ui-kit) |
 | An import of `@/app` works on this Mac and fails, or loads another module, elsewhere | [§8](#8-tooling-and-the-shell) |
 | `npm run matrix` stops with `no matches found`, or checks a route nobody named | [§8](#8-tooling-and-the-shell) |
 | Opening the chat panel pushes the header, or the composer she is typing in, out of the window | [§2](#2-layout-and-reflow) |
@@ -101,6 +102,21 @@ the third test of `flow panel-open` asserts it.
 ## 4. Elevation and blur
 
 ## 5. UI kit
+
+### A kit control looks different from shadcn/ui's own, or a dialog has no scrim and no shadow
+
+**Rule:** never restyle a kit control from a wrapper, a composition or a screen, and never reset Tailwind's palette or shadow scale in `src/index.css` (D-43). A class on a kit control is a *deviation from stock*: it needs a failing matrix cell, must be invisible at the default size, and is listed in the family file.
+
+The low-fi prototype first ran on a grey placeholder theme with the stock
+palette and shadows removed, and every wrapper bound a 44 px minimum, its own
+focus ring, borders and state bars. It cost a wrapper class list, tests and
+doc rows per control, and the result was not the kit's look. The owner
+withdrew it: stock shadcn/ui everywhere, a few colours changed later in
+`tokens/` (`TOKENS.md` § Changing a colour). Two traps remain. With height
+`auto`, the kit's own padding makes a control taller than stock — keep the
+kit's height as `min-h-*` and use `py-1` (`components/actions.md` §
+Pitfalls). And `min-h-target` sizes nothing any more — the target-size
+requirement is withdrawn by D-43 — so it is not a way to size a kit control.
 
 ## 6. Token pipeline
 

@@ -1,7 +1,7 @@
 // npm run matrix -- --self-test — proves the harness on its own fixture
 // pages (docs/specs/lofi-prototype-system.md § Matrix harness, A-11):
 //   1. the passing page: 44 cells and every pass, zero failures, exit 0
-//   2. the failing page: non-zero exit, the three defects named in every cell
+//   2. the failing page: non-zero exit, the two defects named in every cell
 //   3. the page with defects only the passes see: each pass finds its own
 //   4. --all reads matrixRoutes from a route registry and plans from it
 //   5. two runs started together from two directories do not share a server
@@ -94,22 +94,21 @@ export async function selfTest({ root, script, out }) {
   )
 
   // 2 — the failing page
-  const fail = await step('the failing page, three defects', 'fail', [`${FIXTURES}/fail.html`])
+  const fail = await step('the failing page, two defects', 'fail', [`${FIXTURES}/fail.html`])
   const failTests = fail.report?.tests ?? []
-  const three = ['clipped-text', 'sideways-scroll', 'small-target']
+  const two = ['clipped-text', 'sideways-scroll']
   check('non-zero exit', fail.code === 1, `exit ${fail.code}`)
   check(
-    'every one of the 44 cells names exactly the three defects',
-    failTests.length === 44 && failTests.every((test) => sameSet(test.failures.map((failure) => failure.kind), three)),
+    'every one of the 44 cells names exactly the two defects',
+    failTests.length === 44 && failTests.every((test) => sameSet(test.failures.map((failure) => failure.kind), two)),
     `kinds found: ${JSON.stringify(fail.report?.summary?.failureKinds)}`,
   )
   check(
     'the output names them',
-    three.every((kind) => fail.output.includes(`✗ ${kind}:`)) &&
+    two.every((kind) => fail.output.includes(`✗ ${kind}:`)) &&
       fail.output.includes('widest: div "This block is wider') &&
-      fail.output.includes('label "Full name of the account holder"') &&
-      fail.output.includes('button "Close" answers a click over 24 × 24 px'),
-    'the summary does not name the three defects',
+      fail.output.includes('label "Full name of the account holder"'),
+    'the summary does not name the two defects',
   )
 
   // 3 — defects only the passes see

@@ -13,5 +13,5 @@ export type ToggleProps = Omit<ComponentProps<typeof KitToggle>, 'className' | '
 
 /** A button that stays pressed: one setting, on or off, shown where it is used. */
 export function Toggle({ variant = 'outline', size = 'md', ...rest }: ToggleProps) {
-  return <KitToggle {...rest} variant={kitToggleVariant[variant]} size={kitToggleSize[size]} className={toggleClass} />
+  return <KitToggle {...rest} variant={kitToggleVariant[variant]} size={kitToggleSize[size]} className={toggleClass[size]} />
 }

@@ -16,6 +16,27 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/containers/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
+
+| Component | What is added | Why |
+| --- | --- | --- |
+| `Dialog`, `AlertDialog`, `Sheet` | `max-h-full overflow-y-auto` on the surface | Invisible at the default size. At 200% zoom or root 24 px the kit's overlay grows past the window and its end cannot be reached |
+
+**Removed with D-43:** the border that stood in for the scrim and shadow (both are drawn again); our
+close `Button` first in a header row — `Dialog` and `Sheet` use **the kit's own close button**, in the
+kit's place (top end corner, last in the tab order), named from the messages through `closeLabel`; the
+header and footer paddings of ours; the 44 px minimum on triggers.
+
 ## Registry
 
 One row per component. The Component cell is the component's name in
@@ -37,7 +58,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |

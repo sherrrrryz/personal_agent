@@ -17,9 +17,6 @@ export const ROOT_DEFAULT = 16
 /** Chromium keeps the monospace default three px under the standard one. */
 export const FIXED_FONT_OFFSET = 3
 
-/** Minimum target size, CSS px (hard rule 12; `size.target.min`). */
-export const MIN_TARGET = 44
-
 export const THEMES = ['light', 'dark']
 export const LOCALES = ['zh-CN', 'en']
 

@@ -1,7 +1,6 @@
 import { Fragment, type ReactElement } from 'react'
 
 import { Button } from '@/components/actions'
-import { focusRing } from '@/components/actions/focus-ring'
 import {
   Breadcrumb as KitBreadcrumb,
   BreadcrumbEllipsis,
@@ -28,10 +27,9 @@ export type BreadcrumbProps = {
   'aria-label'?: string
 }
 
-// A crumb is a target like any other link outside running text, and is told
-// from the text around it by its underline, not by colour.
-const linkClass = `inline-flex min-h-target min-w-target items-center rounded-sm underline underline-offset-4 wrap-anywhere ${focusRing}`
-const pageClass = 'inline-flex min-h-target min-w-target items-center font-medium wrap-anywhere'
+// A crumb is drawn as stock (D-43).
+const linkClass = 'inline-flex items-center'
+const pageClass: string | undefined = undefined
 
 /**
  * Where the page sits. With room, the whole path, wrapping. Without, one
@@ -85,7 +83,7 @@ export function Breadcrumb({ items, 'aria-label': label }: BreadcrumbProps) {
           <BreadcrumbSeparator />
           {/* The one place text is cut on purpose (spec § Responsive); the menu beside it holds it in full. */}
           <BreadcrumbItem className="min-w-0" data-matrix-allow="clip">
-            <BreadcrumbPage className="flex min-h-target max-w-full min-w-target items-center font-medium">
+            <BreadcrumbPage className="flex max-w-full">
               <span className="min-w-0 truncate">{page.label}</span>
             </BreadcrumbPage>
           </BreadcrumbItem>

@@ -25,7 +25,7 @@ import type { BlockAction, BlockBadge } from '../types'
 // and `block.table` import from this file.
 
 // A link standing in a title or a cell: as high as a target, underlined, in full.
-const linkClass = `inline-flex min-h-target min-w-target items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere ${focusRing}`
+const linkClass = `inline-flex items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere ${focusRing}`
 
 /** A link to another screen of the prototype, from a title or a table cell. */
 export function BlockItemLink({ href, children }: { href: string; children: ReactNode }) {
@@ -36,17 +36,13 @@ export function BlockItemLink({ href, children }: { href: string; children: Reac
   )
 }
 
-// The kit keeps a badge on one line and hides what does not fit; a block's
-// badge carries the workflow's words, so its height follows the text.
-const badgeClass = 'h-auto max-w-full shrink text-start whitespace-normal wrap-anywhere'
-
 /** An item's badges. A badge that says a behaviour mode is the shared `BehaviourModeBadge`. */
 export function BlockBadges({ badges }: { badges: BlockBadge[] }) {
   return badges.map((badge) =>
     badge.mode ? (
       <BehaviourModeBadge key={`${badge.mode}:${badge.label}`} mode={badge.mode} />
     ) : (
-      <Badge key={badge.label} variant="secondary" className={badgeClass}>
+      <Badge key={badge.label} variant="secondary">
         {badge.label}
       </Badge>
     ),
@@ -135,7 +131,7 @@ export function BlockEntry({ id, title, lead, meta, badges = [], actions = [], h
 /** The empty state of a block: the kit's `Empty` with the block's own sentence. */
 export function BlockEmpty({ title }: { title: string }) {
   return (
-    <Empty className="border">
+    <Empty>
       <EmptyHeader>
         <EmptyTitle>{title}</EmptyTitle>
       </EmptyHeader>

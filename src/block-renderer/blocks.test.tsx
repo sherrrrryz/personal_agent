@@ -109,7 +109,10 @@ describe('block.text', () => {
     expect([...block.querySelectorAll(':scope > p')].map((p) => p.textContent)).toEqual(['第一段。', '第二段。', '第三段。'])
     const links = within(screen.getByRole('list', { name: '相关链接' })).getAllByRole('link')
     expect(links.map((link) => link.getAttribute('href'))).toEqual(['/m/duration', 'https://example.com/a'])
-    for (const link of links) expect(link).toHaveClass('min-h-target', 'underline')
+    for (const link of links) {
+      expect(link).toHaveClass('underline')
+      expect(link.className).not.toMatch(/-target\b/)
+    }
     // The marker stands beside the link it names, not inside it.
     expect(within(links[0].closest('li')!).getByText('新')).toBeInTheDocument()
     expect(links[0]).toHaveTextContent(/^品种表$/)
@@ -127,13 +130,13 @@ describe('block.text', () => {
 describe('block.empty', () => {
   const Component = emptyBlock.Component
 
-  it('says what is empty and offers one next step, a link with a full target', () => {
+  it('says what is empty and offers one next step, a link drawn as the kit’s button', () => {
     const { props } = emptyBlock.demo('zh-CN')
     renderIn('zh-CN', <Component props={props} changes={{ action: 'new' }} state="ready" />)
     expect(screen.getByText('今天没有待办')).toBeInTheDocument()
     const action = screen.getByRole('link', { name: '去看今天的预约' })
     expect(action).toHaveAttribute('href', '/m/appointments')
-    expect(action).toHaveClass('min-h-target')
+    expect(action).toHaveClass('min-h-8')
     expect(screen.getByText('新')).toBeInTheDocument()
   })
 

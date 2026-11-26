@@ -40,8 +40,8 @@ export type ChatComposerProps = {
 // Reached through the wrapper because `Textarea` takes no class.
 const sixLines = '[&_textarea]:max-h-40 md:[&_textarea]:max-h-34'
 const sizeClass: Record<ChatComposerPlacement, string> = {
-  bar: `${sixLines} [&_textarea]:min-h-target`,
-  thread: `${sixLines} [&_textarea]:min-h-target`,
+  bar: `${sixLines} [&_textarea]:min-h-8`,
+  thread: `${sixLines} [&_textarea]:min-h-8`,
   onboarding: `${sixLines} [&_textarea]:min-h-24`,
 }
 

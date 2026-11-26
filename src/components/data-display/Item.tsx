@@ -37,7 +37,7 @@ export type ItemProps = Bare<ComponentProps<typeof KitItem>>
 export function Item({ children, ...rest }: ItemProps) {
   const inGroup = useContext(InGroup)
   const item = (
-    <KitItem {...rest} className="min-h-target min-w-target text-start">
+    <KitItem {...rest} className="text-start">
       <InGroup value={false}>{children}</InGroup>
     </KitItem>
   )

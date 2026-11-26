@@ -22,9 +22,9 @@ and restyling must not remove it.
    order; no trap; focus always visible and never hidden under a bar.
 4. **Dialogs and sheets:** focus in on open, contained, back to the trigger on
    close; Escape / back closes; background inert.
-5. **Targets:** 44×44 pt (iOS, web touch), 48×48 dp (Android); never under
+5. **Targets — withdrawn by D-43 in this project (no target-size requirement; kit controls keep their stock size).** Kit text: 44×44 pt (iOS, web touch), 48×48 dp (Android); never under
    24×24 CSS px. The hit area may exceed the visible mark.
-6. **Contrast:** text 4.5:1 (large text 3:1); boundaries, icons, focus and
+6. **Contrast — withdrawn by D-43 in this project (stock shadcn/ui colours as they are; nothing is measured).** Kit text: text 4.5:1 (large text 3:1); boundaries, icons, focus and
    state indicators 3:1 — every state, every mode. Use only pairings listed in
    `TOKENS.md`.
 7. **Never colour alone** for meaning: add text, icon or shape.

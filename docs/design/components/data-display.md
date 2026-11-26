@@ -16,6 +16,27 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/data-display/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
+
+| Component | What is added | Why |
+| --- | --- | --- |
+| `Item` | Title and description are not clamped (`line-clamp-none`), actions wrap, text aligns to the start | Invisible when the text fits. The kit cuts the title to one line and the description to two, with nowhere to read the rest |
+| `Table` | Our scroller — a named region and a tab stop with the kit's ring when focused — replaces the kit's unnamed one; cells align by `text-start` / `text-end` | Keyboard reach of columns that do not fit; no visible difference at rest |
+
+**Removed with D-43:** the 44 px minimum on `Item`; the wrapping of `BehaviourModeBadge` and
+`ChangeMarker` (they are the kit's one-line `Badge`); the wrapping cells, minimum column width, border and
+moved caption of `Table` (cells are one line as in the kit; a wide table scrolls inside its region).
+
 ## Registry
 
 One row per component. The Component cell is the component's name in
@@ -35,7 +56,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |

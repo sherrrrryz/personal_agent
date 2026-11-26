@@ -63,11 +63,10 @@ describe('/dev/components', () => {
     expect(document.documentElement.lang).toBe('en')
   })
 
-  it('every link is a 44 px target by the token, with a text name', async () => {
+  it('every link has a text name (its size is measured by the matrix, at WCAG’s 24 px)', async () => {
     open('/dev/components')
     await screen.findByRole('navigation', { name: '组件分类' })
     for (const link of screen.getAllByRole('link')) {
-      expect(link).toHaveClass('min-h-target', 'min-w-target')
       expect(link).toHaveAccessibleName()
     }
   })

@@ -16,6 +16,29 @@ HOW TO BUILD THIS FILE
 
 Code: `src/components/inputs/`.
 
+> **D-43 (2026-11-26) — read this first.** Every component of this family is drawn as stock
+> shadcn/ui draws it. Where a registry note, a contract row or a pitfall below describes an
+> appearance of ours on a kit control — the 44 px target minimum (`min-h-target`), height `auto`,
+> a border instead of a shadow or scrim, a bar or fill marking a state, an always-on underline, a
+> restated focus ring, the grey theme — it is **superseded**: that restyle is removed. What still
+> differs from stock is listed, completely, in § Deviations from stock. Props, names, roles,
+> states and keyboard behaviour are unchanged.
+
+## Deviations from stock
+
+The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
+
+| Component | What is added | Why — the matrix cell that fails without it |
+| --- | --- | --- |
+| `Input`, `Textarea`, `Select`, `InputGroup` | While **invalid and focused**, the kit's own ring (`focusRingOverInvalid`, `src/components/actions/focus-ring.ts`); no other state changes | `focus-not-visible` in the keyboard pass: the kit's invalid tint outranks `:focus-visible`, so a focused invalid field looks unfocused (WCAG 2.4.7) |
+| `Select` | The trigger fills its field (`w-full`), keeps the kit's height as a minimum and lets a chosen value wrap | Clipped text at 320 px: the kit cuts the value to one line (`line-clamp-1`) with nowhere to read the rest |
+
+**Removed with D-43:** the 44 px minimum on every control and row; the dashed edge and `muted` fill of a
+read-only control (read-only is the native state and looks like any field); the full `primary` border of a
+checked row; the enlarged hit box of a switch or radio (the kit's own reaches past the mark); the border on
+the select list (the kit's shadow and ring separate it) and its wrapping options; `alignItemWithTrigger` is
+the kit's default again.
+
 ## Registry
 
 One row per component. The Component cell is the component's name in
@@ -39,7 +62,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |

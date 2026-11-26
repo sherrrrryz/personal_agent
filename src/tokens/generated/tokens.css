@@ -14,11 +14,16 @@
   --primitive-color-neutral-800: oklch(0.269 0 0);
   --primitive-color-neutral-900: oklch(0.205 0 0);
   --primitive-color-neutral-950: oklch(0.145 0 0);
+  --primitive-color-white-alpha-10: oklch(1 0 0 / 0.1);
+  --primitive-color-white-alpha-15: oklch(1 0 0 / 0.15);
+  --primitive-color-red-400: oklch(0.704 0.191 22.216);
+  --primitive-color-red-600: oklch(0.577 0.245 27.325);
+  --primitive-color-blue-700: oklch(0.488 0.243 264.376);
   --primitive-color-system-highlight: Highlight;
-  --primitive-space-11: 2.75rem;
+  --primitive-space-0: 0rem;
   --primitive-border-width-2: 2px;
-  --primitive-radius-sm: 0.375rem;
-  --primitive-font-stack-system: system-ui, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --primitive-radius-lg: 0.625rem;
+  --primitive-font-stack-sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 
   /* semantic — light (default) */
   --background: var(--primitive-color-neutral-0);
@@ -32,13 +37,13 @@
   --secondary: var(--primitive-color-neutral-100);
   --secondary-foreground: var(--primitive-color-neutral-900);
   --muted: var(--primitive-color-neutral-100);
-  --muted-foreground: var(--primitive-color-neutral-600);
+  --muted-foreground: var(--primitive-color-neutral-500);
   --accent: var(--primitive-color-neutral-100);
   --accent-foreground: var(--primitive-color-neutral-900);
-  --destructive: var(--primitive-color-neutral-600);
-  --border: var(--primitive-color-neutral-500);
-  --input: var(--primitive-color-neutral-500);
-  --ring: var(--primitive-color-neutral-950);
+  --destructive: var(--primitive-color-red-600);
+  --border: var(--primitive-color-neutral-200);
+  --input: var(--primitive-color-neutral-200);
+  --ring: var(--primitive-color-neutral-400);
   --chart-1: var(--primitive-color-neutral-300);
   --chart-2: var(--primitive-color-neutral-500);
   --chart-3: var(--primitive-color-neutral-600);
@@ -50,20 +55,20 @@
   --sidebar-primary-foreground: var(--primitive-color-neutral-50);
   --sidebar-accent: var(--primitive-color-neutral-100);
   --sidebar-accent-foreground: var(--primitive-color-neutral-900);
-  --sidebar-border: var(--primitive-color-neutral-500);
-  --sidebar-ring: var(--primitive-color-neutral-950);
+  --sidebar-border: var(--primitive-color-neutral-200);
+  --sidebar-ring: var(--primitive-color-neutral-400);
   --focus-forced: var(--primitive-color-system-highlight);
   --border-width-focus: var(--primitive-border-width-2);
-  --radius: var(--primitive-radius-sm);
-  --radius-step-sm: calc(var(--primitive-radius-sm) * 0.6);
-  --radius-step-md: calc(var(--primitive-radius-sm) * 0.8);
-  --radius-step-lg: var(--primitive-radius-sm);
-  --radius-step-xl: calc(var(--primitive-radius-sm) * 1.4);
-  --radius-step-2xl: calc(var(--primitive-radius-sm) * 1.8);
-  --radius-step-3xl: calc(var(--primitive-radius-sm) * 2.2);
-  --radius-step-4xl: calc(var(--primitive-radius-sm) * 2.6);
-  --font-family-sans: var(--primitive-font-stack-system);
-  --size-target-min: var(--primitive-space-11);
+  --radius: var(--primitive-radius-lg);
+  --radius-step-sm: calc(var(--primitive-radius-lg) * 0.6);
+  --radius-step-md: calc(var(--primitive-radius-lg) * 0.8);
+  --radius-step-lg: var(--primitive-radius-lg);
+  --radius-step-xl: calc(var(--primitive-radius-lg) * 1.4);
+  --radius-step-2xl: calc(var(--primitive-radius-lg) * 1.8);
+  --radius-step-3xl: calc(var(--primitive-radius-lg) * 2.2);
+  --radius-step-4xl: calc(var(--primitive-radius-lg) * 2.6);
+  --font-family-sans: var(--primitive-font-stack-sans);
+  --size-target-min: var(--primitive-space-0);
 }
 
 .dark {
@@ -81,23 +86,23 @@
   --muted-foreground: var(--primitive-color-neutral-400);
   --accent: var(--primitive-color-neutral-800);
   --accent-foreground: var(--primitive-color-neutral-50);
-  --destructive: var(--primitive-color-neutral-400);
-  --border: var(--primitive-color-neutral-500);
-  --input: var(--primitive-color-neutral-500);
-  --ring: var(--primitive-color-neutral-50);
-  --chart-1: var(--primitive-color-neutral-200);
-  --chart-2: var(--primitive-color-neutral-300);
-  --chart-3: var(--primitive-color-neutral-400);
-  --chart-4: var(--primitive-color-neutral-500);
-  --chart-5: var(--primitive-color-neutral-600);
+  --destructive: var(--primitive-color-red-400);
+  --border: var(--primitive-color-white-alpha-10);
+  --input: var(--primitive-color-white-alpha-15);
+  --ring: var(--primitive-color-neutral-500);
+  --chart-1: var(--primitive-color-neutral-300);
+  --chart-2: var(--primitive-color-neutral-500);
+  --chart-3: var(--primitive-color-neutral-600);
+  --chart-4: var(--primitive-color-neutral-700);
+  --chart-5: var(--primitive-color-neutral-800);
   --sidebar: var(--primitive-color-neutral-900);
   --sidebar-foreground: var(--primitive-color-neutral-50);
-  --sidebar-primary: var(--primitive-color-neutral-200);
-  --sidebar-primary-foreground: var(--primitive-color-neutral-900);
+  --sidebar-primary: var(--primitive-color-blue-700);
+  --sidebar-primary-foreground: var(--primitive-color-neutral-50);
   --sidebar-accent: var(--primitive-color-neutral-800);
   --sidebar-accent-foreground: var(--primitive-color-neutral-50);
-  --sidebar-border: var(--primitive-color-neutral-500);
-  --sidebar-ring: var(--primitive-color-neutral-50);
+  --sidebar-border: var(--primitive-color-white-alpha-10);
+  --sidebar-ring: var(--primitive-color-neutral-500);
 }
 
 /* Breakpoints are literals: a media or container query cannot read a custom property. */

@@ -148,7 +148,7 @@ describe('ChatComposer', () => {
   it('grows with the text up to a maximum, with no fixed height', () => {
     const { container } = zh(<ChatComposer onSend={() => undefined} />)
     const form = container.querySelector('[data-slot="chat-composer"]')!
-    expect(tokens(form)).toEqual(expect.arrayContaining(['[&_textarea]:max-h-40', '[&_textarea]:min-h-target']))
+    expect(tokens(form)).toEqual(expect.arrayContaining(['[&_textarea]:max-h-40', '[&_textarea]:min-h-8']))
     expect(tokens(form).filter((token) => /(?:^|:)(?:h|size)-/.test(token))).toEqual([])
   })
 })

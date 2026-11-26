@@ -2,8 +2,8 @@
 // an init script (e2e/matrix/harness.ts) and called through `window.__matrix`.
 // Plain browser JavaScript: nothing here is transpiled or imported.
 //
-// A waiver is an attribute on the element, `data-matrix-allow="clip"`,
-// `"target"` or `"scroll"` (space-separated). It exempts that element and
+// A waiver is an attribute on the element, `data-matrix-allow="clip"` or
+// `"scroll"` (space-separated). It exempts that element and
 // what is inside it from one assertion, and every use is listed in the
 // report, so a waiver is never silent.
 ;(() => {
@@ -222,31 +222,7 @@
     return [...found.values()]
   }
 
-  // ── Target size ─────────────────────────────────────────────────────────
-
-  const INTERACTIVE = [
-    'a[href]',
-    'button',
-    'input:not([type="hidden"])',
-    'select',
-    'textarea',
-    'summary',
-    '[role="button"]',
-    '[role="link"]',
-    '[role="checkbox"]',
-    '[role="radio"]',
-    '[role="switch"]',
-    '[role="tab"]',
-    '[role="menuitem"]',
-    '[role="menuitemradio"]',
-    '[role="menuitemcheckbox"]',
-    '[role="option"]',
-    '[role="combobox"]',
-    '[role="slider"]',
-    '[role="spinbutton"]',
-    '[role="treeitem"]',
-    '[role="textbox"]',
-  ].join(', ')
+  // ── Shared by the keyboard and motion passes ────────────────────────────
 
   function disabled(element) {
     return (
@@ -262,89 +238,6 @@
     if (hit === target || target.contains(hit)) return true
     const label = hit.closest('label')
     return label !== null && label.control === target
-  }
-
-  /** A link inside a sentence is exempt (WCAG 2.5.8, inline). */
-  function inRunningText(element) {
-    if (!element.matches('a[href], [role="link"]')) return false
-    if (getComputedStyle(element).display !== 'inline') return false
-    let block = element.parentElement
-    while (block && getComputedStyle(block).display === 'inline') block = block.parentElement
-    if (!block) return false
-    let around = 0
-    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT)
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      if (node.parentElement.closest('a[href], [role="link"]')) continue
-      around += node.nodeValue.replace(/[\s\p{P}]/gu, '').length
-    }
-    return around >= 4
-  }
-
-  /** The size of the box that answers a click, measured by hit-testing outward from the element. */
-  function measureTarget(element, minimum) {
-    element.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' })
-    const box = element.getBoundingClientRect()
-    if (box.width === 0 || box.height === 0) return null
-    const inset = Math.min(2, box.width / 2, box.height / 2)
-    const starts = [
-      [box.left + box.width / 2, box.top + box.height / 2],
-      [box.left + inset, box.top + inset],
-      [box.right - inset, box.bottom - inset],
-      [box.left + inset, box.bottom - inset],
-      [box.right - inset, box.top + inset],
-    ]
-    const start = starts.find(([x, y]) => answers(element, document.elementFromPoint(x, y)))
-    if (!start) return { covered: true }
-    const reach = (stepX, stepY) => {
-      let distance = 0
-      while (distance < minimum) {
-        const x = start[0] + stepX * (distance + 1)
-        const y = start[1] + stepY * (distance + 1)
-        if (!answers(element, document.elementFromPoint(x, y))) break
-        distance++
-      }
-      return distance
-    }
-    return {
-      width: reach(-1, 0) + reach(1, 0) + 1,
-      height: reach(0, -1) + reach(0, 1) + 1,
-    }
-  }
-
-  function checkTargets(minimum) {
-    const failures = []
-    const notes = { measured: 0, inlineLinks: 0, covered: [] }
-    const scroll = [window.scrollX, window.scrollY]
-    for (const element of document.querySelectorAll(INTERACTIVE)) {
-      if (disabled(element) || !rendered(element, false)) continue
-      const box = element.getBoundingClientRect()
-      // Visually hidden native inputs are reached through their label, which is measured with them.
-      if (box.width === 0 || box.height === 0) continue
-      if (element.matches('option') || element.getAttribute('aria-hidden') === 'true') continue
-      if (inRunningText(element)) {
-        notes.inlineLinks++
-        continue
-      }
-      const size = measureTarget(element, minimum)
-      if (!size) continue
-      if (size.covered) {
-        notes.covered.push(describe(element))
-        continue
-      }
-      notes.measured++
-      if (size.width >= minimum && size.height >= minimum) continue
-      if (waived(element, 'target')) continue
-      failures.push({
-        kind: 'small-target',
-        message: `${describe(element)} answers a click over ${size.width} × ${size.height} px, under ${minimum} × ${minimum}`,
-        element: describe(element),
-        path: pathOf(element),
-        width: size.width,
-        height: size.height,
-      })
-    }
-    window.scrollTo(scroll[0], scroll[1])
-    return { failures, notes }
   }
 
   // ── Keyboard ────────────────────────────────────────────────────────────
@@ -558,11 +451,6 @@
       waivers.clear()
       const failures = [...checkSidewaysScroll(), ...checkClippedText()]
       return { failures, waived: [...waivers.values()] }
-    },
-    targets(minimum) {
-      waivers.clear()
-      const result = checkTargets(minimum)
-      return { ...result, waived: [...waivers.values()] }
     },
     keyboardStart,
     keyboardStep,

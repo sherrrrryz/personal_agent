@@ -20,7 +20,7 @@ resolved value.
    value — a colour that matches today breaks in the next mode.
 2. Reference the most specific tier that exists: component → semantic.
    Components never reference a primitive.
-3. Use only the foreground/background pairings in `TOKENS.md` § Contrast pairs.
+3. ~~Use only the foreground/background pairings in `TOKENS.md` § Contrast pairs.~~ Withdrawn by D-43: no contrast requirement, no pairs table.
 4. Style every state from tokens, including focus, disabled and error.
 5. Never branch on the mode in a component. If you need to, a semantic token
    is missing.
@@ -56,7 +56,7 @@ component → add a primitive.
 
 - [ ] `tokens:build` output is clean and committed; nothing hand-edited
 - [ ] Every semantic token resolves in every mode
-- [ ] Contrast pairs table updated and recomputed
+- [ ] ~~Contrast pairs table updated and recomputed~~ (withdrawn by D-43)
 - [ ] No near-duplicate (minimum step), no orphan
 - [ ] `check:design-values` reports zero
 - [ ] Names identical in source, code and Figma code syntax

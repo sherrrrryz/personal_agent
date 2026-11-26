@@ -8,7 +8,7 @@ import { Link } from 'react-router'
 
 /** A text link inside a block: underlined (never told apart by colour alone), a full target, wraps. */
 export const blockLinkClass =
-  'inline-flex min-h-target min-w-target max-w-full items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere'
+  'inline-flex max-w-full items-center rounded-sm text-start underline underline-offset-4 wrap-anywhere'
 
 export function BlockAnchor({ href, className = blockLinkClass, children }: { href: string; className?: string; children: ReactNode }) {
   return href.startsWith('/') ? (

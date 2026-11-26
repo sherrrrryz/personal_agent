@@ -16,11 +16,6 @@ type Bare<Props> = Omit<Props, 'className' | 'style'>
 
 const alignClass = { start: 'text-start', end: 'text-end' } as const
 
-// A cell's text wraps, and a column keeps a readable width: below it the
-// table scrolls sideways inside its own region instead of squeezing a CJK
-// column down to one character per line.
-const cellClass = 'min-w-24 whitespace-normal'
-
 export type TableProps = Bare<ComponentProps<'table'>> & {
   /** What the table holds. Shown under it; also the name of its scrolling region. */
   caption: ReactNode
@@ -40,12 +35,10 @@ export function Table({ caption, children, ...rest }: TableProps) {
       aria-labelledby={captionId}
       tabIndex={0}
       data-slot="table-scroller"
-      className={`overflow-x-auto rounded-md border *:overflow-visible ${focusRing}`}
+      className={`overflow-x-auto rounded-md *:overflow-visible ${focusRing}`}
     >
       <KitTable {...rest}>
-        <TableCaption id={captionId} className="px-2 pb-2 text-start">
-          {caption}
-        </TableCaption>
+        <TableCaption id={captionId}>{caption}</TableCaption>
         {children}
       </KitTable>
     </div>
@@ -59,7 +52,7 @@ export type TableHeadProps = Omit<Bare<ComponentProps<'th'>>, 'align'> & {
 
 /** A header cell: of its column unless `scope="row"`. */
 export function TableHead({ align = 'start', scope = 'col', ...rest }: TableHeadProps) {
-  return <KitTableHead {...rest} scope={scope} className={`h-auto py-2 ${cellClass} ${alignClass[align]}`} />
+  return <KitTableHead {...rest} scope={scope} className={alignClass[align]} />
 }
 
 export type TableCellProps = Omit<Bare<ComponentProps<'td'>>, 'align'> & {
@@ -68,5 +61,5 @@ export type TableCellProps = Omit<Bare<ComponentProps<'td'>>, 'align'> & {
 }
 
 export function TableCell({ align = 'start', ...rest }: TableCellProps) {
-  return <KitTableCell {...rest} className={`${cellClass} ${alignClass[align]}`} />
+  return <KitTableCell {...rest} className={alignClass[align]} />
 }

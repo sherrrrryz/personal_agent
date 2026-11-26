@@ -13,7 +13,7 @@ import { expandedQuery, useMediaQuery } from './use-media'
 import { usePageHeading } from './use-page-heading'
 
 // Hidden until it takes focus, then drawn over the corner of the page.
-const skipClass = `sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-50 focus:inline-flex focus:min-h-target focus:items-center focus:rounded-md focus:border focus:bg-background focus:px-3 focus:underline focus:underline-offset-4 ${focusRing}`
+const skipClass = `sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-50 focus:inline-flex focus:items-center focus:rounded-md focus:border focus:bg-background focus:px-3 focus:underline focus:underline-offset-4 ${focusRing}`
 
 /**
  * What surrounds every screen (spec part 2 § Shell). Inside the shell: a skip

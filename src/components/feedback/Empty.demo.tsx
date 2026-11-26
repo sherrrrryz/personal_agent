@@ -9,7 +9,7 @@ export default function EmptyDemo() {
   const t = useT('feedback')
   return (
     <Stack gap="lg">
-      <Empty className="border">
+      <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <CalendarDays aria-hidden="true" />
@@ -24,7 +24,7 @@ export default function EmptyDemo() {
           </Button>
         </EmptyContent>
       </Empty>
-      <Empty className="border">
+      <Empty>
         <EmptyHeader>
           <EmptyTitle>{t('empty.demo.plainTitle')}</EmptyTitle>
           <EmptyDescription>{t('empty.demo.plainBody')}</EmptyDescription>

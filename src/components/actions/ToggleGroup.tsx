@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 
 import { ToggleGroup as KitToggleGroup, ToggleGroupItem as KitToggleGroupItem } from '@/components/ui/toggle-group'
 
-import { kitToggleSize, kitToggleVariant, toggleClass, type ToggleSize, type ToggleVariant } from './toggle-class'
+import { kitToggleSize, kitToggleVariant, toggleItemClass, type ToggleSize, type ToggleVariant } from './toggle-class'
 
 /** A group is always named: by `aria-label`, or by the element `aria-labelledby` points at. */
 type Naming = { 'aria-label': string; 'aria-labelledby'?: never } | { 'aria-labelledby': string; 'aria-label'?: never }
@@ -59,6 +59,8 @@ export function ToggleGroup<Value extends string = string>(props: ToggleGroupPro
       }}
       variant={kitToggleVariant[variant]}
       size={kitToggleSize[size]}
+      // The one deviation from stock (actions.md § Deviations from stock): the kit's group is one
+      // unbreakable row; ours is never wider than its container and wraps. A group that fits is as stock.
       className="max-w-full flex-wrap"
     >
       {children}
@@ -76,5 +78,5 @@ export type ToggleGroupItemProps = {
 
 /** One toggle of a `ToggleGroup`. */
 export function ToggleGroupItem(props: ToggleGroupItemProps) {
-  return <KitToggleGroupItem {...props} className={toggleClass} />
+  return <KitToggleGroupItem {...props} className={toggleItemClass} />
 }

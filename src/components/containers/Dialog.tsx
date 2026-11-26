@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 
 import {
   Dialog as KitDialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -11,8 +10,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
+import { useT } from '@/i18n'
+
 import { overlaySurface, rootProps, type OverlayControl } from './overlay-control'
-import { CloseButton } from './overlay-parts'
 
 export type DialogProps = OverlayControl & {
   /** The heading; it names the dialog. */
@@ -29,19 +29,18 @@ export type DialogProps = OverlayControl & {
  * the trigger; Escape, the close button or a press outside closes it.
  */
 export function Dialog({ trigger, title, description, footer, children, ...control }: DialogProps) {
+  const t = useT('navigation')
   return (
     <KitDialog {...rootProps(control)}>
       {trigger && <DialogTrigger render={trigger} />}
-      <DialogContent showCloseButton={false} className={overlaySurface}>
-        <div className="flex items-start gap-2">
-          <DialogHeader className="min-w-0 flex-1 py-2">
-            <DialogTitle className="leading-snug wrap-anywhere">{title}</DialogTitle>
-            {description != null && <DialogDescription className="wrap-anywhere">{description}</DialogDescription>}
-          </DialogHeader>
-          <DialogClose render={<CloseButton />} />
-        </div>
+      {/* The kit's own close button, named in the user's language. */}
+      <DialogContent closeLabel={t('overlay.close')} className={overlaySurface}>
+        <DialogHeader>
+          <DialogTitle className="wrap-anywhere">{title}</DialogTitle>
+          {description != null && <DialogDescription className="wrap-anywhere">{description}</DialogDescription>}
+        </DialogHeader>
         {children != null && <div className="min-w-0 wrap-anywhere">{children}</div>}
-        {footer != null && <DialogFooter className="flex-wrap">{footer}</DialogFooter>}
+        {footer != null && <DialogFooter>{footer}</DialogFooter>}
       </DialogContent>
     </KitDialog>
   )

@@ -25,9 +25,9 @@ export type DropdownMenuProps = {
 }
 
 // The kit's menu is as wide as its trigger — an icon button gives a sliver.
-// Ours is as wide as its items need, never wider than the room there is, and
-// separates from the page by a border (no shadow in the placeholder theme).
-const contentClass = 'w-auto min-w-48 max-w-(--available-width) border'
+// Ours is as wide as its items need, never wider than the room there is;
+// everything else is the kit's (D-43).
+const contentClass = 'w-auto max-w-(--available-width)'
 
 /** A list of actions or choices that opens from a button. */
 export function DropdownMenu({ trigger, align = 'start', side = 'bottom', open, onOpenChange, children }: DropdownMenuProps) {
@@ -41,8 +41,8 @@ export function DropdownMenu({ trigger, align = 'start', side = 'bottom', open, 
   )
 }
 
-// What `wrapped` adds to an item: the target minimum and text that wraps.
-const itemClass = 'min-h-target py-1.5 whitespace-normal aria-[current=page]:font-semibold'
+// The item of the open page is told by its weight as well as by `aria-current`.
+const itemClass = 'aria-[current=page]:font-semibold'
 const textClass = 'min-w-0 wrap-anywhere'
 
 export type DropdownMenuItemProps = {

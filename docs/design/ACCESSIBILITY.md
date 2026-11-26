@@ -43,6 +43,12 @@ Contrast is measured for **every state** (default, hover, focus, disabled is
 exempt but must stay legible, placeholder is not exempt) and **every mode**.
 The allowed pairings are the table in `TOKENS.md`.
 
+**Withdrawn by D-43 (2026-11-26):** this section and the two contrast rows of
+§ Perceivable (text contrast, non-text contrast) are not requirements in this
+project. The stock shadcn/ui colours are used as they are; no pair is measured
+and `TOKENS.md` § Contrast pairs holds no table. Every other row is
+unchanged by this note.
+
 ## Operable
 
 | Rule | Number | Source |
@@ -57,6 +63,13 @@ The allowed pairings are the table in `TOKENS.md`.
 | Nothing flashes more than 3 times a second | | WCAG 2.3.1 |
 | Motion honours the reduced-motion preference | **House rule** above AA — WCAG 2.3.3 is level AAA; both platforms recommend it | Platform guidance |
 | Moving or auto-updating content can be paused | | WCAG 2.2.2 |
+
+**Withdrawn by D-43 (2026-11-26):** the **Pointer target size** row and the
+contrast figure of the focus row (≥ 3:1) are not requirements in this project
+— the owner removed them (“去掉点击目标和对比度的要求”). Kit controls keep
+shadcn/ui's stock size and colours; nothing measures a target or a ratio.
+What stays: a visible focus indicator (the stock ring), every other row of
+this table, names, roles, states and full keyboard operation.
 
 The visible mark may be smaller than the target; the hit area may not.
 
@@ -107,7 +120,7 @@ live in the family files**, beside the registry row of the same component —
 | Name comes from | Content, a visible label, or a prop — never a built-in string: every name is localised (`COMPONENTS.md` § Kit patches) |
 | Keyboard | The keys that operate it, as the kit's primitive defines them |
 | Focus | Where focus goes on open and close, and that the ring is visible |
-| Min target | 44 × 44 CSS px through `size.target.min` for anything interactive |
+| Min target | **Withdrawn by D-43** — no target-size requirement; a family file's "Min target" column binds nothing. Kit controls keep their stock size |
 | Announces | State and changes exposed to assistive technology |
 
 ## Verifying
@@ -115,7 +128,7 @@ live in the family files**, beside the registry row of the same component —
 1. Automated scan (`<tool>`) — catches the easy part only
 2. Keyboard pass: reach, operate and leave every control; watch the focus ring
 3. Screen-reader pass: `<VoiceOver / TalkBack / NVDA>` — name, role, state of every control; reading order; announcements. A session that cannot drive a screen reader inspects the accessibility tree instead and reports the pass as **not checked** (`REVIEW.md`, protocol 7) — the owner or a human tester closes it
-4. Contrast: recompute the pairs table in every mode
+4. ~~Contrast: recompute the pairs table in every mode~~ — withdrawn by D-43
 5. Text size, reflow and reduced motion: the verification matrix
 
 ## Pitfalls

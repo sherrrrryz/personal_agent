@@ -1,25 +1,21 @@
 /*
- * Theme entry. No visual value lives here: every colour, size, radius and
- * font comes from src/tokens/generated/tokens.css, which is generated from
- * tokens/ (npm run tokens:build) and never edited by hand. This file only
- * maps those custom properties onto Tailwind's theme keys and holds the two
- * global accessibility rules. See docs/design/TOKENS.md.
+ * Theme entry — shadcn/ui's stock setup (D-43), as `shadcn init` writes it
+ * for the style and base colour in components.json. The one difference: the
+ * theme variables, light and dark, are not written here but generated from
+ * tokens/ into src/tokens/generated/tokens.css (npm run tokens:build), with
+ * the stock values. To change a colour, change it in tokens/ — see
+ * docs/design/TOKENS.md § Changing a colour. This file maps the variables
+ * onto Tailwind's theme keys and holds the two global accessibility rules.
  */
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 @import "./tokens/generated/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* No stock palette: a colour utility exists only for the roles mapped below. */
-  --color-*: initial;
-  /* No shadow scale in the placeholder theme: overlays separate by border. */
-  --shadow-*: initial;
-  --inset-shadow-*: initial;
-  --drop-shadow-*: initial;
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -63,7 +59,12 @@
   --font-sans: var(--font-family-sans);
   --font-heading: var(--font-sans);
 
-  /* size.target.min as a sizing step: min-h-target, min-w-target, size-target. */
+  /*
+   * size.target.min as a sizing step: min-h-target, min-w-target, size-target.
+   * Withdrawn by D-43 — there is no target-size requirement and the token is
+   * zero. The names stay only so that older code naming them still builds;
+   * they size nothing. Do not use them in new code.
+   */
   --spacing-target: var(--size-target-min);
 }
 

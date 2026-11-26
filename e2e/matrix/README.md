@@ -66,7 +66,7 @@ answers every path, so none is walked as the not-found screen.
 
 ## Failure kinds
 
-`sideways-scroll` · `clipped-text` · `small-target` · `axe` ·
+`sideways-scroll` · `clipped-text` · `axe` ·
 `focus-unreached` · `focus-not-visible` · `focus-out-of-view` ·
 `focus-covered` · `keyboard-trap` · `motion-under-reduced-motion` ·
 `route-not-found` · `error` (the cell could not be opened or checked) ·
@@ -84,11 +84,14 @@ turns it off for a run whose subject is the not-found screen itself.
 - **Overlays** are found by `aria-haspopup`, `aria-expanded="false"` and
   `summary`; one opened another way is not exercised by `--reduced-motion`.
   Tooltips are reached only through focus.
-- **Targets** are measured in the state the page loads in; a control inside a
-  closed overlay is measured by the component's own gallery demo or a flow.
+- **Target size** is not measured: the requirement is withdrawn by D-43
+  (the `small-target` failure and the `target` waiver are gone).
 - **Focus visible** means a change of outline, box-shadow, border, background
   or underline on the element, its pseudo-elements or three ancestors. Its
-  contrast and thickness are measured elsewhere (A-13).
+  contrast and thickness are not measured (withdrawn by D-43).
+- **Colour contrast** is not checked: the requirement is withdrawn by D-43,
+  and `axe` runs with its `color-contrast` rule disabled. Every other `axe`
+  rule fails the cell as before.
 - **Clipped text** is text past the edge of a box that hides overflow. Text
   that spills out of a box that does not hide it is not caught here; it
   usually shows as a sideways scroll or in the screenshot.

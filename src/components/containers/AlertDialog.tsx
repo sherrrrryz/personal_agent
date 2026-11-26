@@ -53,7 +53,7 @@ export function AlertDialog({
           <AlertDialogTitle className="wrap-anywhere">{title}</AlertDialogTitle>
           <AlertDialogDescription className="wrap-anywhere">{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-wrap">
+        <AlertDialogFooter>
           {/* Both buttons close the dialog, so both are the kit's closing part, rendered as our `Button`. */}
           <AlertDialogCancel render={<Button variant="secondary">{cancel}</Button>} />
           <AlertDialogCancel

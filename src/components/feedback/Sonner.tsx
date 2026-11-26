@@ -5,7 +5,6 @@ import { useT } from '@/i18n'
 import { useTheme } from '@/theme'
 
 import type { SonnerPosition } from './toast'
-import { toastClassNames } from './toast-class'
 
 export type SonnerProps = {
   /** Where toasts appear. Default `bottom-right`; under the narrow breakpoint of the library a toast spans the width. */
@@ -78,9 +77,9 @@ export function Sonner({ position = 'bottom-right', id, label }: SonnerProps) {
         closeButton
         expand
         toastOptions={{
-          unstyled: true,
           closeButtonAriaLabel: t('sonner.close'),
-          classNames: toastClassNames,
+          // The kit's own class: the toast is drawn as stock shadcn/ui draws it (D-43).
+          classNames: { toast: 'cn-toast' },
         }}
       />
     </div>

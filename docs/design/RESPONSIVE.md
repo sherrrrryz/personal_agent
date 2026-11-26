@@ -80,7 +80,7 @@ unit is a defect even if it renders correctly today.
 | Layout spacing, gutters | `rem`, or fluid `clamp()` | Number, stepped by size class | Adapts to space |
 | Widths of containers | `%`, `fr`, `min()/max()`, `ch` for measure | Flex, percentages | Never a fixed width |
 | Heights | `auto` / `min-height` | `minHeight` | Text must be able to grow |
-| Control minimum size, touch target | `rem` with a floor at the platform minimum | Number at the platform minimum | Target size |
+| Control minimum size, touch target — **withdrawn by D-43**: no target-size requirement in this project; kit controls keep their stock size | `rem` with a floor at the platform minimum | Number at the platform minimum | Target size |
 | Radius | `rem` for controls; pills use a very large fixed value (**allowed**) | Number | Keeps shape with size |
 | Border and divider width | `px` (**allowed**) | `StyleSheet.hairlineWidth` or 1 (**allowed**) | A hairline should not scale |
 | Focus ring width and offset | `px` (**allowed**) | Number (**allowed**) | Must stay crisp |
@@ -153,7 +153,7 @@ contrast where the platform exposes it, and text size.
 
 Run the verification matrix in `FOUNDATIONS.md`. At each cell: no sideways
 scroll, no clipped or overlapping text, no unreachable control, hierarchy
-intact, targets still at minimum size.
+intact. (Target size is not checked — withdrawn by D-43.)
 
 ## Pitfalls
 

@@ -55,7 +55,7 @@ export function ProposalCard({ props, changes, state, onAction }: BlockComponent
         </div>
       }
       empty={
-        <Empty className="border">
+        <Empty>
           <EmptyHeader>
             <EmptyTitle>{t('proposal.empty.title')}</EmptyTitle>
           </EmptyHeader>
@@ -64,7 +64,7 @@ export function ProposalCard({ props, changes, state, onAction }: BlockComponent
       errorTitle={t('proposal.error.title')}
       error={t('proposal.error.reason')}
     >
-      <Card data-slot="block-proposal" className="border">
+      <Card data-slot="block-proposal">
         <CardContent className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <BehaviourModeBadge mode={props.mode} />

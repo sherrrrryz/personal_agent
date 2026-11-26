@@ -2,7 +2,7 @@
   "space": {
     "$type": "dimension",
     "$description": "Steps of Tailwind's shipped spacing scale (0.25rem × n) that a semantic token needs. The rest of the scale is used as shipped until task 2.",
-    "11": { "$value": { "value": 2.75, "unit": "rem" } }
+    "0": { "$value": { "value": 0, "unit": "rem" } }
   },
   "border": {
     "width": {
@@ -13,9 +13,9 @@
   },
   "radius": {
     "$type": "dimension",
-    "sm": {
-      "$value": { "value": 0.375, "unit": "rem" },
-      "$description": "The shipped radius (0.625rem) × 0.6 — the only radius primitive of the placeholder theme."
+    "lg": {
+      "$value": { "value": 0.625, "unit": "rem" },
+      "$description": "shadcn/ui's stock base radius (D-43) — the only radius primitive; every step is derived from it."
     }
   },
   "breakpoint": {

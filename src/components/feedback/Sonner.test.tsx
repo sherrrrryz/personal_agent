@@ -39,24 +39,20 @@ describe('Sonner', () => {
     expect(region()).toHaveAttribute('aria-label', 'Notifications alt+T')
   })
 
-  it('shows a toast with its description, an action and a named close control, all at the target size', async () => {
+  it('shows a toast as the library and the kit draw it, with its description, an action and a named close control', async () => {
     const onClick = vi.fn()
     show()
     raise('已移除「商品与库存」', { description: '可以撤销。', action: { label: '撤销', onClick } })
     const item = await screen.findByRole('listitem')
     expect(item).toHaveTextContent('已移除「商品与库存」')
     expect(item).toHaveTextContent('可以撤销。')
-    // Our tokens, not the library's pixel sizes, literal colours and shadow.
-    expect(item).toHaveAttribute('data-styled', 'false')
-    expect(item).toHaveClass('bg-popover', 'text-popover-foreground', 'border', 'text-sm', 'flex-wrap')
+    // Stock (D-43): the library's own styling, with the kit's class on the toast.
+    expect(item).toHaveAttribute('data-styled', 'true')
+    expect(item).toHaveClass('cn-toast')
     const close = within(item).getByRole('button', { name: closeName })
     const action = within(item).getByRole('button', { name: '撤销' })
-    for (const button of [close, action]) expect(button).toHaveClass('min-h-target', 'min-w-target')
-    expect(close).toHaveClass('size-auto')
-    expect(action).toHaveClass('h-auto', 'whitespace-normal')
     // The close control comes first in the page and is not moved on screen: focus order is reading order.
     expect(within(item).getAllByRole('button')).toEqual([close, action])
-    expect(close.className).not.toMatch(/\border-/)
     await userEvent.click(action)
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(await axe(document.body)).toHaveNoViolations()
