@@ -5,12 +5,12 @@
 > against. Filled in task 0 and approved at gate `G-0`; every later task reads it.
 
 <!--
-TASK 0 STATE (2026-11-26): draft. Items marked "proposed — G-0" are the
-drafting session's recommendation and become binding only when the owner
-decides at G-0 and the answer is recorded in DECISIONS.md. Items still in
-<angle brackets> need the owner's input; the owner's summary of what is open
-is .orchestration/G0-decision-packet.md. A placeholder left here blocks task 1.
-After G-0, change this file only through a spec.
+TASK 0 STATE (2026-11-26): draft complete — no placeholder left. Items marked
+"proposed — G-0" (Vite, Style Dictionary, the verification matrix) are the
+drafting session's recommendation and become binding at G-0. Next: a fresh
+session reviews this file, IA-MAP.md and DECISIONS.md with the spec-review
+checklist (REVIEW.md); then the owner decides at G-0. After G-0, change this
+file only through a spec.
 -->
 
 ## Product and platforms
@@ -30,7 +30,9 @@ After G-0, change this file only through a spec.
   styling system: Tailwind v4 reading the CSS custom properties generated from
   the token source (follows D-03). Rules per stack: `stacks/react-web.md`.
   `stacks/react-native.md` is not in use.
-- **Languages and direction:** `<locales, e.g. zh-CN + en; is RTL required>`
+- **Languages and direction:** zh-CN and en (D-17); LTR only, no RTL. The
+  UI follows the browser language with en as the fallback; `<html lang>` is set
+  per locale (how the user switches is decided in the task-1 spec)
 
 ## Product brief
 
@@ -218,8 +220,8 @@ re-read them from the installed version in task 2.
 | --- | --- | --- |
 | Light | yes | |
 | Dark | yes | Designed, not inverted |
-| High contrast | `<yes/no>` | `prefers-contrast: more` maps here if yes |
-| Brand / density variants | `<yes/no>` | |
+| High contrast | no (D-18) | `prefers-contrast: more` is not mapped; `forced-colors` must still be usable (`stacks/react-web.md`) |
+| Brand / density variants | no (D-18) | |
 
 ## Verification matrix
 
@@ -230,10 +232,10 @@ done. Reviewers re-run it. Web only; the app column is empty by D-01.
 | --- | --- | --- |
 | Width | 320 · 768 · 1024 · 1440 CSS px | n/a |
 | Text size | 100% · 200% browser zoom; root font size 24px | n/a |
-| Theme | light · dark (+ high contrast if required) | n/a |
+| Theme | light · dark | n/a |
 | Input | keyboard · pointer · touch · screen reader | n/a |
 | Motion | default · reduced | n/a |
-| Direction | LTR (RTL only if a required locale needs it) | n/a |
+| Direction | LTR only; both locales (zh-CN, en) checked for text length | n/a |
 
 **How to run it:** `npm run dev`, then open the prototype in the Claude
 desktop app's browser pane or Chrome; widths and zoom via the browser's
