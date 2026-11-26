@@ -50,6 +50,7 @@ Four kinds of document, so you know what you are opening:
 | Document | The question it answers |
 | --- | --- |
 | [design/FOUNDATIONS.md](design/FOUNDATIONS.md) | What is this product built on — platforms, UI kit, base values, IA map, verification matrix, commands? |
+| [design/IA-MAP.md](design/IA-MAP.md) | Which screens and modules exist, with what id, under which parent, and of which screen type? |
 | [design/COMPONENTS.md](design/COMPONENTS.md) | Which components exist, where does each come from, and what contract does every component meet? |
 | [design/DECISIONS.md](design/DECISIONS.md) | Has the owner already answered this, and what did real packages cost? |
 | [design/figma-file-map.md](design/figma-file-map.md) | Which Figma node is the page, variable collection, component or screen I need? — **not in use in this project (D-04)** |

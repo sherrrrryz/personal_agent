@@ -57,18 +57,34 @@ every spec; it is not itself a spec.
 - **Chat bar:** persistent at the bottom of every screen. From what the user
   types it decides whether to answer in the main thread or open a dedicated
   chat window for that topic.
+- **Topics module (both layers):** every conversation with the AI is filed
+  automatically by theme into its own topic module — ask about fitness and a
+  fitness module appears. A topic's home shows an AI-written summary of the
+  important information drawn from those records, followed by every related
+  conversation. In Work, the design, development and project-management
+  sub-modules each have a view of all their conversations as well.
+- **Recent conversations sidebar:** a left sidebar, expandable, listing the
+  user's recent conversations.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
 
 ## Information architecture
 
-- **IA map:** `<link or path>` — the source for task 1. Format: `<FigJam / Mermaid / outline>`
+- **IA map:** `IA-MAP.md` — the source for task 1. Format: Mermaid tree plus
+  a node table (drafted 2026-11-26 from the brief; confirmed at `G-0`)
 - **Node ids:** every IA node has a stable id that screens, specs and the
   Figma map refer to.
 
+Top level only; the full table with every module, dynamic node and global
+element is `IA-MAP.md` § Nodes.
+
 | IA id | Node | Parent | Screen type |
 | --- | --- | --- | --- |
-| `<to be filled from the IA map>` | | | |
+| `root` | App shell — layer switch, chat bar, sidebar toggle | — | shell |
+| `life` | Life layer: messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
+| `work` | Work layer: messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
+| `chat.bar` · `chat.thread` · `chat.recent` | Chat bar (bottom, every screen), dedicated chat, recent-conversations sidebar (left) | `root` | global elements |
+| `settings` | Connected accounts, AI behaviour modes; per-module workflow and memory panels | `root` | settings |
 
 ## UI kit
 
