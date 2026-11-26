@@ -35,8 +35,10 @@ After G-0, change this file only through a spec.
 
 ## UI kit
 
-- **Kit:** shadcn/ui, the whole kit, with Tailwind v4 (D-03); version pinned when
-  it is installed in the first task-1 package · **Licence:** MIT
+- **Kit:** shadcn/ui, the whole kit, with Tailwind v4 (D-03). Checked 2026-11-26
+  with CLI 4.23.1: style `base-nova`, primitives `@base-ui/react`, icons
+  `lucide-react`, font `@fontsource-variable/geist`, animations `tw-animate-css`;
+  pinned when installed in the first task-1 package · **Licence:** MIT
 - **Why this one:** accessibility comes from headless primitives that follow
   the Authoring Practices; every visual value is reachable through CSS
   variables, so one token source can feed it; the components are copied into
@@ -45,8 +47,13 @@ After G-0, change this file only through a spec.
   (`src/components/ui/`), added one by one as the IA needs them (`GOVERNANCE.md`);
   not installed wholesale
 - **Theming hook:** CSS custom properties generated from the token source,
-  mapped to Tailwind utilities through `@theme inline`; no value is written
-  in a component
+  mapped to Tailwind utilities through `@theme inline`; dark mode is the
+  `.dark` class on `<html>` (shadcn's `@custom-variant dark`); no value is
+  written in a component
+- **Open at `G-0`:** shadcn's own component code carries literals the gate
+  rejects (`check:design-values` flags 6 arbitrary utilities in `button.tsx`)
+  and fixed button heights (`h-6`…`h-9`, hard rule 10). How the kit's copied
+  code is treated is decided in `.orchestration/G0-decision-packet.md` § 8
 - **Known gaps:** `<filled once the IA map names the components the product needs>`
 
 Building a component the kit already provides is forbidden. Wrapping one to
@@ -77,20 +84,22 @@ enabled later, a new decision supersedes D-04 and this section is filled from
 
 ## Base values
 
-The owner's seed values. Task 2 expands them; nothing else may introduce a
-primitive. **Not invented by the drafting session** — every row needs the
-owner's value or the owner's explicit "agent proposes, I approve at `G-2`".
+**shadcn/ui's defaults are the base values (D-05).** Task 2 expands them into
+the three tiers and invents nothing; a new primitive enters only through
+`GOVERNANCE.md` when a specific design needs it. Values below are from the
+CLI 4.23.1 `neutral` theme and Tailwind v4 defaults, checked 2026-11-26;
+re-read them from the installed version in task 2.
 
 | Type | Base value(s) | Expansion rule (detail in `TOKENS.md`) |
 | --- | --- | --- |
-| Colour | `<brand, neutral, status seeds>` | `<ramp method>` |
-| Typeface | `<families, licences>` | — |
-| Font size | `<base size, scale ratio>` | `<steps>` |
-| Spacing | `<base unit>` | `<multipliers>` |
-| Radius | `<base>` | `<steps>` |
-| Shadow | `<base elevation>` | `<levels>` |
-| Blur | `<base>` | `<levels>` |
-| Motion | `<base duration, easing>` | `<steps>` |
+| Colour | shadcn `neutral`: ~30 semantic roles (`background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-1…5`, `sidebar-*`), light and dark, OKLCH. Neutral lightness steps used: 0.145 · 0.205 · 0.269 · 0.371 · 0.439 · 0.556 · 0.708 · 0.87 · 0.922 · 0.97 · 0.985 · 1; `destructive` hue ≈ 27 (light) / 22 (dark); no brand hue (`primary` is near-black) | Task 2 lifts the lightness steps into one primitive neutral ramp and re-expresses every shadcn role as an alias to it, so the names shadcn components use stay the semantic tier. A new hue is an `HITL.md` § Always ask |
+| Typeface | Geist Variable (sans; heading = sans), SIL OFL 1.1; no mono installed | — |
+| Font size | Tailwind v4 default scale, base 1rem (`text-xs` 0.75rem … `text-9xl` 8rem) with paired line heights | Tailwind's scale as shipped; no new step without admission |
+| Spacing | Tailwind `--spacing` 0.25rem | Tailwind's integer and half multiples |
+| Radius | `--radius` 0.625rem | × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`sm` → `4xl`), plus `full` |
+| Shadow | Tailwind v4 default shadow scale | `2xs` … `2xl` as shipped |
+| Blur | Tailwind v4 default blur scale | as shipped |
+| Motion | Tailwind default transition (150ms, standard ease) + `tw-animate-css` presets | as shipped; reduced motion per `RESPONSIVE.md` |
 
 ## Modes
 

@@ -62,7 +62,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
 ## Tokens on the web
 
 - Output: `src/tokens/generated/tokens.css` — `:root` for the default mode plus one block per mode
-  (`[data-theme="dark"]` on `<html>`, set before first paint), with aliases kept as
+  (the `.dark` class on `<html>` — shadcn's `@custom-variant dark` — set before first paint), with aliases kept as
   `var()` references.
 - The styling system reads the variables (Tailwind v4 `@theme inline` maps each custom property to a utility);
   utilities or classes are generated from tokens, so a value outside the scale
