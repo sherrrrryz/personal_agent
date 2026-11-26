@@ -78,7 +78,7 @@ const messages = {
   'demo.text.longLink4': 'Open the workflow of the weekly review',
   'demo.text.longLink5': 'Open the memory table the durations are learned into',
 
-  'demo.empty.title': 'To-dos',
+  'demo.empty.title': 'Today’s to-dos',
   'demo.empty.heading': 'Nothing to do today',
   'demo.empty.body': 'To-dos of the shop appear here: the ones you write down and the ones other modules pass on.',
   'demo.empty.action': 'See today’s bookings',

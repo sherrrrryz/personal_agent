@@ -154,7 +154,7 @@ export function BlockRenderer({
                     title={
                       marked ? (
                         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="min-w-0 wrap-break-word">{block.title}</span>
+                          <span className="min-w-0 wrap-break-word">{block.title}</span>{' '}
                           <ChangeMarker kind="updated" />
                         </span>
                       ) : (

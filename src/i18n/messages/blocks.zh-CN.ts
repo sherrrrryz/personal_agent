@@ -38,7 +38,7 @@ const messages: Translation<typeof en> = {
 
   'demo.pick': '显示的状态',
   'demo.state.ready': '正常',
-  'demo.state.loading': '载入中',
+  'demo.state.loading': '加载中',
   'demo.state.empty': '空',
   'demo.state.error': '出错',
   'demo.state.long': '超长内容',
@@ -72,7 +72,7 @@ const messages: Translation<typeof en> = {
   'demo.text.longLink4': '打开每周复盘的工作流',
   'demo.text.longLink5': '打开记录这些时长的记忆表',
 
-  'demo.empty.title': '待办',
+  'demo.empty.title': '今天的待办',
   'demo.empty.heading': '今天没有待办',
   'demo.empty.body': '店里的待办会出现在这里：你自己记下的，以及其他模块转过来的。',
   'demo.empty.action': '去看今天的预约',
