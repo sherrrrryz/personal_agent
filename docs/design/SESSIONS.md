@@ -169,6 +169,12 @@ the review by package or the spec in two.
   heartbeats in its own session. It relies on the child-finished turns only,
   and tells the owner before they leave that one word from them restarts a
   stalled chain. Messages to sessions that already exist are not affected.
+  The same refusal applies to a session whose task was given by another
+  session: **a successor lead started by the outgoing lead cannot start
+  children.** The owner starts the successor (or writes one message in it),
+  as "Roles" says; the outgoing lead leaves the handoff and a proposal card.
+  A long unattended chain can also pause after many child-finished turns in a
+  row; one word from the owner resumes it.
 - **First seen:** task 1, spec review, 2026-11-26 (D-41 night).
 
 ### A child could not write its report to `.orchestration/`
