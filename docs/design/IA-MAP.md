@@ -164,7 +164,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 - `chat.recent` lists the **current layer's** conversations only and switches
   with the layer (D-15).
 
-## Prototype scope — pet-grooming shop manager (D-26, D-27; module list and flow scripts proposed, `G-0`)
+## Prototype scope — pet-grooming shop manager (D-26, D-27; confirmed by the owner 2026-11-26)
 
 The prototype builds the **Work layer only**, for one example user: the
 manager of a small pet-grooming shop. The generic base modules (`work.mail`,
@@ -187,7 +187,7 @@ Global elements and settings (`chat.bar`, `chat.thread`, `chat.recent`,
 `settings.accounts`, `settings.ai-modes`, `onboarding`) are built as in the
 product IA; for the prototype the shell opens in Work after onboarding.
 
-**Hero flow — the AI learns her grooming times (D-27; script proposed, `G-0`).**
+**Hero flow — the AI learns her grooming times (D-27; script confirmed).**
 The owner's scenario: she takes about four hours for a long-haired large dog
 and two for a short-haired small dog; she wants the AI to learn how long she
 actually takes, and to change the appointment and shift rules accordingly.
