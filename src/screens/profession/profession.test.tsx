@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
@@ -19,6 +19,8 @@ vi.mock('@/chat/shell-slots', () => ({}))
 
 const appointments = '/m/profession.appointments'
 const clients = '/m/profession.clients'
+const duration = '/m/profession.appointments.sub.duration'
+const confirmations = '/m/profession.appointments.sub.confirmations'
 
 function open(path: string, scene: string, preview?: PreviewId) {
   window.localStorage.setItem(LOCALE_STORAGE_KEY, 'zh-CN')
@@ -157,3 +159,102 @@ function rowsOfDog(runtime: Runtime, dog: string) {
   return (tableOf(runtime.getState(), tableId.visits)?.rows ?? []).filter((row) => row.cells[column.visits.dog] === dog)
 }
 
+
+describe('profession.inventory and profession.shifts (B-07)', () => {
+  it('inventory: the figures, the stock table with status as text, and what to restock', async () => {
+    open('/m/profession.inventory', 's2')
+    expect(await block('概况')).toHaveTextContent('低于安全库存')
+    const table = within(await block('库存')).getByRole('table')
+    for (const header of ['商品', '库存', '安全库存', '状态']) expect(within(table).getByRole('columnheader', { name: header })).toBeInTheDocument()
+    expect(within(table).getByRole('row', { name: /低敏香波/ })).toHaveTextContent('低于安全库存')
+    expect(within(table).getByRole('row', { name: /洁耳液/ })).toHaveTextContent('刚好在安全线')
+    expect(within(table).getByRole('row', { name: /牵引绳/ })).toHaveTextContent('充足')
+    expect(await block('补货建议')).toHaveTextContent('补低敏香波 500 ml')
+    expect(blocks()).toEqual(['block.summary', 'block.table', 'block.list'])
+  })
+
+  it('shifts: 净空出时间 is the sum of the week’s duration changes, beside the rota, the assisted suggestion and 换班申请', async () => {
+    const { runtime } = open('/m/profession.shifts', 's3-resolved')
+    const a = column.appointments
+    const moved = (tableOf(runtime.getState(), tableId.appointments)?.rows ?? []).filter(
+      (row) => row.cells[a.status] === 'booked' && typeof row.cells[a.previous] === 'number',
+    )
+    const net = moved.reduce((sum, row) => sum + Number(row.cells[a.previous]) - Number(row.cells[a.estimate]), 0)
+    expect(moved.length).toBeGreaterThan(0)
+    expect(net).toBe(45)
+    const summary = await block('概况')
+    expect(summary).toHaveTextContent('本周工时')
+    expect(summary).toHaveTextContent('预约负载')
+    expect(within(summary).getByText('净空出时间').closest('[data-slot]')?.parentElement ?? summary).toHaveTextContent('45分钟')
+    expect(blocks()).toEqual(['block.summary', 'block.schedule', 'block.proposal', 'block.list'])
+    const proposal = await block('排班建议')
+    expect(proposal).toHaveTextContent('协助')
+    // Accepting a part goes through the runtime.
+    const open_ = runtime.getState().proposals.find((each) => each.moduleId === 'profession.shifts' && each.parts.some((part) => part.state === 'pending'))
+    expect(open_).toBeDefined()
+    await userEvent.click(within(proposal).getAllByRole('button', { name: /接受/ })[0])
+    await waitFor(() => expect(runtime.getState().proposals.find((each) => each.id === open_?.id)?.parts[0].state).toBe('accepted'))
+    expect(await block('换班申请')).toHaveTextContent('小陈想和阿杰对调')
+  })
+
+  it('walk their states', async () => {
+    await walkStates('/m/profession.inventory', 's2', '还没有商品', 'failed')
+    cleanup()
+    await walkStates('/m/profession.shifts', 's3-resolved', '本周还没有排班', 'kept')
+  })
+})
+
+describe('the sub-module homes (B-08)', () => {
+  const durationScenes = ['s1', 's2', 's3', 's3-resolved', 's4', 's4-resolved', 's5'] as const
+  const confirmationScenes = ['e2', 's0', ...durationScenes] as const
+
+  it.each(durationScenes)('服务时长 renders in %s, under 预约', async (scene) => {
+    open(duration, scene)
+    expect(h1()).toHaveTextContent('服务时长')
+    expect(document.querySelector('[data-route-not-found]')).toBeNull()
+    expect(within(screen.getByRole('navigation', { name: '当前位置' })).getByRole('link', { name: '预约' })).toHaveAttribute('href', appointments)
+    if (scene === 's1') {
+      await waitFor(() => expect(main()).toHaveTextContent('暂无记录——完成第一单后这里会更新'))
+    } else {
+      expect(await block('概况')).toHaveTextContent('已学习的狗')
+      const table = within(await block('预计与实际')).getByRole('table')
+      expect(within(table).getAllByRole('row').length).toBeGreaterThan(1)
+      expect(within(table).getAllByRole('link', { name: /大福/ })[0]).toHaveAttribute('href', `${clients}/pets/dafu`)
+    }
+    expect(await block('现在的规则')).toHaveTextContent('周一复盘')
+  })
+
+  it.each(confirmationScenes)('预约确认 renders in %s, under 预约', async (scene) => {
+    open(confirmations, scene)
+    expect(h1()).toHaveTextContent('预约确认')
+    expect(document.querySelector('[data-route-not-found]')).toBeNull()
+    expect(within(screen.getByRole('navigation', { name: '当前位置' })).getByRole('link', { name: '预约' })).toHaveAttribute('href', appointments)
+    expect(await block('概况')).toHaveTextContent('已回复')
+    expect(blocks()).toEqual(['block.summary', 'block.list', 'block.text'])
+  })
+
+  it('e1: made persistent, 预约确认 says when it first runs', async () => {
+    const { runtime, router } = open(appointments, 'e1')
+    let created: string | null = null
+    act(() => {
+      created = runtime.actions.createSubModule({ parentId: 'profession.appointments', template: 'confirmations' })
+    })
+    expect(created).toBe('profession.appointments.sub.confirmations')
+    await act(() => router.navigate(confirmations))
+    expect(h1()).toHaveTextContent('预约确认')
+    await waitFor(() => expect(main()).toHaveTextContent('今晚 19:00 第一次运行'))
+    expect(blocks()).toEqual(['block.empty'])
+  })
+
+  it('e2: two customers have not replied, as text', async () => {
+    open(confirmations, 'e2')
+    const list = await block('每位顾客')
+    expect(within(list).getAllByText('无回复')).toHaveLength(2)
+  })
+
+  it('walk their states', async () => {
+    await walkStates(duration, 's2', '暂无记录', 'kept')
+    cleanup()
+    await walkStates(confirmations, 'e2', '尚未运行', 'failed')
+  })
+})
