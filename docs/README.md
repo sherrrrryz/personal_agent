@@ -24,6 +24,12 @@ Four kinds of document, so you know what you are opening:
 - **Project record** — this product's decisions and inventory. Filled as you go.
 - **Playbook** — the steps for one task type.
 
+## Product (`product/`)
+
+| Document | The question it answers |
+| --- | --- |
+| [product/VISION.md](product/VISION.md) | What is Personal Agent, why is it built this way, and what is still undecided — for a reader outside the project, in Chinese? |
+
 ## Process (`design/`)
 
 | Document | The question it answers |
