@@ -164,7 +164,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 - `chat.recent` lists the **current layer's** conversations only and switches
   with the layer (D-15).
 
-## Prototype scope — pet-grooming shop manager (D-26; modules and hero flow proposed, `G-0`)
+## Prototype scope — pet-grooming shop manager (D-26, D-27; module list and flow scripts proposed, `G-0`)
 
 The prototype builds the **Work layer only**, for one example user: the
 manager of a small pet-grooming shop. The generic base modules (`work.mail`,
@@ -187,29 +187,33 @@ Global elements and settings (`chat.bar`, `chat.thread`, `chat.recent`,
 `settings.accounts`, `settings.ai-modes`, `onboarding`) are built as in the
 product IA; for the prototype the shell opens in Work after onboarding.
 
-**Hero flow (proposed).** One end-to-end story that exercises almost every
-differentiator, used by the task-1 spec as the acceptance walk-through:
+**Hero flow — the AI learns her grooming times (D-27; script proposed, `G-0`).**
+The owner's scenario: she takes about four hours for a long-haired large dog
+and two for a short-haired small dog; she wants the AI to learn how long she
+actually takes per breed and coat, and to change the appointment and shift
+rules accordingly. The prototype shows the conversation becoming a workflow
+**and** the workflow changing over the following weeks. Time is advanced with
+a prototype-only control (§ Prototype devices).
 
-1. In the chat bar the manager asks: "明天有哪些预约？帮我给顾客发确认。" The
-   answer appears **in place** (D-23) with tomorrow's list and drafted messages.
-2. The manager switches the conversation to **persistent** (D-08). It becomes
-   `work.appointments.sub.confirmations`, a sub-module with its own workflow.
-3. Opening `….workflow` shows the node canvas (D-10, D-16): trigger *every
-   evening 19:00* → source *tomorrow's appointments* → action *send
-   confirmation* in **autonomous** mode → condition *no reply by 21:00* →
-   action *remind me* in **deferred** mode → output block *tomorrow at a
-   glance*. The manager changes 21:00 to 20:30 and nothing else.
-4. The next evening the workflow runs; the sub-module's screen is rewritten
-   from registered blocks (D-12) with what-changed markers; two no-replies and
-   one cancellation that freed a slot appear in `work.notifications` as items
-   awaiting the manager (D-22: the user's ceiling for "contact a customer" is
-   *assisted*).
-5. The whole conversation is filed in `work.topics` under a topic the AI
-   named (D-20), where a summary of the week's confirmations accumulates.
+| Stage | What happens | What the screen shows | Differentiator |
+| --- | --- | --- | --- |
+| 0 · 今天 — the conversation | In `work.appointments` she sees an Alaskan Malamute booked for the default two hours. In the chat bar: "我给长毛大狗做一次要 4 小时，短毛小狗 2 小时左右。以后帮我按狗的品种和毛长估时间，预约和排班都按这个来。" | The answer appears **in place**: the AI restates it as a small rule table (长毛大型 4 h · 短毛小型 2 h · 其他 3 h, to be learned) and says this sounds like a standing rule, offering to make it persistent | In-place answer (D-23); AI proposes the conversion (D-08) |
+| 1 · 变成工作流 | She accepts. `work.appointments.sub.duration` ("服务时长") is created and opens on its node canvas | Trigger *预约新建或修改* and *每周一复盘* → source *顾客与宠物档案（品种、毛长、体型）* → step *估算时长*（规则表 + 已记录的实际耗时）→ action *设置预约时长*（**autonomous**）→ action *建议排班调整* to `work.shifts`（**assisted**）→ learning step *记录实际耗时* → condition *偏差超过 30 分钟* → action *提议修改规则*（**deferred**）. A **memory** node shows "各品种实际耗时：暂无记录" | Node editor read-and-adjust (D-10, D-16); modes per action (D-22); memory shared with `work.shifts` inside the layer (D-09) |
+| 2 · 第 1–2 周 — learning | Time advances two weeks. Each finished appointment records its actual duration (the groomer taps *开始* / *完成* in the appointment) | The sub-module's screen is rewritten after each run: estimated vs actual per appointment, what-changed markers; the memory table fills (金毛 3 h 40 · 比熊 2 h 10 · 边牧 3 h 05 …) | Module = scheduled workflow rewriting its screen from blocks (D-12); memory as a visible, growing thing |
+| 3 · 第 3 周 — the first change | Monday review runs: five Golden Retrievers averaged 3 h 40, under her 4 h | `work.notifications` holds a **deferred** item: "金毛平均 3 小时 40 分，比你设的 4 小时短，要改成 3.5 小时吗？" She accepts. The rule table changes; the canvas does not. `work.appointments` now books Goldens at 3.5 h; `work.shifts` shows the freed half hour and proposes opening a slot | Learning changes **memory**, not the workflow; cross-module effect; deferred mode for a rule change (D-22) |
+| 4 · 第 2 个月 — the workflow itself changes | The review finds that first-time dogs take about 30 minutes longer regardless of breed | A **deferred** proposal to add a condition: *第一次来的狗 +30 分钟*. On the canvas the new node and its edges are highlighted as a diff; she approves (**assisted**) and the workflow becomes version 2, with the previous version in the module frame's history | The workflow evolves — "未来的变化"; versioned, explainable (why was this booked for 4 h?) |
+| 5 · 回看 | She opens `work.topics` | The original conversation is filed under a topic the AI named "服务时长规则", with a summary of how the rule changed over two months and links to the sub-module | Topics as the archive (D-20) |
 
-A second, smaller flow shows `work.inventory`: "洗护用品低于安全库存时提醒我" →
-`work.inventory.sub.restock`, with the restock order in **deferred** mode
-because it spends money.
+**Secondary flow — tomorrow's confirmations.** "明天有哪些预约？帮我给顾客发确认。"
+→ in-place answer → switched to persistent → `work.appointments.sub.confirmations`
+(trigger 19:00; *发确认* autonomous; *无回复则提醒我* deferred) → next evening the
+screen is rewritten and two no-replies sit in `work.notifications`. It shows the
+same mechanics in one evening and is the warm-up for the hero flow.
+
+**Prototype devices (not product features).** A *时间推进* control in the shell
+jumps between the hero flow's stages with faked data; the module frame's run
+history and the canvas version history are real product features that the
+device merely fills. Nothing else is simulated.
 
 ## Topics, sub-modules and chats (D-20)
 

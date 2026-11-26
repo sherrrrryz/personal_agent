@@ -117,7 +117,9 @@ every spec; it is not itself a spec.
 differentiator through **one example user: the manager of a small pet-grooming
 shop** — someone who sells products, takes appointments for grooming and
 schedules a few staff. It builds the **Work layer only**, with that shop's
-modules (list and hero flow: `IA-MAP.md` § Prototype scope). The Life layer,
+modules (list and flow scripts: `IA-MAP.md` § Prototype scope; the hero
+story, D-27, is the AI learning her grooming times per breed and changing the
+appointment and shift rules over the following weeks). The Life layer,
 the generic base modules and the calendar bridge remain product scope in the
 IA but are not built. Differentiators the prototype must still show: a module
 as a scheduled workflow that rewrites its own screen; the node-based workflow
