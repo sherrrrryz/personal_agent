@@ -25,6 +25,7 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 | Component | Source | Variants | Status | Notes |
 | --- | --- | --- | --- | --- |
+| `Button` | `wrapped` | `variant: primary · secondary · ghost · danger · link` (default `primary`); `size: sm · md · icon` (default `md`); `loading` | `lofi` | The kit's button at the target minimum in both directions, height `auto`, label wraps. `secondary` is the kit's outlined button (a 3:1 edge in the grey theme); `link` is always underlined; `danger` is told by its label and icon, not by colour. `type` is `button` unless set. `buttonClass({ variant, size })` gives the same look to a router link — nothing else |
 
 ## Accessibility contract
 
@@ -34,3 +35,4 @@ through `size.target.min` for anything interactive.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |
+| `Button` | Native `button` | Its text; `size: icon` requires `aria-label` (type-enforced); an icon beside text is `aria-hidden` | Tab reaches it, Enter and Space press it; `disabled` leaves the tab order, `loading` stays in it | The focus ring below, in every variant and state | 44 × 44 CSS px, text or icon-only | `loading`: `aria-busy` and `aria-disabled`, the label stays, the spinner is hidden from assistive technology |
