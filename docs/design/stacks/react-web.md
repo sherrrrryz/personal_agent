@@ -73,7 +73,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
   utilities or classes are generated from tokens, so a value outside the scale
   cannot be written by accident.
 - User-preference modes: `prefers-color-scheme` sets the default; an explicit
-  user choice overrides it (an in-app toggle is proposed, `G-0`, D-pending); `prefers-contrast: more` maps to the high-contrast
+  user choice overrides it (the in-app toggle, D-19); `prefers-contrast: more` maps to the high-contrast
   mode if the product has one; `forced-colors: active` must remain usable —
   do not rely on background colour alone to show state.
 

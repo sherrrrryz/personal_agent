@@ -32,9 +32,8 @@ file only through a spec.
   the token source (follows D-03). Rules per stack: `stacks/react-web.md`.
   `stacks/react-native.md` is not in use.
 - **Languages and direction:** zh-CN and en (D-17); LTR only, no RTL.
-  Proposed — `G-0` (packet § 16): the UI follows the browser language, en is
-  the fallback, `<html lang>` is set per locale; how the user switches is
-  decided in the task-1 spec
+  The UI follows the browser language, en is the fallback, `<html lang>` is
+  set per locale (D-24); how the user switches is decided in the task-1 spec
 
 ## Product brief
 
@@ -82,14 +81,13 @@ every spec; it is not itself a spec.
   according to the module's workflow. The user can set a behaviour mode per
   kind of task — **autonomous**, **assisted** or **deferred** — and the AI
   picks the mode for a given task from its confidence, the stakes and how
-  reversible the action is. Precedence — proposed, `G-0` (packet § 14): the
-  user's setting is the **ceiling**; the AI picks at or below it; where
-  nothing is set the AI decides, defaulting to *assisted*.
+  reversible the action is. Precedence (D-22): the user's setting is the **ceiling**; the AI picks at
+  or below it; where nothing is set the AI decides, defaulting to *assisted*.
 - **Chat bar:** persistent at the bottom of every screen. From what the user
   types it decides whether to answer in place or open a dedicated chat window
-  for that topic. "In place" — proposed, `G-0` (packet § 15): a panel that
-  expands above the bar, in the context of the current screen, and is filed
-  into Topics; there is no separate main-thread page.
+  for that topic. "In place" (D-23): a panel that expands above the bar, in the context of
+  the current screen, and is filed into Topics; there is no separate
+  main-thread page.
 - **Topics module (both layers):** every conversation with the AI is filed
   automatically by theme into its own topic module — ask about fitness and a
   fitness module appears. A topic's home shows an AI-written summary of the
@@ -101,7 +99,7 @@ every spec; it is not itself a spec.
   layer (D-15).
 - **Onboarding:** before any of these screens, a first-run setup flow whose
   main job is connecting all of the user's platform accounts. Accounts and
-  layers — proposed, `G-0` (packet § 13): an account is attached to one or
+  layers (D-21): an account is attached to one or
   both layers when connected (one Google account may feed both `life.mail`
   and `work.mail`; D-09 isolates derived data, memory and workflows, not the
   raw connection); onboarding presents the Life / Work split as its first
@@ -223,7 +221,7 @@ re-read them from the installed version in task 2.
 | Type | Base value(s) | Expansion rule (detail in `TOKENS.md`) |
 | --- | --- | --- |
 | Colour | shadcn `neutral`: ~30 semantic roles (`background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-1…5`, `sidebar-*`), light and dark, OKLCH. Neutral lightness steps used: 0.145 · 0.205 · 0.269 · 0.371 · 0.439 · 0.556 · 0.708 · 0.87 · 0.922 · 0.97 · 0.985 · 1; `destructive` hue ≈ 27 (light) / 22 (dark); no brand hue (`primary` is near-black) | Task 2 lifts the lightness steps into one primitive neutral ramp and re-expresses every shadcn role as an alias to it, so the names shadcn components use stay the semantic tier. A new hue is an `HITL.md` § Always ask |
-| Typeface | Geist Variable (sans; heading = sans), SIL OFL 1.1; no mono installed. **Geist has no CJK glyphs**: zh-CN needs a CJK face, which is a new font family (`HITL.md` § Always ask) — open at `G-0`, packet § 17; it enters the source as a font-family token | — |
+| Typeface | Geist Variable (sans; heading = sans), SIL OFL 1.1; no mono installed. **Geist has no CJK glyphs**: zh-CN renders in the system CJK stack — PingFang SC → Microsoft YaHei → Noto Sans CJK SC — as a font-family token in the source (D-25) | — |
 | Font size | Tailwind v4 default scale, base 1rem (`text-xs` 0.75rem … `text-9xl` 8rem) with paired line heights | Tailwind's scale as shipped; no new step without admission |
 | Spacing | Tailwind `--spacing` 0.25rem | Tailwind's integer and half multiples |
 | Radius | `--radius` 0.625rem | × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`sm` → `4xl`), plus `full` |
@@ -236,7 +234,7 @@ re-read them from the installed version in task 2.
 | Mode | Required | Notes |
 | --- | --- | --- |
 | Light | yes | |
-| Dark | yes | Designed, not inverted. Follows the system preference; an in-app light/dark toggle is proposed, `G-0` (packet § 11) |
+| Dark | yes | Designed, not inverted. Follows the system preference; an in-app light/dark toggle overrides it (D-19) |
 | High contrast | no (D-18) | `prefers-contrast: more` is not mapped; `forced-colors` must still be usable (`stacks/react-web.md`) |
 | Brand / density variants | no (D-18) | |
 

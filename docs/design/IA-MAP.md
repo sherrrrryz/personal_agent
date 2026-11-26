@@ -83,7 +83,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 
 | IA id | Node | Parent | Screen type | Notes |
 | --- | --- | --- | --- | --- |
-| `onboarding` | Onboarding | — | first-run flow | Before the shell; sets the workspace up. "Shown once" and which layer the shell opens in afterwards are proposed, `G-0` (packet § 13) |
+| `onboarding` | Onboarding | — | first-run flow | Before the shell; presents the Life / Work split first, then connects accounts; the shell opens in Life afterwards (D-21). "Shown once" is proposed, `G-0` |
 | `onboarding.accounts` | Connect accounts | `onboarding` | wizard step | The user connects the platforms the modules draw on (Google, Slack, Figma, GitHub …); same connectors as `settings.accounts`, which is where they are changed later |
 | `root` | App shell | — | shell | Layer switch (Life / Work), chat bar, sidebar toggle; reached after onboarding |
 | `life` | Life | `root` | layer home | Overview of the life modules |
@@ -164,7 +164,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 - `chat.recent` lists the **current layer's** conversations only and switches
   with the layer (D-15).
 
-## Topics, sub-modules and chats — proposed, `G-0` (packet § 12)
+## Topics, sub-modules and chats (D-20)
 
 - A **topic** (`*.topics.<topic>`) is a filing of conversations with an
   AI-written summary, not a module: it has no workflow, no memory and no
@@ -178,8 +178,7 @@ user marks persistent (or the AI converts). The diagram shows one example.
 
 ## Open at G-0
 
-Owner questions raised by the task-0 review, with the drafting session's
-proposals, are in `.orchestration/G0-decision-packet.md` § 11–17: topic /
-sub-module boundary (above), accounts and layers after onboarding, behaviour
-mode precedence, where a non-dedicated answer appears, in-app theme toggle,
-locale fallback, CJK typeface.
+The review's owner questions are decided (D-19…D-25). Still marked
+"proposed" for the G-0 pass itself: `chat.recent` collapsed by default,
+`onboarding` shown once, and the tooling items in `FOUNDATIONS.md` (Vite,
+Style Dictionary, the verification matrix, axe-core + Lighthouse).
