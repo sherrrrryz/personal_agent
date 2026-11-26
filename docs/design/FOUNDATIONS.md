@@ -15,17 +15,19 @@ file only through a spec.
 
 ## Product and platforms
 
-- **Product:** Personal Agent is a personal AI workbench for everyday users
-  that organises life and work into two layers of connected modules —
-  messages, calendar, to-do, mail, files, finance and journal, plus projects
-  with design, development and project-management sub-modules at work — each
-  tied to the user's own accounts and backed by a scheduled, node-editable
-  workflow and a memory shared across the modules of its layer, so the AI works
-  proactively inside and between modules (autonomous, assisted or deferred, chosen by each task's confidence,
-  stakes and reversibility) while a chat bar fixed to the bottom of every
-  screen takes requests and opens a dedicated chat only when one is needed;
-  the user sees work kept in order, not a transcript. (Drafted from the
-  owner's brief, 2026-11-26; approved at `G-0`)
+- **Product:** Personal Agent is a personal AI workbench for people who run
+  their own work — a small business or practice; the manager of a pet-grooming
+  shop is the first story — that organises that work into connected modules: a
+  shared base (notifications, messages, calendar, to-do, mail, files, topics)
+  plus **profession modules** the AI pre-generates from an onboarding
+  conversation about what the user does. Every module is tied to the user's own
+  accounts and backed by a scheduled, node-editable workflow and a memory
+  shared across modules, so the AI works proactively inside and between
+  modules (autonomous, assisted or deferred, chosen within the user's ceiling
+  by each task's confidence, stakes and reversibility), while a chat bar fixed
+  to the bottom of every screen answers in place or opens a dedicated chat;
+  the user sees work kept in order, not a transcript. (Rewritten 2026-11-26
+  after D-28–D-30; approved at `G-0`)
 - **Platforms:** web only; no native app for now (D-01)
 - **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (proposed — `G-0`);
   styling system: Tailwind v4 reading the CSS custom properties generated from
@@ -37,18 +39,34 @@ file only through a spec.
 
 ## Product brief
 
-The owner's description, 2026-11-26. It is the input to the IA map and to
-every spec; it is not itself a spec.
+The owner's description, 2026-11-26, rewritten the same day when the Life
+layer was removed (D-28). It is the input to the IA map and to every spec; it
+is not itself a spec.
 
-- **Audience:** the general public — non-technical individuals, one user per
-  workspace.
-- **Two layers:** *Life* and *Work*. Both ship with base modules: messages,
-  calendar, to-do, mail, files. Life adds finance records and a journal; Work
-  adds projects. A project holds further sub-modules such as design,
-  development and project management.
+- **Audience:** non-technical individuals who run their own work — a shop, a
+  practice, a one-person business. One user per workspace. The first story is
+  the manager of a small pet-grooming shop who sells products, takes grooming
+  appointments and schedules a few staff (D-26).
+- **One workspace.** The product has a single work layer; there is no Life
+  layer (D-28). Memory is shared across all modules of the workspace.
+- **Base modules, the same for everyone:** notifications, messages, calendar,
+  to-do, mail, files, topics.
+- **Profession modules, generated per user (D-29):** in the place the earlier
+  design had "projects", the workspace holds modules specific to the user's
+  profession. They are **pre-generated at onboarding** from a conversation
+  about what the user does, confirmed by the user, and can be added to later
+  from conversations (D-08). For the pet-grooming shop: appointments, clients
+  and pets, products and inventory, staff shifts. A profession module is a
+  module like any other: workflow, memory, frame.
+- **Onboarding (D-30):** before the shell, a first-run flow in three steps —
+  (1) a **profession interview**: a detailed conversation in which the AI asks
+  what the user does, how their work is organised and what recurs, then (2)
+  proposes the set of profession modules it will pre-generate, which the user
+  edits and confirms, then (3) connects the platform accounts those modules
+  draw on. The shell opens on the notifications module afterwards.
 - **Connected accounts:** every module connects to the platforms the user
-  already uses, personal and corporate — Google, Slack, Figma, GitHub and the
-  like.
+  already uses — Google, Slack, Figma, GitHub and the like; for a shop also
+  its booking, messaging and payment tools.
 - **Every module is a workflow:** behind each module sits a workflow that
   runs on a schedule and rewrites the module's screen with its results, plus a
   memory. The user changes both by talking to the AI, and can also open the
@@ -60,81 +78,64 @@ every spec; it is not itself a spec.
   edited**. Each run marks what changed since the last one, and the user can
   pin a block in place. Free-form generated UI is never produced.
 - **Triggers, not only schedules (D-12):** a workflow starts on a schedule, on
-  an event from a connected account, by hand, or from another module of the
-  same layer. Triggers are nodes in the editor.
+  an event from a connected account, by hand, or from another module.
+  Triggers are nodes in the editor.
 - **One module frame for every module (D-12):** a run-state header (last run
   and result, next run, running now, failure reason, items waiting for the
   user's approval in *deferred* mode, run history), the block body, and the
   entries to the module's workflow and memory.
-- **Notifications module (D-13):** one per layer. It is itself a workflow
-  that reads the outputs of every other module in its layer and surfaces the
-  most important items in one place. There is **no cross-layer notifications
-  view** (D-14): calendar stays the only thing that crosses Life ↔ Work.
+- **Notifications module (D-13):** one for the workspace. It is itself a
+  workflow that reads the outputs of every other module and surfaces the most
+  important items in one place.
 - **Workflows are shown as nodes, not text:** the logic of a workflow is
   presented in a form an everyday user can read and edit — a node-based canvas
   (steps, conditions, schedules, outputs as connected blocks) in the manner of
-  node editors — never as a plain "skill" text file.
-- **Memory stays inside its layer:** modules in one layer share memory with
-  one another. Between Life and Work only **calendar data** crosses; nothing
-  else does.
+  node editors — never as a plain "skill" text file. Positioned as *read and
+  adjust* (a time, a threshold, a confirmation mode), not *build from scratch*.
 - **Proactive AI with three behaviour modes:** the AI acts on its own
   according to the module's workflow. The user can set a behaviour mode per
   kind of task — **autonomous**, **assisted** or **deferred** — and the AI
   picks the mode for a given task from its confidence, the stakes and how
-  reversible the action is. Precedence (D-22): the user's setting is the **ceiling**; the AI picks at
-  or below it; where nothing is set the AI decides, defaulting to *assisted*.
+  reversible the action is. Precedence (D-22): the user's setting is the
+  **ceiling**; the AI picks at or below it; where nothing is set the AI
+  decides, defaulting to *assisted*.
 - **Chat bar:** persistent at the bottom of every screen. From what the user
   types it decides whether to answer in place or open a dedicated chat window
-  for that topic. "In place" (D-23): a panel that expands above the bar, in the context of
-  the current screen, and is filed into Topics; there is no separate
-  main-thread page.
-- **Topics module (both layers):** every conversation with the AI is filed
-  automatically by theme into its own topic module — ask about fitness and a
-  fitness module appears. A topic's home shows an AI-written summary of the
-  important information drawn from those records, followed by every related
-  conversation. In Work, the design, development and project-management
-  sub-modules each have a view of all their conversations as well.
+  for that topic. "In place" (D-23): a panel that expands above the bar, in
+  the context of the current screen, and is filed into Topics; there is no
+  separate main-thread page.
+- **Topics module:** every conversation with the AI is filed automatically by
+  theme into a topic whose home shows an AI-written summary of the important
+  information drawn from those records, followed by every related
+  conversation (D-07, D-20). Topics are the archive, not a module with a
+  workflow.
 - **Recent conversations sidebar:** a left sidebar, expandable, listing the
-  user's recent conversations in the current layer only; it switches with the
-  layer (D-15).
-- **Onboarding:** before any of these screens, a first-run setup flow whose
-  main job is connecting all of the user's platform accounts. Accounts and
-  layers (D-21): an account is attached to one or
-  both layers when connected (one Google account may feed both `life.mail`
-  and `work.mail`; D-09 isolates derived data, memory and workflows, not the
-  raw connection); onboarding presents the Life / Work split as its first
-  step; the shell opens in Life afterwards.
-- **One-off or persistent:** in every conversation the user can choose, and
-  later switch, whether it is a one-off chat or one that becomes a lasting
-  sub-module with its own workflow under the module it concerns. Example: "go
-  through all my promotional mail and push me the ones that matter, by my
-  preferences" can run once, or the AI turns it into a sub-module and workflow
-  under Mail that keeps running. The AI may propose the conversion itself.
+  user's recent conversations (D-15, now over the single workspace).
+- **One-off or persistent (D-08):** in every conversation the user can choose,
+  and later switch, whether it is a one-off chat or one that becomes a lasting
+  sub-module with its own workflow under the module it concerns. The AI may
+  propose the conversion itself.
 - **Not chat-first:** unlike agents built around one chat box, the interface
   is the set of modules, and the AI works around them.
 
-**Prototype scope (D-11, narrowed by D-26).** The prototype shows every core
-differentiator through **one example user: the manager of a small pet-grooming
-shop** — someone who sells products, takes appointments for grooming and
-schedules a few staff. It builds the **Work layer only**, with that shop's
-modules (list and flow scripts: `IA-MAP.md` § Prototype scope; the hero
-story, D-27, is the AI learning her grooming times per breed and changing the
-appointment and shift rules over the following weeks). The Life layer,
-the generic base modules and the calendar bridge remain product scope in the
-IA but are not built. Differentiators the prototype must still show: a module
+**Prototype scope (D-11, D-26, D-27).** The prototype shows every core
+differentiator through the pet-grooming shop manager: onboarding with the
+profession interview that pre-generates her four profession modules; a module
 as a scheduled workflow that rewrites its own screen; the node-based workflow
-editor, positioned as *read and adjust* (thresholds, confirmation mode), not
-*build from scratch*; topics filed automatically with AI summaries; a
+editor as read-and-adjust; topics filed automatically with AI summaries; a
 conversation switching from one-off to persistent and becoming a sub-module;
 the three behaviour modes; the bottom chat bar with in-place answers and
-dedicated chats; onboarding; the shared module frame with run state; the
-notifications module. The task-1 spec sizes this into work packages; backends
-are faked. Market competition is out of scope — this is a design exercise.
+dedicated chats; the shared module frame with run state; the notifications
+module. Flow scripts: `IA-MAP.md` § Prototype flows — the hero story is the
+AI learning her grooming times per breed and per dog and changing the
+appointment and shift rules over the following weeks. The task-1 spec sizes
+this into work packages; backends are faked. Market competition is out of
+scope — this is a design exercise.
 
 ## Information architecture
 
 - **IA map:** `IA-MAP.md` — the source for task 1. Format: Mermaid tree plus
-  a node table (drafted 2026-11-26 from the brief; confirmed at `G-0`)
+  a node table (rewritten 2026-11-26 for the single workspace; confirmed at `G-0`)
 - **Node ids:** every IA node has a stable id that screens, specs and the
   component registry refer to.
 
@@ -143,12 +144,12 @@ element is `IA-MAP.md` § Nodes.
 
 | IA id | Node | Parent | Screen type |
 | --- | --- | --- | --- |
-| `onboarding` | First-run setup: connect platform accounts | — | first-run flow |
-| `root` | App shell — layer switch, chat bar, sidebar toggle | — | shell |
-| `life` | Life layer: notifications, messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
-| `work` | Work layer: notifications, messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
+| `onboarding` | First run: profession interview → module set → connect accounts | — | first-run flow |
+| `root` | App shell — chat bar, sidebar toggle | — | shell |
+| `notifications` · `messages` · `calendar` · `todo` · `mail` · `files` · `topics` | Base modules, the same for every user | `root` | module |
+| `profession` | Profession modules generated at onboarding; for the shop: `appointments`, `clients`, `inventory`, `shifts` | `root` | module group |
 | `chat.bar` · `chat.recent` · `chat.thread` | Chat bar (bottom, every screen), recent-conversations sidebar (left); the dedicated chat hangs off the bar | `root` (`chat.thread` under `chat.bar`) | global elements |
-| `settings` | Connected accounts, AI behaviour modes; per-module workflow and memory panels | `root` | settings |
+| `settings` | Connected accounts, AI behaviour modes, the profession module set | `root` | settings |
 
 ## UI kit
 
