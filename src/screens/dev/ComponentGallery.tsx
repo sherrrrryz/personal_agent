@@ -7,7 +7,7 @@ import { demos as allDemos, type Demo } from './demos'
 import { families, isFamily, type Family } from './families'
 
 const linkClass =
-  'inline-flex min-h-target min-w-target items-center justify-center rounded-md border px-3 text-center underline-offset-4 hover:underline aria-[current=page]:border-foreground aria-[current=page]:font-semibold aria-[current=page]:underline'
+  'inline-flex items-center justify-center rounded-md border px-3 text-center underline-offset-4 hover:underline aria-[current=page]:border-foreground aria-[current=page]:font-semibold aria-[current=page]:underline'
 
 /**
  * `/dev/components` — every registered component by its demo, grouped by

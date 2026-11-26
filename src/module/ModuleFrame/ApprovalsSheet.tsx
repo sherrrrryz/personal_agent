@@ -84,7 +84,7 @@ function Approvals({ state, proposals, name }: { state: string; proposals: Propo
       errorTitle={t('approvals.error.title')}
       error={t('approvals.error.reason')}
       empty={
-        <Empty className="border">
+        <Empty>
           <EmptyHeader>
             <EmptyTitle>{t('approvals.empty.title')}</EmptyTitle>
             <EmptyDescription>{t('approvals.empty.body')}</EmptyDescription>

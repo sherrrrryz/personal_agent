@@ -72,7 +72,6 @@ describe('the router host', () => {
     const { container } = open('/no/such/page')
     expect(await screen.findByRole('heading', { level: 1, name: '找不到这个页面' })).toBeInTheDocument()
     expect(screen.getByRole('main')).toContainElement(screen.getByRole('link', { name: '回到起始页' }))
-    expect(screen.getByRole('link', { name: '回到起始页' })).toHaveClass('min-h-target')
     // The matrix harness fails a cell that lands here: e2e/matrix/harness.ts.
     expect(container.querySelector('[data-route-not-found]')).not.toBeNull()
     expect(await axe(container)).toHaveNoViolations()

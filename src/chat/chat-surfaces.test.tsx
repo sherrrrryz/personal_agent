@@ -477,8 +477,8 @@ describe('chat.recent (R-19)', () => {
     await within(rows()).findByRole('link', { name: /^明天的预约确认/ })
     const links = within(rows()).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
-      '按品种和毛长估时间 · 服务时长规则 · 16天前长期',
-      '明天的预约确认 · 预约确认 · 18天前长期',
+      '按品种和毛长估时间 · 服务时长规则 · 16天前 长期',
+      '明天的预约确认 · 预约确认 · 18天前 长期',
       '全部话题',
     ])
     expect(links.at(-1)).toHaveAttribute('href', '/topics')

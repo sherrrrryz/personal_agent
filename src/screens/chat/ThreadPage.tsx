@@ -12,7 +12,7 @@ import { useLocale, useT } from '@/i18n'
 import { findConversation, findModule, findTopic, useActions, useResource, useRuntimeState, type Conversation } from '@/runtime'
 import { modulePath } from '@/shell'
 
-const linkClass = 'inline-flex min-h-target min-w-target items-center underline underline-offset-4 wrap-anywhere'
+const linkClass = 'inline-flex items-center underline underline-offset-4 wrap-anywhere'
 
 /**
  * `chat.thread` (`/chat/<id>`) — a dedicated chat (spec part 2 § Chat): the

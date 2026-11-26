@@ -1,14 +1,13 @@
 import type { AreaRoutes } from '@/app/routes'
 import type { ShellHandle } from '@/shell'
 
-import { DemoBar, DemoRecent } from './demo-slots'
 import { ShellDemo, ShellDemoSecond } from './ShellDemo'
 import { StartRedirect } from './StartRedirect'
 
 // Area `root` — the start page and the shell's own demo. `/dev/*` is bare by
-// default (`src/shell/route.ts`); the demo asks for the shell and fills the
-// chat's two slots with stand-ins until the chat registers its own.
-const demo: ShellHandle = { shell: 'app', slots: { chatBar: DemoBar, sidebarRecent: DemoRecent } }
+// default (`src/shell/route.ts`); the demo asks for the shell. The chat's two
+// slots are filled by the chat itself (`src/chat/shell-slots.tsx`).
+const demo: ShellHandle = { shell: 'app' }
 
 export const routes: AreaRoutes['routes'] = [
   { index: true, element: <StartRedirect /> },

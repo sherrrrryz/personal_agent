@@ -6,14 +6,14 @@ import { moduleId } from '@/fixtures'
 import { useT } from '@/i18n'
 import { typed, useActions } from '@/runtime'
 
-const linkClass = 'inline-flex min-h-target min-w-target items-center underline underline-offset-4'
+const linkClass = 'inline-flex items-center underline underline-offset-4'
 const fillers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 /**
  * `/dev/shell` — the shell on its own, outside the IA map: what its parts do,
  * buttons that change the modules through the runtime (the sidebar follows at
  * once), a second page to move to, and enough text to make `main` scroll over
- * the bottom row's stand-in.
+ * the bottom row (the chat bar).
  */
 export function ShellDemo() {
   const t = useT('shell')

@@ -34,7 +34,7 @@ const messages = {
   'preview.long': 'Very long content',
 
   'demo.title': 'Shell demo',
-  'demo.description': 'The app shell on its own: sidebar, header, the prototype controls, and a stand-in for the chat bar.',
+  'demo.description': 'The app shell on its own: sidebar, header, the prototype controls, and the chat bar in the bottom row.',
   'demo.parts.title': 'What to look at',
   'demo.parts.sidebar': 'The sidebar is open when the window is wide, an icon rail at medium widths, and a sheet off the canvas when it is narrow. The button at the start of the header switches it.',
   'demo.parts.device': 'The prototype controls at the end of the header jump between scenes and force a state on every screen. A forced state shows a line under the header until you go back to normal.',
@@ -56,12 +56,6 @@ const messages = {
   'demo.second.description': 'Focus is on this heading after the link was followed.',
   'demo.filler.title': 'Long content',
   'demo.filler.text': 'This paragraph is here to make the page longer than the window, so the area scrolls while the header and the bottom row stay where they are. Paragraph {count}.',
-  'demo.bar.label': 'Stand-in for the chat bar',
-  'demo.bar.note': 'A stand-in for the chat bar: it sits in the bottom row of the shell.',
-  'demo.bar.action': 'A button in the bottom row',
-  'demo.recent.label': 'Recent conversations (stand-in)',
-  'demo.recent.first': 'Confirmations for tomorrow',
-  'demo.recent.second': 'How long each breed takes',
 } satisfies Messages
 
 export default messages

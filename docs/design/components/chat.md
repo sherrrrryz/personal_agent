@@ -58,7 +58,7 @@ them:
 | One-off ↔ persistent | `src/chat/ConversationPersistence.tsx`, `attachments.tsx` | `PersistenceSwitch` wired to `createSubModule` / `archiveSubModule`; proposals in a message through `BlockRenderer` |
 | `chat.recent` | `src/chat/RecentGroup.tsx` | Sidebar group, closed by default, state in `localStorage` key `pa.recent` (`open` / `closed`); reads the `conversations` resource, so 状态预览 shows its states |
 | `chat.thread` | `src/screens/chat/ThreadPage.tsx`, route `/chat/<id>` | Header from the state, messages from the `conversation` resource; its composer is the shell's bottom row |
-| Shell slots | `src/chat/slots.tsx` | `chatBar`, `sidebarRecent`, `chatSlots`. The shell finds `src/chat/shell-slots.tsx` by glob; that one-line file is added by the integration leg together with the shell's own tests, which still expect the stand-ins |
+| Shell slots | `src/chat/slots.tsx` | `chatBar`, `sidebarRecent`, `chatSlots`. The shell finds `src/chat/shell-slots.tsx` by glob: it re-exports `chatBar` and `sidebarRecent` and so registers them for every screen inside the shell (`/m/*`, `/topics`, `/chat`, `/settings`, `/dev/shell`, `/dev/chat`). A test of the shell itself leaves the registration out with `vi.mock('@/chat/shell-slots', () => ({}))` |
 
 ## Pitfalls
 

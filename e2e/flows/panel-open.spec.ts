@@ -3,10 +3,9 @@
 // covers content or the focused element. Run by
 // `npm run matrix -- --flows panel-open`, at 1440.
 //
-// The flow opens `/dev/shell`. While that page still shows the shell
-// package's stand-in bar (the chat's slots are registered for every screen by
-// the integration leg), it runs on the chat's own demo page, `/dev/chat`,
-// which is the same shell with the real bar.
+// The flow opens `/dev/shell`, where the chat's slots are registered like on
+// every screen inside the shell (`src/chat/shell-slots.tsx`). Should the bar
+// be absent there, it falls back to the chat's own demo page, `/dev/chat`.
 import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 

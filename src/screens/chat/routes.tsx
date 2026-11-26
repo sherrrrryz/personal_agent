@@ -1,19 +1,16 @@
 import type { AreaRoutes } from '@/app/routes'
-import { chatSlots } from '@/chat/slots'
 import type { ShellHandle } from '@/shell'
 
 import { ChatDemo } from './ChatDemo'
 import { ThreadPage } from './ThreadPage'
 
 // Area `chat` — `chat.thread`, and the chat's own demo page. The chat bar and
-// `chat.recent` are not routes: the shell draws them in its two slots. Until
-// `src/chat/shell-slots.tsx` registers them for every screen (the integration
-// leg adds it), these routes hand them to the shell themselves.
-const slots: ShellHandle = { slots: chatSlots }
-const demo: ShellHandle = { shell: 'app', slots: chatSlots }
+// `chat.recent` are not routes: the shell draws them in its two slots, which
+// `src/chat/shell-slots.tsx` registers for every screen inside the shell.
+const demo: ShellHandle = { shell: 'app' }
 
 export const routes: AreaRoutes['routes'] = [
-  { path: '/chat/:id', element: <ThreadPage />, handle: slots },
+  { path: '/chat/:id', element: <ThreadPage /> },
   { path: '/dev/chat', element: <ChatDemo />, handle: demo },
 ]
 

@@ -32,7 +32,7 @@ const messages: Translation<typeof en> = {
   'preview.long': '超长内容',
 
   'demo.title': '外壳演示',
-  'demo.description': '单独展示应用外壳：侧边栏、页头、原型控制，以及代替对话栏的占位行。',
+  'demo.description': '单独展示应用外壳：侧边栏、页头、原型控制，以及最下面一行的对话栏。',
   'demo.parts.title': '可以看什么',
   'demo.parts.sidebar': '窗口宽时侧边栏完整展开，中等宽度时收成图标栏，窗口窄时收到画面之外、需要时再滑出。页头最前面的按钮用来切换。',
   'demo.parts.device': '页头末尾的原型控制可以在各幕之间跳转，也可以让每个页面强制显示某种状态。强制状态期间，页头下方会有一行提示，直到恢复正常。',
@@ -54,12 +54,6 @@ const messages: Translation<typeof en> = {
   'demo.second.description': '点开链接后，焦点落在这个标题上。',
   'demo.filler.title': '长内容',
   'demo.filler.text': '这段文字只是为了让页面比窗口更长：这块区域滚动时，页头和底部那一行都留在原处。第 {count} 段。',
-  'demo.bar.label': '代替对话栏的占位行',
-  'demo.bar.note': '这里代替对话栏：它位于外壳最下面的一行。',
-  'demo.bar.action': '底部这一行里的按钮',
-  'demo.recent.label': '最近对话（占位）',
-  'demo.recent.first': '明天的预约确认',
-  'demo.recent.second': '各品种要做多久',
 }
 
 export default messages

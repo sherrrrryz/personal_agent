@@ -67,14 +67,14 @@ describe('/dev/shell', () => {
     expect(matrixRoutes).toEqual([{ path: '/dev/shell', scenes: ['s2'] }])
   })
 
-  it('shows the shell around the demo, with stand-ins in both slots, and no violation', async () => {
+  it('shows the shell around the demo, with the chat in both slots, and no violation', async () => {
     const { container } = open('/dev/shell', { search: '?scene=s2' })
     expect(await screen.findByRole('heading', { level: 1, name: '外壳演示' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: '模块导航' })
     expect(within(nav).getByRole('link', { name: '服务时长' })).toBeInTheDocument()
-    expect(within(nav).getByRole('button', { name: '最近对话（占位）' })).toHaveAttribute('aria-expanded', 'false')
+    expect(within(nav).getByRole('button', { name: '最近对话' })).toHaveAttribute('aria-expanded', 'false')
     const row = container.querySelector('[data-shell-bar]') as HTMLElement
-    expect(within(row).getByRole('region', { name: '代替对话栏的占位行' })).toBeInTheDocument()
+    expect(within(row).getByRole('region', { name: '与 AI 对话' })).toBeInTheDocument()
     expect(screen.getByRole('main').nextElementSibling).toBe(row)
     // The toaster stays the last element of the root, after the shell.
     expect(container.lastElementChild).toContainElement(document.querySelector('section[aria-live]') as HTMLElement)
@@ -102,7 +102,7 @@ describe('/dev/shell', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Shell demo' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Module navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Stand-in for the chat bar' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Chat with the AI' })).toBeInTheDocument()
   })
 
   it('following its link moves focus to the heading of the second page, and back', async () => {

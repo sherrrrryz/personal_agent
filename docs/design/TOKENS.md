@@ -63,16 +63,15 @@ HOW TO BUILD THIS DOC
   | Primitive | `a.b.c` | `--primitive-a-b-c` | Kept out of Tailwind's theme namespaces (`--radius-sm`, `--breakpoint-md` are Tailwind's own keys) and greppable: nothing outside `tokens.css` may contain `--primitive-` |
   | Semantic colour | `color.<role>` | `--<role>` | shadcn/ui's names, which the kit files use: `color.muted-foreground` → `--muted-foreground`, `color.focus.forced` → `--focus-forced` |
   | Semantic radius base | `radius.base` | `--radius` | shadcn/ui's name. The spec calls this token `radius`; the format does not let `radius` be a token and a group at once |
-  | Any other semantic | `a.b.c` | `--a-b-c` | `size.target.min` → `--size-target-min`, `radius.step.md` → `--radius-step-md` |
+  | Any other semantic | `a.b.c` | `--a-b-c` | `border.width.focus` → `--border-width-focus`, `radius.step.md` → `--radius-step-md` |
   | Breakpoint (primitive) | `breakpoint.<name>` | `--breakpoint-<name>` inside `@theme`, as a literal | A media or container query cannot read a custom property; this is the one primitive consumed directly, by Tailwind's `md:` / `lg:` variants and by `breakpoints.ts` |
 
 - **From custom property to utility:** `src/index.css` is shadcn/ui's stock
   theme entry (D-43). It maps every semantic property to a Tailwind theme key
   in `@theme inline` (`--color-<role>: var(--<role>)`, `--radius-<step>:
-  var(--radius-step-<step>)`, `--font-sans: var(--font-family-sans)`,
-  `--spacing-target: var(--size-target-min)` → the utilities `min-h-target`,
-  `min-w-target`, `size-target` — **withdrawn by D-43**, zero, kept only so
-  older code naming them still builds) and imports Geist. Tailwind's own palette,
+  var(--radius-step-<step>)`, `--font-sans: var(--font-family-sans)`) and imports Geist. The target
+  utilities `min-h-target`, `min-w-target`, `size-target` and their token
+  `size.target.min` were withdrawn by D-43 and are removed: they build no rule. Tailwind's own palette,
   opacity modifiers and shadow scale are **left in place** — the kit files
   use them (`bg-black/10`, `shadow-md`, `ring-foreground/10`). That file
   holds no value of its own.
@@ -107,13 +106,12 @@ history of this file.
 | Primitive | `color.white-alpha.10`, `.15` | White at 10% and 15%: the stock dark theme's borders |
 | Primitive | `color.red.400`, `.600` · `color.blue.700` | The stock theme's `destructive` (dark, light) and its dark `sidebar-primary`; named after Tailwind's scales |
 | Primitive | `color.system.highlight` | The CSS system colour `Highlight`, a string token |
-| Primitive | `space.0` (0rem) · `border.width.2` (2px) | Steps of Tailwind's shipped spacing and border-width scales |
+| Primitive | `border.width.2` (2px) | A step of Tailwind's shipped border-width scale |
 | Primitive | `radius.lg` (0.625rem) | shadcn/ui's stock base radius |
 | Primitive | `breakpoint.md` (48rem) · `breakpoint.lg` (64rem) | Tailwind's shipped values |
 | Primitive | `font.stack.sans` | Geist Variable → PingFang SC → Microsoft YaHei → Noto Sans CJK SC → `sans-serif` (D-05, D-25). Geist is imported in `src/index.css` from the installed `@fontsource-variable/geist` |
 | Semantic | shadcn/ui's 31 colour roles, light and dark | **The stock values**, pinned by `src/test/tokens.test.ts`; a role that differs is listed in § Changed from stock |
 | Semantic | `color.focus.forced` → `color.system.highlight` | Focus outline under forced colours; one value, no mode |
-| Semantic | `size.target.min` → `space.0` | **Withdrawn by D-43** — there is no target-size requirement. Zero; the name stays only so the utilities `min-h-target` / `min-w-target` / `size-target` still resolve where older code names them. Not for new code |
 | Semantic | `border.width.focus` → `border.width.2` | Width of the forced-colours focus outline |
 | Semantic | `radius.base` → `radius.lg`, and `radius.step.sm … 4xl` | The steps are the base × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`pa.scale`) — shadcn/ui's own formula |
 | Semantic | `font.family.sans` → `font.stack.sans` | All text, both locales |

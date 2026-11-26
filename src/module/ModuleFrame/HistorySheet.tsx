@@ -52,7 +52,7 @@ function History({ moduleId }: { moduleId: string }) {
       errorTitle={t('history.error.title')}
       error={answer.state === 'error' ? failureWords(answer.reason, state, locale, t).text : t('history.error.reason')}
       empty={
-        <Empty className="border">
+        <Empty>
           <EmptyHeader>
             <EmptyTitle>{t('history.empty.title')}</EmptyTitle>
             <EmptyDescription>{t('history.empty.body')}</EmptyDescription>

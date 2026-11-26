@@ -2,7 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider, useParams } from 'react-router'
 import type { RouteObject } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Providers } from '@/app/Providers'
 import { SidebarGroup, SidebarItem } from '@/components/navigation'
@@ -30,6 +30,10 @@ import { chromeOf, type ShellHandle } from './route'
 import { Shell } from './Shell'
 import type { ShellSlots } from './slots'
 import { expandedQuery } from './use-media'
+
+// The chat registers its real slots for every screen (`src/chat/shell-slots.tsx`); this file
+// is about the shell and its own stand-ins, so the registration is left out here.
+vi.mock('@/chat/shell-slots', () => ({}))
 
 // R-05 – R-08 of docs/specs/lofi-prototype-shell.md: the shell's structure in
 // each size class, the sidebar, the keyboard order and the 时间推进 device.

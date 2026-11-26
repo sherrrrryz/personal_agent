@@ -13,7 +13,7 @@ export function NotFound() {
     <Page title={t('notFound.title')} width="prose" data-route-not-found="">
       <p>{t('notFound.body')}</p>
       <p>
-        <Link to="/" className="inline-flex min-h-target min-w-target items-center underline underline-offset-4">
+        <Link to="/" className="inline-flex items-center underline underline-offset-4">
           {t('notFound.home')}
         </Link>
       </p>

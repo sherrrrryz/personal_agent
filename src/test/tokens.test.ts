@@ -160,10 +160,8 @@ describe('stock theme (D-43)', () => {
     expect(primitiveByPath.get('color.system.highlight')?.value).toBe('Highlight')
   })
 
-  it('the purpose tokens alias their steps: the target size is zero (withdrawn by D-43)', () => {
+  it('the purpose tokens alias their steps', () => {
     const alias = (path: string) => semantic.find((token) => token.path === path)?.value
-    expect(alias('size.target.min')).toBe('{space.0}')
-    expect(primitiveByPath.get('space.0')?.value).toEqual({ value: 0, unit: 'rem' })
     expect(alias('border.width.focus')).toBe('{border.width.2}')
     expect(alias('radius.base')).toBe('{radius.lg}')
     expect(alias('font.family.sans')).toBe('{font.stack.sans}')
@@ -184,7 +182,7 @@ describe('build', () => {
   it('names semantic colours as shadcn/ui does and keeps primitives apart', () => {
     expect(cssName(['color', 'muted-foreground'], 'semantic')).toBe('--muted-foreground')
     expect(cssName(['radius', 'base'], 'semantic')).toBe('--radius')
-    expect(cssName(['size', 'target', 'min'], 'semantic')).toBe('--size-target-min')
+    expect(cssName(['border', 'width', 'focus'], 'semantic')).toBe('--border-width-focus')
     expect(cssName(['color', 'neutral', '500'], 'primitive')).toBe('--primitive-color-neutral-500')
   })
 })

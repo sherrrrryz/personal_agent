@@ -12,12 +12,12 @@ Design tokens in the W3C DTCG JSON format (2025.10). Rules:
 tokens/
   primitive/   raw values, named for what they are; no alias, no mode
     color.json       color.neutral.0 … 950 · color.white-alpha.10, .15 · color.red.400, .600 · color.blue.700 · color.system.highlight
-    dimension.json   space.6 · border.width.2 · radius.lg · breakpoint.md, .lg
+    dimension.json   border.width.2 · radius.lg · breakpoint.md, .lg
     font.json        font.stack.sans
   semantic/    aliases of primitives, named for their purpose; never a raw value
     color.json       shadcn/ui's colour roles, light (default), stock values (D-43) · color.focus.forced
     color.dark.json  the same roles, dark — one entry for every role
-    dimension.json   size.target.min (withdrawn by D-43, zero) · border.width.focus · radius.base, radius.step.*
+    dimension.json   border.width.focus · radius.base, radius.step.*
     font.json        font.family.sans
 ```
 

@@ -16,7 +16,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { REPO_ROOT } from './tokens'
 
 /** Candidates that must exist: each is backed by a token mapped in src/index.css. */
-export const MAPPED = ['bg-background', 'text-muted-foreground', 'border-border', 'rounded-lg', 'min-h-target', 'min-w-target', 'md:hidden', 'lg:hidden']
+export const MAPPED = ['bg-background', 'text-muted-foreground', 'border-border', 'rounded-lg', 'md:hidden', 'lg:hidden']
 /** Candidates of Tailwind's stock palette, opacity modifiers and shadow scale: the kit's scrims and shadows are drawn. */
 export const STOCK = ['bg-black/10', 'text-white', 'shadow-xs', 'shadow-md', 'shadow-lg', 'ring-foreground/10']
 
@@ -67,11 +67,6 @@ describe('built CSS', () => {
   it('loads the stock typeface and keeps the system CJK fonts behind it', () => {
     expect(css).toMatch(/@font-face \{[^}]*font-family: ["']?Geist Variable["']?;/)
     expect(css.includes('--primitive-font-stack-sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;')).toBe(true)
-  })
-
-  it('keeps the target utilities as names that size nothing (the requirement is withdrawn by D-43)', () => {
-    expect(/\.min-h-target \{\s*min-height: var\(--size-target-min\);/.test(css)).toBe(true)
-    expect(css.includes('--primitive-space-0: 0rem;')).toBe(true)
   })
 
   it('takes the md and lg breakpoints from the token source', () => {

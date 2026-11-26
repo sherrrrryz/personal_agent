@@ -1,13 +1,4 @@
 {
-  "size": {
-    "target": {
-      "$type": "dimension",
-      "min": {
-        "$value": "{space.0}",
-        "$description": "Withdrawn by D-43: there is no target-size requirement. Kept at zero so that the utilities min-h-target, min-w-target and size-target still resolve where older code names them; they size nothing. Do not use in new code."
-      }
-    }
-  },
   "border": {
     "width": {
       "$type": "dimension",
