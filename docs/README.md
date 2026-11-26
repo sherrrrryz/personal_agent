@@ -51,10 +51,31 @@ Four kinds of document, so you know what you are opening:
 | --- | --- |
 | [design/FOUNDATIONS.md](design/FOUNDATIONS.md) | What is this product built on — platforms, UI kit, base values, IA map, verification matrix, commands? |
 | [design/IA-MAP.md](design/IA-MAP.md) | Which screens and modules exist, with what id, under which parent, and of which screen type? |
-| [design/COMPONENTS.md](design/COMPONENTS.md) | Which components exist, where does each come from, and what contract does every component meet? |
+| [design/COMPONENTS.md](design/COMPONENTS.md) | What contract does every component meet, where does component code live, which family file holds a component's row, and which kit files are patched or not used? |
 | [design/DECISIONS.md](design/DECISIONS.md) | Has the owner already answered this, and what did real packages cost? |
 | [design/figma-file-map.md](design/figma-file-map.md) | Which Figma node is the page, variable collection, component or screen I need? — **not in use in this project (D-04)** |
 | [design/UI-PITFALLS.md](design/UI-PITFALLS.md) | I see this symptom — what silently went wrong, and what is the rule? |
+
+## Component registry (`design/components/`)
+
+Project record, split by family; the contract, the conventions and the index
+are in `design/COMPONENTS.md`. Each file has one writer — the package that
+builds the family.
+
+| Document | The question it answers |
+| --- | --- |
+| [design/components/layout.md](design/components/layout.md) | Which layout primitives exist, and what does each expose to assistive technology? |
+| [design/components/actions.md](design/components/actions.md) | Which action controls exist, where does each come from, and what is its accessibility contract? |
+| [design/components/inputs.md](design/components/inputs.md) | Which form controls exist, where does each come from, and what is its accessibility contract? |
+| [design/components/navigation.md](design/components/navigation.md) | Which navigation components exist, where does each come from, and what is its accessibility contract? |
+| [design/components/containers.md](design/components/containers.md) | Which containers and overlays exist, where does each come from, and what is its accessibility contract? |
+| [design/components/feedback.md](design/components/feedback.md) | Which feedback and status components exist, where does each come from, and what is its accessibility contract? |
+| [design/components/data-display.md](design/components/data-display.md) | Which data-display components exist, where does each come from, and what is its accessibility contract? |
+| [design/components/chat.md](design/components/chat.md) | Which chat components exist, and what is the accessibility contract of each? |
+| [design/components/blocks.md](design/components/blocks.md) | Which text, empty and proposal blocks may a workflow emit, what renders them, and what is the accessibility contract of each? |
+| [design/components/data-blocks.md](design/components/data-blocks.md) | Which data blocks may a workflow emit, and what is the accessibility contract of each? |
+| [design/components/module.md](design/components/module.md) | What is the module frame made of, and what is its accessibility contract? |
+| [design/components/workflow.md](design/components/workflow.md) | Which components make up the workflow canvas, and what is the accessibility contract of each? |
 
 ## Playbooks (`design/tasks/`)
 
@@ -87,6 +108,9 @@ Not checked by `check:docs`; listed so nothing is invisible.
 | `.claude/skills/figma-mirror` | Procedure for mirroring — **not in use in this project (D-04)**; never loaded |
 | `scripts/check-design-values.mjs` | Gate: no raw visual values outside the token source (config: `design-values.config.json`) |
 | `scripts/check-docs.mjs` | Gate: this index and the status headers |
+| `.oxlintrc.json` | Gate (`npm run lint`): only `src/components/` may import the kit files in `src/components/ui/` |
+| `src/test/registry-parity.test.ts` | Gate (`npm test`): every component has a row in its family file and every row has its code |
+| `tokens/README.md` | The layout of the token source and how it is built |
 | `docs/design/figma-ledger.json` | Committed ids of everything created in Figma — **not in use in this project (D-04)**; does not exist |
 | `.orchestration/` | Runtime state of the task in progress — untracked; add it to `.gitignore` |
 

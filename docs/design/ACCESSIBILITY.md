@@ -96,11 +96,19 @@ styling is wrong (`HITL.md` § Always ask covers deliberate departures).
 
 ## Per-component contract
 
-One row per registered component; the reviewer tests against it.
+One row per registered component; the reviewer tests against it. **The rows
+live in the family files**, beside the registry row of the same component —
+`components/<family>.md` § Accessibility contract; the index of families is
+`COMPONENTS.md` § Registry. Every row has these columns:
 
-| Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
-| --- | --- | --- | --- | --- | --- | --- |
-| `<Button>` | button | Content or label prop | Enter, Space | Visible ring token | Platform minimum | Pressed/disabled state |
+| Column | Says |
+| --- | --- |
+| Role | The native element or ARIA role the component exposes |
+| Name comes from | Content, a visible label, or a prop — never a built-in string: every name is localised (`COMPONENTS.md` § Kit patches) |
+| Keyboard | The keys that operate it, as the kit's primitive defines them |
+| Focus | Where focus goes on open and close, and that the ring is visible |
+| Min target | 44 × 44 CSS px through `size.target.min` for anything interactive |
+| Announces | State and changes exposed to assistive technology |
 
 ## Verifying
 

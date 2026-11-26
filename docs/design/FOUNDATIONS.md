@@ -203,11 +203,53 @@ element is `IA-MAP.md` § Nodes.
 Building a component the kit already provides is forbidden. Wrapping one to
 bind it to tokens is the normal case.
 
+### UI kit versions
+
+Installed in the first task-1 package, 2026-11-26; every version in
+`package.json` is exact — no range. The lockfile is the record; this list is
+for reading.
+
+| Purpose | Package @ version |
+| --- | --- |
+| Framework and build | `react` 19.3.1 · `react-dom` 19.3.1 · `typescript` 7.0.2 · `vite` 8.3.8 · `@vitejs/plugin-react` 6.3.0 |
+| Styling | `tailwindcss` 4.3.5 · `@tailwindcss/vite` 4.3.5 · `tw-animate-css` 1.4.0 |
+| Kit | `shadcn` CLI 4.23.1 (`init -b base -p nova -t vite` → style `base-nova`, base colour `neutral`) · `@base-ui/react` 1.9.0 · `lucide-react` 1.81.0 · `class-variance-authority` 0.7.1 · `clsx` 2.1.1 · `tailwind-merge` 3.7.1 · `sonner` 2.0.8 · `@fontsource-variable/geist` 5.3.0 (installed, not imported in task 1) |
+| Resolved by the CLI, not chosen | `cn` 0.5.2 — the class merger every kit file imports · `next-themes` 0.4.6 — imported by the kit's `sonner.tsx`; no provider is mounted, the `Sonner` wrapper passes `theme`. Both MIT; accepted by the lead under D-41 and pinned. `tailwind-merge` is installed and currently imported by nothing |
+| Canvas | `@xyflow/react` 13.0.3 (D-16) |
+| Routing | `react-router` 8.5.3, library mode — not a UI kit |
+| Tokens | `style-dictionary` 5.8.0 (D-33) |
+| Tests | `vitest` 5.1.2 · `jsdom` 31.0.1 · `@testing-library/react` 16.3.3 · `@testing-library/user-event` 14.6.13 · `@testing-library/jest-dom` 8.0.0 · `vitest-axe` 0.1.0 · `axe-core` 4.14.1 |
+| Matrix | `@playwright/test` 1.65.1 (Chromium only) · `@axe-core/playwright` 4.14.1 — dev only |
+| Lint and types | `oxlint` 1.95.0 · `@types/node` 24.19.4 · `@types/react` 19.3.3 · `@types/react-dom` 19.3.0 |
+
+**Kit files installed** (32, in `src/components/ui/`): alert-dialog, alert,
+avatar, badge, breadcrumb, button, card, collapsible, dialog, dropdown-menu,
+empty, field, input-group, input, item, label, progress, radio-group, select,
+separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs,
+textarea, toggle-group, toggle, tooltip. Five carry the patches of
+`COMPONENTS.md` § Kit patches; the rest are as the CLI wrote them. Kit
+components deliberately not installed: `COMPONENTS.md` § Kit components
+deliberately not used.
+
 ## Token tooling
 
-- **Source:** `tokens/` (DTCG JSON, one file per type) · **Build tool:**
-  Style Dictionary (version pinned in task 2) · **Outputs:**
-  `src/tokens/generated/tokens.css` (D-33)
+- **Source:** `tokens/` — DTCG JSON; the tier is the folder and the mode is
+  the file: `tokens/primitive/<type>.json` (raw values),
+  `tokens/semantic/<type>.json` (aliases, light) and
+  `tokens/semantic/<type>.dark.json` (the dark values). Layout and rules:
+  `tokens/README.md`, `TOKENS.md` § One source
+- **Build tool:** Style Dictionary 5.8.0 (D-33), driven by
+  `scripts/build-tokens.mjs` — `npm run tokens:build`. The build fails on a
+  broken tier rule or a missing mode; `npm test` fails when the generated
+  files are stale
+- **Outputs:** `src/tokens/generated/tokens.css` (`:root`, `.dark`, and a
+  generated `@theme` block with the `md` and `lg` breakpoints) and
+  `src/tokens/generated/breakpoints.ts` (the same two breakpoints as
+  constants, read by `src/hooks/use-mobile.ts`). Neither is edited by hand
+- **Not generated until task 2:** Tailwind's shipped spacing, type, blur and
+  motion scales are used through stock utilities (D-05); its colour palette
+  and shadow scale are removed in `src/index.css` (`TOKENS.md` § Placeholder
+  theme)
 - **Check config:** `design-values.config.json` at the repo root lists the UI
   source folders to scan (`include: ["src"]`), the token source and
   generated outputs to exempt (`tokenPaths: ["tokens/", "src/tokens/generated/"]`)
@@ -281,9 +323,14 @@ checked, `REVIEW.md` protocol 7).
 
 ```bash
 npm run dev                  # run the prototype — http://localhost:5173
-npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (added in task 2)
+npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (Style Dictionary)
 npm run check:design-values  # no raw visual values under src/
 npm run check:docs           # docs index and status headers
-npm run verify               # both checks + lint + build
-npm test                     # component tests (added with the task-1 spec)
+npm run lint                 # oxlint — also the import boundary around src/components/ui/
+npm run build                # tsc -b && vite build
+npm test                     # vitest run — component, token, contrast and registry-parity tests
+npm run verify               # both checks + lint + build + npm test
 ```
+
+`npm run matrix` (the verification matrix, Playwright) is added by its own
+package and documented under § Verification matrix.

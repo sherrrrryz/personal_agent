@@ -7,7 +7,6 @@ import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
-      aria-label="breadcrumb"
       data-slot="breadcrumb"
       className={cn(className)}
       {...props}
@@ -93,8 +92,11 @@ function BreadcrumbSeparator({
 
 function BreadcrumbEllipsis({
   className,
+  label,
   ...props
-}: React.ComponentProps<"span">) {
+}: React.ComponentProps<"span"> & {
+  label?: React.ReactNode
+}) {
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -108,7 +110,7 @@ function BreadcrumbEllipsis({
     >
       <MoreHorizontalIcon
       />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{label}</span>
     </span>
   )
 }

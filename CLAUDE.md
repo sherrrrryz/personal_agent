@@ -141,9 +141,9 @@ that must not enter the repo. Never task status.
 
 ```bash
 npm run dev                  # run the prototype — http://localhost:5173
-npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (added in task 2)
+npm run tokens:build         # regenerate src/tokens/generated/ from tokens/ (Style Dictionary, scripts/build-tokens.mjs)
 npm run check:design-values  # node scripts/check-design-values.mjs — no raw visual values under src/
 npm run check:docs           # node scripts/check-docs.mjs — docs index and status headers
 npm run verify               # both checks + lint + build
-npm test                     # component tests (added with the task-1 spec)
+npm test                     # vitest run — component, token and registry-parity tests; also the last step of verify
 ```

@@ -25,3 +25,10 @@ dist-ssr
 
 # design-workflow runtime state (SESSIONS.md) — never committed
 .orchestration/
+
+# verification matrix runs (npm run matrix) and Playwright output
+.matrix/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

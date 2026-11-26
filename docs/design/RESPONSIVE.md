@@ -112,15 +112,37 @@ the build emits the final CSS; React Native receives the resolved number.
 
 | Name | Web (viewport / container) | App (window width) | Structure |
 | --- | --- | --- | --- |
-| Compact | `<e.g. < 600>` | `< 600dp` | One column; panels become sheets or stacked sections |
-| Medium | `<e.g. 600–839>` | `600–839dp` | Two regions may sit side by side |
-| Expanded | `<e.g. ≥ 840>` | `≥ 840dp` | Persistent navigation, multi-pane |
+| Compact | `< 48rem` — below `breakpoint.md` | n/a (D-01) | One column; panels become sheets or stacked sections; the sidebar is an off-canvas sheet |
+| Medium | `48rem` – `< 64rem` — from `breakpoint.md` | n/a | Two regions may sit side by side |
+| Expanded | `≥ 64rem` — from `breakpoint.lg` | n/a | Persistent navigation, multi-pane |
 
 Breakpoints are tokens, but CSS custom properties cannot be used inside
 media or container query conditions — the build emits them as build-time
-constants for the styling system (`<mechanism, e.g. the framework's
-breakpoint theme keys or custom media>`). A component never hard-codes one, and a structural
-change at a breakpoint is written in the spec, not discovered in the code.
+constants for the styling system: `npm run tokens:build` writes
+`breakpoint.md` and `breakpoint.lg` as literals into a generated `@theme`
+block of `src/tokens/generated/tokens.css` (Tailwind's `md:` and `lg:`
+variants) and as constants into `src/tokens/generated/breakpoints.ts` (for
+code that builds a media query). A component never hard-codes one, and a
+structural change at a breakpoint is written in the spec, not discovered in
+the code.
+
+- **The values are `rem`, so the size class follows the text size.** At a
+  root font size of 24 px `48rem` is 1152 px: a 1024 px window is compact and
+  a 1440 px one is medium. At 200% zoom a 1440 px window is 720 CSS px wide,
+  compact. The table of every matrix cell is in
+  `docs/specs/lofi-prototype-system.md` § Responsive and adaptive behaviour.
+- **Script and CSS read the same value.** `src/hooks/use-mobile.ts` — the hook
+  the kit's `Sidebar` uses to become a sheet — tests
+  `(width < <breakpoint.md>)`, built from `breakpoints.ts`; it is the exact
+  complement of the `md:` variant. The file the CLI writes tests a pixel
+  width instead and disagrees with the CSS as soon as the text size is not
+  16 px: after `shadcn add sidebar` or a kit upgrade, restore ours
+  (`src/hooks/use-mobile.test.ts` fails on a number in that file).
+- **Who reads the viewport:** the shell and `Page` only. Components answer to
+  their container, with Tailwind's shipped container steps (`@md:` …).
+- **`sm`, `xl` and `2xl` are Tailwind's shipped breakpoints, not tokens.**
+  Kit files use `sm:`; our code uses `md:` and `lg:` only. A third structural
+  breakpoint is a new token (`GOVERNANCE.md`).
 
 ## User preferences
 
