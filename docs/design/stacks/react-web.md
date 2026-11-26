@@ -88,7 +88,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
 - Hover- or focus-triggered content is dismissible with Escape, hoverable and
   persistent.
 - Status messages use live regions and do not move focus.
-- Tools: axe-core (`vitest-axe` in component tests) and Lighthouse at review time (D-35) — necessary, not sufficient.
+- Tools: axe-core (`vitest-axe` in component tests; `@axe-core/playwright` in four cells per screen of `npm run matrix`), the matrix harness itself (`@playwright/test`, Chromium only — target sizes, clipped text, sideways scroll, keyboard, reduced motion, forced colours, text spacing; `../FOUNDATIONS.md` § Verification matrix) and Lighthouse at review time (D-35) — necessary, not sufficient: none of them is the screen-reader pass.
 
 ## UI kits
 

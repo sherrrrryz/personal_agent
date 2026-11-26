@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix fixture — three defects</title>
+    <!--
+      Self-test only, deliberately wrong, and outside src/ so its raw values
+      are not UI source. Exactly three defects, in every cell:
+        1. a sideways page scroll   (.wide)
+        2. a clipped label          (.clipped)
+        3. a 24 px target           (.tiny)
+    -->
+    <style>
+      .wide {
+        width: 1600px;
+        padding: 8px;
+        border: 1px solid;
+      }
+      .clipped {
+        display: block;
+        width: 60px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .field {
+        display: block;
+        width: 200px;
+        min-height: 44px;
+        margin-bottom: 16px;
+      }
+      .tiny {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Three defects</h1>
+      <p>The matrix must name each of them, in every cell.</p>
+      <div class="wide">This block is wider than every viewport of the matrix.</div>
+      <label class="clipped" for="holder">Full name of the account holder</label>
+      <input class="field" id="holder" type="text" />
+      <button class="tiny" type="button" aria-label="Close">×</button>
+    </main>
+  </body>
+</html>
