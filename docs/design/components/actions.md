@@ -56,7 +56,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -72,8 +73,8 @@ shows the kit's `destructive` tint (D-43: nothing is restated). The one
 exception is an invalid field, which keeps the `ring` colour while focused
 (`inputs.md` § Deviations from stock). `focusRing` in
 `src/components/actions/focus-ring.ts` is that same ring as classes, for a
-control we lay out ourselves. The stock ring measures under 3:1 in light mode
-— a recorded gap (`../TOKENS.md` § Contrast pairs). Under forced colours the
+control we lay out ourselves. The ring's contrast is not measured (the
+contrast requirement is withdrawn by D-43). Under forced colours the
 outline rule of `src/index.css` takes over.
 
 ## Pitfalls
@@ -93,8 +94,8 @@ no error. `Button.test.tsx` holds each variant to exactly `buttonClass`.
 
 With height `auto` the control is as high as its line plus its padding. The
 kit's `py-2` on a 20 px line gives 36 px where stock is 32 — a visible
-change on every control, which D-43 does not allow. (`min-h-target` is now
-the 24 px floor and no longer a way to size a kit control.)
+change on every control, which D-43 does not allow. (`min-h-target` is withdrawn by
+D-43 and sizes nothing: it is not a way to size a kit control.)
 
 ### A class name assembled at run time produces no CSS
 

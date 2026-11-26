@@ -58,7 +58,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |

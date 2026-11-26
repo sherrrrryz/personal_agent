@@ -29,11 +29,12 @@ HOW TO BUILD THIS DOC
 6. **Native element first.** An ARIA role is added only together with the
    complete keyboard behaviour the Authoring Practices define for that pattern.
 7. **A visible focus indicator on every focusable element**, via
-   `:focus-visible`, ≥ 3:1 against its surroundings; sticky bars never cover
+   `:focus-visible`, ≥ 3:1 against its surroundings *(the figure is
+   withdrawn by D-43 — the stock ring is kept)*; sticky bars never cover
    the focused element (`scroll-padding`).
 8. **Targets ≥ 24×24 CSS px everywhere; ≥ 44×44 wherever touch is possible.**
-   *(D-43: this project keeps shadcn/ui's stock control sizes, 28–36 px; the
-   asserted floor is 24 × 24.)*
+   ***Withdrawn by D-43** — no target-size requirement in this project; kit
+   controls keep shadcn/ui's stock sizes.*
 9. **Logical properties only** (`margin-inline`, `padding-block`,
    `inset-inline-start`), never left/right.
 10. **Motion lives inside `@media (prefers-reduced-motion: no-preference)`** —
@@ -90,7 +91,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
 - Hover- or focus-triggered content is dismissible with Escape, hoverable and
   persistent.
 - Status messages use live regions and do not move focus.
-- Tools: axe-core (`vitest-axe` in component tests; `@axe-core/playwright` in four cells per screen of `npm run matrix`), the matrix harness itself (`@playwright/test`, Chromium only — target sizes, clipped text, sideways scroll, keyboard, reduced motion, forced colours, text spacing; `../FOUNDATIONS.md` § Verification matrix) and Lighthouse at review time (D-35) — necessary, not sufficient: none of them is the screen-reader pass.
+- Tools: axe-core (`vitest-axe` in component tests; `@axe-core/playwright` in four cells per screen of `npm run matrix`), the matrix harness itself (`@playwright/test`, Chromium only — clipped text, sideways scroll, keyboard, reduced motion, forced colours, text spacing; `../FOUNDATIONS.md` § Verification matrix) and Lighthouse at review time (D-35) — necessary, not sufficient: none of them is the screen-reader pass.
 
 ## UI kits
 

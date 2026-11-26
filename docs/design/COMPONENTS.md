@@ -32,7 +32,7 @@ Every component in the registry, without exception:
    add empty · loading · error · partial.
 5. **Meets its accessibility contract** (`ACCESSIBILITY.md` § Per-component
    contract): role, accessible name, keyboard interaction, focus behaviour,
-   minimum target size, contrast in every mode.
+   ~~minimum target size, contrast in every mode~~ (both withdrawn by D-43).
 6. **Adapts:** fills or fits its container, never assumes a width; survives
    the largest font scale and the longest translation without clipping;
    mirrors correctly in RTL when the product requires it.

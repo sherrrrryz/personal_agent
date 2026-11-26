@@ -18,8 +18,8 @@ HOW TO BUILD THIS DOC
 | --- | --- | --- | --- | --- |
 | 0 | Foundations intake | Product brief, IA map, base values | Filled `FOUNDATIONS.md`, approved by the owner | [tasks/0-foundations.md](tasks/0-foundations.md) |
 | 1 | Low-fidelity prototype | IA map + chosen UI kit | Running prototype, base components, placeholder theme | [tasks/1-lofi-prototype.md](tasks/1-lofi-prototype.md) |
-| 2 | Design tokens | Base colour / type / radius / spacing / shadow / blur values | One token source, all tiers and modes, generated outputs | [tasks/2-design-tokens.md](tasks/2-design-tokens.md) |
-| 3 | Apply tokens to components | Tasks 1 + 2 | Styled components, zero raw values, both themes | [tasks/3-apply-tokens.md](tasks/3-apply-tokens.md) |
+| ~~2~~ — **not in use in this project (D-43)** | Design tokens | Base colour / type / radius / spacing / shadow / blur values | One token source, all tiers and modes, generated outputs | [tasks/2-design-tokens.md](tasks/2-design-tokens.md) |
+| ~~3~~ — **not in use in this project (D-43)** | Apply tokens to components | Tasks 1 + 2 | Styled components, zero raw values, both themes | [tasks/3-apply-tokens.md](tasks/3-apply-tokens.md) |
 | 4 | Figma mirror | The output of task 2, 3 or a batch of 5 — **after the owner approved the running code** | Figma variables, components and screens rebuilt from the code; owner confirms the match | [tasks/4-figma-mirror.md](tasks/4-figma-mirror.md) |
 | 5 | Build on the existing system | A feature request, no Figma | New screens/components that follow the system | [tasks/5-extend-system.md](tasks/5-extend-system.md) |
 
@@ -27,6 +27,13 @@ HOW TO BUILD THIS DOC
 > gate `G-MIRROR` are switched off; every stage closes at the owner's review of
 > the running code (step 7). The Figma text below describes the full kit and
 > binds only if Figma is enabled by a later decision.
+
+> **D-43 — tasks 2 and 3 are not in use in this project.** The owner will not
+> have them done (“任务2，3将不再进行，需要快速生产”): the prototype ships on
+> stock shadcn/ui styling, and gates `G-2` and `G-3` do not occur. The
+> playbooks are kept; the text below that schedules tasks 2 and 3 (the fixed
+> order, the placeholder-to-real swap) binds only if a later decision
+> supersedes D-43. In this project the order is 0 → 1, then 5.
 
 Task 4 is not a one-off: it is the closing stage of tasks 2 and 3 (the
 design system) and of every batch of task-5 work (components and screens

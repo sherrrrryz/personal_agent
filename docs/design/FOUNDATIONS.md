@@ -278,6 +278,10 @@ the owner changes: (1) edit the role's line in `tokens/semantic/color.json`
 `tokens/primitive/color.json`; (2) run `npm run tokens:build`; (3) list the
 role in `TOKENS.md` § Changed from stock and run `npm test`.
 
+**Tasks 2 and 3 are not in use in this project (D-43):** the prototype ships
+on stock shadcn/ui styling. Where this document says "task 2" or "tasks 2–3",
+nothing is scheduled; gates `G-2` and `G-3` do not occur.
+
 **shadcn/ui's defaults are the base values (D-05).** Task 2 expands them into
 the three tiers and invents nothing; a new primitive enters only through
 `GOVERNANCE.md` when a specific design needs it. Values below are from the
@@ -342,14 +346,11 @@ route never passes; `--allow-not-found` is for checking that screen itself.
   zh-CN/en. Root 24 px is the **browser's default font size**, never a style
   on `html`, so `rem` media and container queries move with it; every run
   measures that first and writes the proof into its report.
-- **Asserted in every cell:** no sideways page scroll; no clipped text; every
-  target ≥ 24 × 24 CSS px (WCAG 2.2 AA; 44 until D-43 — stock kit controls
-  are 28–36 px), measured as the box that answers a click (a link inside
-  running text is exempt); a full-page screenshot. `axe` with zero
-  violations in four cells: 320 and 1440 at 100%, light zh-CN and dark en —
-  except `color-contrast`, which is reported as a waiver, not a failure: the
-  stock theme is kept where it falls short (D-43; `TOKENS.md` § Contrast
-  pairs).
+- **Asserted in every cell:** no sideways page scroll; no clipped text; a
+  full-page screenshot. `axe` with zero violations in four cells: 320 and
+  1440 at 100%, light zh-CN and dark en. **Withdrawn by D-43:** the
+  target-size assertion (no target is measured) and the contrast assertion
+  (`axe` runs without its `color-contrast` rule).
 - **Passes, at 320 and 1440, light zh-CN:** `--keyboard` (every focusable
   reached, focus visible, no trap), `--reduced-motion` (nothing animates for
   a non-zero time at load, after opening each overlay, or as focus moves),
@@ -361,8 +362,8 @@ route never passes; `--allow-not-found` is for checking that screen itself.
   zero failures; otherwise each defect is named with the cells it is in.
 - **Each run starts its own dev server** from the working directory on a free
   port and never reuses one, so parallel worktrees do not collide.
-- **A waiver is explicit and reported:** `data-matrix-allow="clip"`,
-  `"target"` or `"scroll"` on an element exempts it and what is inside it
+- **A waiver is explicit and reported:** `data-matrix-allow="clip"` or
+  `"scroll"` on an element exempts it and what is inside it
   from that one assertion — for a truncation decided per text slot
   (`RESPONSIVE.md`), never to quiet a defect. Every run lists the waivers in
   use.

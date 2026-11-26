@@ -17,7 +17,7 @@ tokens/
   semantic/    aliases of primitives, named for their purpose; never a raw value
     color.json       shadcn/ui's colour roles, light (default), stock values (D-43) · color.focus.forced
     color.dark.json  the same roles, dark — one entry for every role
-    dimension.json   size.target.min · border.width.focus · radius.base, radius.step.*
+    dimension.json   size.target.min (withdrawn by D-43, zero) · border.width.focus · radius.base, radius.step.*
     font.json        font.family.sans
 ```
 
@@ -28,8 +28,8 @@ tokens/
   Dictionary) writes `src/tokens/generated/tokens.css` and
   `src/tokens/generated/breakpoints.ts`. Never edit those by hand; commit them
   with the source change. The build fails on a broken tier rule or a missing
-  mode, and `npm test` fails when the generated files are stale or a contrast
-  pair of `docs/design/TOKENS.md` § Contrast pairs drops below its requirement.
+  mode, and `npm test` fails when the generated files are stale. (Contrast
+  is not tested — the requirement is withdrawn by D-43.)
 - **Adding a file:** list it in `SOURCES` in `scripts/build-tokens.mjs` — the
   order there is the order of the output.
 - **Names in CSS:** `docs/design/TOKENS.md` § One source (primitives are

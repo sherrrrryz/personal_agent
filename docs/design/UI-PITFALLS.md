@@ -81,8 +81,8 @@ withdrew it: stock shadcn/ui everywhere, a few colours changed later in
 `tokens/` (`TOKENS.md` § Changing a colour). Two traps remain. With height
 `auto`, the kit's own padding makes a control taller than stock — keep the
 kit's height as `min-h-*` and use `py-1` (`components/actions.md` §
-Pitfalls). And `min-h-target` is now the 24 px WCAG floor for a link we lay
-out ourselves, not a way to size a kit control.
+Pitfalls). And `min-h-target` sizes nothing any more — the target-size
+requirement is withdrawn by D-43 — so it is not a way to size a kit control.
 
 ## 6. Token pipeline
 

@@ -36,7 +36,7 @@ default size unless noted.
 | `SidebarContent` | Scrolls in the rail too | A short window: the kit stops the rail from scrolling |
 | `Tabs` | The list is never wider than its container and wraps (`max-w-full flex-wrap`, height `auto`); the panel, a tab stop, shows the kit's ring when focused | Sideways scroll at 200% zoom; `focus-not-visible` — the kit removes the panel's outline |
 | `DropdownMenu` | As wide as its items need (`w-auto`, never wider than the room), not as its trigger; the item of the open page is semibold | An icon-button trigger gives the kit's menu its 8rem minimum and wraps every item; visible, and the shape of the kit's own examples (`w-56`) |
-| `Breadcrumb` | A crumb link keeps the 24 px floor (`min-h-target`); the folded page name truncates (`data-matrix-allow="clip"`, unchanged) | `small-target`: the kit's line is 20 px high |
+| `Breadcrumb` | The folded page name truncates (`data-matrix-allow="clip"`, unchanged). The crumb link's `min-h-target` is removed — target size is withdrawn by D-43 | The one truncating slot of the system, by design |
 
 **Removed with D-43:** the 44 px minimum everywhere; the widened rail (`--sidebar-width-icon` is the kit's
 3rem again) and the stacked icon-and-count rail item; the bar marking the current item, sub-item and tab
@@ -66,7 +66,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 One row per component of the registry above; the reviewer tests against it
 (`../ACCESSIBILITY.md` § Per-component contract). Min target is 44 × 44 CSS px
-through `size.target.min` for anything interactive.
+through `size.target.min` for anything interactive. **Withdrawn by D-43:** there is no
+target-size and no contrast requirement; the "Min target" column binds nothing.
 
 | Component | Role | Name comes from | Keyboard | Focus | Min target | Announces |
 | --- | --- | --- | --- | --- | --- | --- |

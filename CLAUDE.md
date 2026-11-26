@@ -29,8 +29,8 @@ Load only the row for the task at hand. Every row also assumes this file.
 | --- | --- | --- | --- |
 | 0 · Collect inputs, choose platform and UI kit | `docs/design/tasks/0-foundations.md` | `WORKFLOW.md`, `FOUNDATIONS.md`, `HITL.md`, `DECISIONS.md`, `TOKENS.md` § One source, ~~`FIGMA-SYNC.md` § Before the first mirror~~ (D-04), the stack doc | — |
 | 1 · Low-fi prototype from the IA map | `tasks/1-lofi-prototype.md` | `FOUNDATIONS.md`, `COMPONENTS.md`, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `TOKENS.md` § Placeholder theme (superseded by D-43: the stock theme), `GOVERNANCE.md`, the stack doc | `/responsive` `/accessibility` `/design-tokens` |
-| 2 · Expand base values into tokens | `tasks/2-design-tokens.md` | `FOUNDATIONS.md` § Base values, `TOKENS.md`, `GOVERNANCE.md`, `ACCESSIBILITY.md` § Contrast, `RESPONSIVE.md` § Unit policy, the stack doc § Tokens | `/design-tokens` `/accessibility` |
-| 3 · Apply tokens to components | `tasks/3-apply-tokens.md` | `FOUNDATIONS.md` § Verification matrix, `COMPONENTS.md`, `TOKENS.md`, `RESPONSIVE.md` § Unit policy, `ACCESSIBILITY.md`, `GOVERNANCE.md`, the stack doc | `/design-tokens` `/responsive` `/accessibility` |
+| ~~2 · Expand base values into tokens~~ — **not in use in this project (D-43)** | ~~`tasks/2-design-tokens.md`~~ | — | — |
+| ~~3 · Apply tokens to components~~ — **not in use in this project (D-43)** | ~~`tasks/3-apply-tokens.md`~~ | — | — |
 | ~~4 · Mirror an owner-approved stage in Figma~~ — **not in use in this project (D-04)** | ~~`tasks/4-figma-mirror.md`~~ | — | — (never load `/figma-mirror`) |
 | 5 · Build on the existing system, no Figma | `tasks/5-extend-system.md` | `FOUNDATIONS.md`, `COMPONENTS.md`, `TOKENS.md`, `GOVERNANCE.md`, `UI-PITFALLS.md`, the stack doc | `/design-tokens` `/responsive` `/accessibility` |
 | Writing a spec | `docs/specs/_TEMPLATE.md` | The task's playbook, `WORKFLOW.md`, `DECISIONS.md` | — |
@@ -86,14 +86,15 @@ Reviewers check every kit control in use for clipped text at 200% zoom.
 11. Works across the whole verification matrix: every width, largest text
     size, every mode. No sideways page scroll, no clipped text, nothing lost
     at small sizes.
-12. WCAG 2.2 AA: text contrast 4.5:1 (large 3:1), non-text 3:1; name, role
+12. WCAG 2.2 AA: ~~text contrast 4.5:1 (large 3:1), non-text 3:1;~~ name, role
     and state on every interactive element; full keyboard operation; visible
-    focus. Plus the platform target sizes: 44 pt on iOS, 48 dp on Android,
-    44 CSS px on web where touch is possible (never under WCAG's 24 CSS px).
-    **Superseded on the web by D-43:** kit controls keep their stock size
-    (28–36 px); the floor that is asserted is WCAG's 24 CSS px. Where the
-    stock theme falls short of a contrast figure, stock wins and the gap is
-    recorded in `TOKENS.md` § Contrast pairs.
+    focus. ~~Plus the platform target sizes: 44 pt on iOS, 48 dp on Android,
+    44 CSS px on web where touch is possible (never under WCAG's 24 CSS px).~~
+    **Withdrawn by D-43:** the contrast figures and the target sizes are not
+    requirements in this project — kit controls keep their stock size, the
+    stock shadcn/ui colours are used as they are, and nothing measures a
+    target or a ratio. Names, roles, states, keyboard operation and visible
+    focus (the stock ring) stay.
 13. Colour is never the only carrier of meaning. Reduced motion is honoured.
 14. Restyling never removes behaviour the kit provides. **D-43: kit controls
     are not restyled at all** — every component is drawn as stock shadcn/ui
@@ -126,7 +127,9 @@ Stack-specific hard rules: `docs/design/stacks/react-web.md` § Hard rules.
 - **Check `DECISIONS.md` before asking.** Record every answer there the same day.
 - **The owner's review of the running code closes every stage.** Every stage
   passes independent review, then the owner's review of the coded result
-  (`G-1`, `G-2`, `G-3`, `G-5`); the next stage starts right after that gate.
+  (`G-1`, ~~`G-2`, `G-3`,~~ `G-5`); the next stage starts right after that gate.
+  Tasks 2 and 3 and their gates `G-2` and `G-3` are **not in use in this
+  project (D-43)**: the prototype ships on stock shadcn/ui styling.
   ~~After that, tasks 2 and 3 and every task-5 batch are mirrored in Figma,
   independently reviewed, and confirmed by the owner (`G-MIRROR`).~~ Mirroring
   is **not in use in this project (D-04)**.
