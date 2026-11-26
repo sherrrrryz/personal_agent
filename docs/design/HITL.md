@@ -33,7 +33,7 @@ HOW TO BUILD THIS DOC
 | `G-3` | Task 3 passed independent review, **before the mirror** | Review | Do the styled components and screens look right in every mode | Running components and screens, both themes, largest font scale |
 | `G-5` | A task-5 batch is ready, **before the mirror** | Review | Are the new components and screens right; was each addition necessary and consistent | Running result + the admission record (`GOVERNANCE.md`) for anything added + before/after |
 | ~~`G-MIRROR`~~ **not in use in this project (D-04)** | ~~After every mirror run (tasks 2, 3, each task-5 batch)~~ | Review | Does Figma match what was approved in code | Figma page + side-by-side screenshots of Figma and running code + mirror review verdict |
-| `G-PUB` | Before anything leaves the repo or the draft file | Decide | ~~Publish a Figma library~~ (D-04), push the default branch, release a package | What will change for whom |
+| `G-PUB` | Before anything leaves the repo or the draft file | Decide | ~~Publish a Figma library~~ (D-04), push the default branch (task 1: the owner's standing word is D-42 — verified integration legs, fast-forward only), release a package | What will change for whom |
 
 A gate is passed only by the owner's explicit word in the conversation or a
 resolved comment thread in the design file. Silence, an emoji, or an approval

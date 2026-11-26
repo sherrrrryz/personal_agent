@@ -37,12 +37,30 @@ platform/version it was observed.>
 | `<The kit component lost its keyboard behaviour after styling>` | [§5](#5-ui-kit) |
 | `<Figma shows a different value from the code>` | `FIGMA-SYNC.md` § Drift check |
 | `<The gate is green and a raw value is still there>` | [§6](#6-token-pipeline) |
+| A screen inside the shell is too wide and the matrix reports no sideways scroll — or a full-page screenshot of it stops at the window's edge | [§2](#2-layout-and-reflow) |
 | An import of `@/app` works on this Mac and fails, or loads another module, elsewhere | [§8](#8-tooling-and-the-shell) |
 | `npm run matrix` stops with `no matches found`, or checks a route nobody named | [§8](#8-tooling-and-the-shell) |
 
 ## 1. Text scaling
 
 ## 2. Layout and reflow
+
+### A screen inside the shell is too wide and the matrix reports no sideways scroll
+
+**Rule:** the element that scrolls a screen — the shell's `main` (`src/shell/Shell.tsx`) — cuts sideways overflow with `overflow-x: clip` and never scrolls it; any later scrolling wrapper around a whole screen does the same.
+
+The harness's `sideways-scroll` check measures the page. Once `main` scrolls
+(`overflow-y: auto`), a screen wider than the window overflows `main`, not the
+page: `main` would scroll sideways, the page would not, and the check would
+pass on a broken screen. Cut instead, the too-wide content fails as
+`clipped-text` — a failure that names the element. (`overflow-x: clip` beside
+`overflow-y: auto` computes to `hidden`.) Observed with Chromium, task 1, S7.
+
+For the same reason a full-page screenshot of a screen inside the shell shows
+the window only: the page is one window high and the rest is inside `main`'s
+scroller. The assertions are not affected — they run in the page — but for
+eyes on what is below the fold, scroll `main` in a flow before the screenshot,
+or look at the content on a bare route (`/dev/components`).
 
 ## 3. Theme and colour
 
