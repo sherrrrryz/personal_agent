@@ -22,7 +22,7 @@ HOW TO BUILD THIS DOC
 - **Build:** `<tool, e.g. Style Dictionary>` generates every output. Generated
   files are never edited by hand and say so in their header.
 - **Outputs:** web → CSS custom properties (`<path>`); React Native → a typed
-  theme object (`<path>`); Figma → variables, by `/figma-mirror`.
+  theme object (`<path>`); ~~Figma → variables, by `/figma-mirror`~~ (not in use, D-04).
 - **Format facts that shape the source** (DTCG 2025.10): set `$type`
   explicitly on the token or its group; a colour is an object with a colour
   space and components, not a bare hex string; a `dimension` is

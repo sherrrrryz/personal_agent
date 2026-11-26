@@ -38,11 +38,11 @@ not by starting to build and seeing what is missing.
    5. Registered in `COMPONENTS.md` / the token source in the same change
 5. **Verify** across the matrix. Run both gates.
 6. **Independent review** — light for case A, full for case B.
-7. **Batch the mirror.** New components and screens — case A and case B
-   alike — accumulate until a task-4 run is due (`FOUNDATIONS.md` § Figma);
-   nothing stays unmirrored past that limit. Before the run, the owner looks
-   at the batch in running code and passes `G-5`; only then is it mirrored
-   and confirmed at `G-MIRROR`.
+7. **Close the batch at `G-5`.** The owner looks at the batch in running code
+   and passes `G-5`; that closes it in this project. ~~Batch the mirror: new
+   components and screens accumulate until a task-4 run is due
+   (`FOUNDATIONS.md` § Figma); only then is it mirrored and confirmed at
+   `G-MIRROR`.~~ (Figma not in use, D-04)
 
 ## Rules specific to this task
 

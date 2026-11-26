@@ -42,6 +42,11 @@ HOW TO BUILD THIS DOC
 12. **Components adapt to their container** (`@container`); only page layout
     uses viewport media queries.
 
+**Kit-code exception (D-06):** files copied from shadcn/ui into
+`src/components/ui/` are exempt from rules 4, 5 and 9 above (fixed heights,
+arbitrary-value utilities, physical properties inside the kit) as well as
+from `CLAUDE.md` rules 1, 6 and 10. Everything we author follows all twelve.
+
 ## Units
 
 The policy table is in `../RESPONSIVE.md`. Web specifics:
@@ -68,7 +73,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
   utilities or classes are generated from tokens, so a value outside the scale
   cannot be written by accident.
 - User-preference modes: `prefers-color-scheme` sets the default; an explicit
-  user choice overrides it; `prefers-contrast: more` maps to the high-contrast
+  user choice overrides it (an in-app toggle is proposed, `G-0`, D-pending); `prefers-contrast: more` maps to the high-contrast
   mode if the product has one; `forced-colors: active` must remain usable —
   do not rely on background colour alone to show state.
 
@@ -83,7 +88,7 @@ The policy table is in `../RESPONSIVE.md`. Web specifics:
 - Hover- or focus-triggered content is dismissible with Escape, hoverable and
   persistent.
 - Status messages use live regions and do not move focus.
-- Tools: axe-core (`vitest-axe` in component tests) and Lighthouse in CI — proposed in task 0, confirmed at `G-0`; — necessary, not sufficient.
+- Tools: axe-core (`vitest-axe` in component tests) and Lighthouse in CI (proposed in task 0, confirmed at `G-0`) — necessary, not sufficient.
 
 ## UI kits
 

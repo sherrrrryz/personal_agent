@@ -24,15 +24,17 @@ file only through a spec.
   proactively inside and between modules (autonomous, assisted or deferred, chosen by each task's confidence,
   stakes and reversibility) while a chat bar fixed to the bottom of every
   screen takes requests and opens a dedicated chat only when one is needed;
-  the user sees work kept in order, not a transcript. (Owner, 2026-11-26)
+  the user sees work kept in order, not a transcript. (Drafted from the
+  owner's brief, 2026-11-26; approved at `G-0`)
 - **Platforms:** web only; no native app for now (D-01)
 - **Stack:** web → React 19 + TypeScript (D-02), built with Vite 8 (proposed — `G-0`);
   styling system: Tailwind v4 reading the CSS custom properties generated from
   the token source (follows D-03). Rules per stack: `stacks/react-web.md`.
   `stacks/react-native.md` is not in use.
-- **Languages and direction:** zh-CN and en (D-17); LTR only, no RTL. The
-  UI follows the browser language with en as the fallback; `<html lang>` is set
-  per locale (how the user switches is decided in the task-1 spec)
+- **Languages and direction:** zh-CN and en (D-17); LTR only, no RTL.
+  Proposed — `G-0` (packet § 16): the UI follows the browser language, en is
+  the fallback, `<html lang>` is set per locale; how the user switches is
+  decided in the task-1 spec
 
 ## Product brief
 
@@ -80,10 +82,14 @@ every spec; it is not itself a spec.
   according to the module's workflow. The user can set a behaviour mode per
   kind of task — **autonomous**, **assisted** or **deferred** — and the AI
   picks the mode for a given task from its confidence, the stakes and how
-  reversible the action is.
+  reversible the action is. Precedence — proposed, `G-0` (packet § 14): the
+  user's setting is the **ceiling**; the AI picks at or below it; where
+  nothing is set the AI decides, defaulting to *assisted*.
 - **Chat bar:** persistent at the bottom of every screen. From what the user
-  types it decides whether to answer in the main thread or open a dedicated
-  chat window for that topic.
+  types it decides whether to answer in place or open a dedicated chat window
+  for that topic. "In place" — proposed, `G-0` (packet § 15): a panel that
+  expands above the bar, in the context of the current screen, and is filed
+  into Topics; there is no separate main-thread page.
 - **Topics module (both layers):** every conversation with the AI is filed
   automatically by theme into its own topic module — ask about fitness and a
   fitness module appears. A topic's home shows an AI-written summary of the
@@ -94,7 +100,12 @@ every spec; it is not itself a spec.
   user's recent conversations in the current layer only; it switches with the
   layer (D-15).
 - **Onboarding:** before any of these screens, a first-run setup flow whose
-  main job is connecting all of the user's platform accounts.
+  main job is connecting all of the user's platform accounts. Accounts and
+  layers — proposed, `G-0` (packet § 13): an account is attached to one or
+  both layers when connected (one Google account may feed both `life.mail`
+  and `work.mail`; D-09 isolates derived data, memory and workflows, not the
+  raw connection); onboarding presents the Life / Work split as its first
+  step; the shell opens in Life afterwards.
 - **One-off or persistent:** in every conversation the user can choose, and
   later switch, whether it is a one-off chat or one that becomes a lasting
   sub-module with its own workflow under the module it concerns. Example: "go
@@ -119,7 +130,7 @@ be faked.
 - **IA map:** `IA-MAP.md` — the source for task 1. Format: Mermaid tree plus
   a node table (drafted 2026-11-26 from the brief; confirmed at `G-0`)
 - **Node ids:** every IA node has a stable id that screens, specs and the
-  Figma map refer to.
+  component registry refer to.
 
 Top level only; the full table with every module, dynamic node and global
 element is `IA-MAP.md` § Nodes.
@@ -130,7 +141,7 @@ element is `IA-MAP.md` § Nodes.
 | `root` | App shell — layer switch, chat bar, sidebar toggle | — | shell |
 | `life` | Life layer: notifications, messages, calendar, to-do, mail, files, finance, journal, topics | `root` | layer home |
 | `work` | Work layer: notifications, messages, calendar, to-do, mail, files, projects (design / development / project management, each with chats), topics | `root` | layer home |
-| `chat.bar` · `chat.thread` · `chat.recent` | Chat bar (bottom, every screen), dedicated chat, recent-conversations sidebar (left) | `root` | global elements |
+| `chat.bar` · `chat.recent` · `chat.thread` | Chat bar (bottom, every screen), recent-conversations sidebar (left); the dedicated chat hangs off the bar | `root` (`chat.thread` under `chat.bar`) | global elements |
 | `settings` | Connected accounts, AI behaviour modes; per-module workflow and memory panels | `root` | settings |
 
 ## UI kit
@@ -138,8 +149,14 @@ element is `IA-MAP.md` § Nodes.
 - **Kit:** shadcn/ui, the whole kit, with Tailwind v4 (D-03). Checked 2026-11-26
   with CLI 4.23.1: style `base-nova`, primitives `@base-ui/react`, icons
   `lucide-react`, font `@fontsource-variable/geist`, animations `tw-animate-css`;
-  pinned when installed in the first task-1 package · **Licence:** MIT
-- **Why this one:** accessibility comes from headless primitives that follow
+  pinned when installed in the first task-1 package · **Licence:** MIT.
+  `base-nova` and the Base UI primitives are the CLI's defaults, not a
+  separate choice among Base UI / Radix / React Aria; `base-nova` is a styled
+  default, so "lightly styled" holds only through the token rebinding of
+  tasks 2–3
+- **Why this one:** the owner named the kit directly (D-03), so the
+  two-or-three-kit comparison in `tasks/0-foundations.md` step 4 was not run;
+  the criteria it meets: accessibility comes from headless primitives that follow
   the Authoring Practices; every visual value is reachable through CSS
   variables, so one token source can feed it; the components are copied into
   the repo, so agents can read and edit them and the system stays small.
@@ -206,7 +223,7 @@ re-read them from the installed version in task 2.
 | Type | Base value(s) | Expansion rule (detail in `TOKENS.md`) |
 | --- | --- | --- |
 | Colour | shadcn `neutral`: ~30 semantic roles (`background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `chart-1…5`, `sidebar-*`), light and dark, OKLCH. Neutral lightness steps used: 0.145 · 0.205 · 0.269 · 0.371 · 0.439 · 0.556 · 0.708 · 0.87 · 0.922 · 0.97 · 0.985 · 1; `destructive` hue ≈ 27 (light) / 22 (dark); no brand hue (`primary` is near-black) | Task 2 lifts the lightness steps into one primitive neutral ramp and re-expresses every shadcn role as an alias to it, so the names shadcn components use stay the semantic tier. A new hue is an `HITL.md` § Always ask |
-| Typeface | Geist Variable (sans; heading = sans), SIL OFL 1.1; no mono installed | — |
+| Typeface | Geist Variable (sans; heading = sans), SIL OFL 1.1; no mono installed. **Geist has no CJK glyphs**: zh-CN needs a CJK face, which is a new font family (`HITL.md` § Always ask) — open at `G-0`, packet § 17; it enters the source as a font-family token | — |
 | Font size | Tailwind v4 default scale, base 1rem (`text-xs` 0.75rem … `text-9xl` 8rem) with paired line heights | Tailwind's scale as shipped; no new step without admission |
 | Spacing | Tailwind `--spacing` 0.25rem | Tailwind's integer and half multiples |
 | Radius | `--radius` 0.625rem | × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`sm` → `4xl`), plus `full` |
@@ -219,7 +236,7 @@ re-read them from the installed version in task 2.
 | Mode | Required | Notes |
 | --- | --- | --- |
 | Light | yes | |
-| Dark | yes | Designed, not inverted |
+| Dark | yes | Designed, not inverted. Follows the system preference; an in-app light/dark toggle is proposed, `G-0` (packet § 11) |
 | High contrast | no (D-18) | `prefers-contrast: more` is not mapped; `forced-colors` must still be usable (`stacks/react-web.md`) |
 | Brand / density variants | no (D-18) | |
 

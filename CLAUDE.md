@@ -27,7 +27,7 @@ Load only the row for the task at hand. Every row also assumes this file.
 
 | If the task is… | Playbook | Read first | Load skills |
 | --- | --- | --- | --- |
-| 0 · Collect inputs, choose platform and UI kit | `docs/design/tasks/0-foundations.md` | `WORKFLOW.md`, `FOUNDATIONS.md`, `HITL.md`, `DECISIONS.md`, `TOKENS.md` § One source, `FIGMA-SYNC.md` § Before the first mirror, the stack doc | — |
+| 0 · Collect inputs, choose platform and UI kit | `docs/design/tasks/0-foundations.md` | `WORKFLOW.md`, `FOUNDATIONS.md`, `HITL.md`, `DECISIONS.md`, `TOKENS.md` § One source, ~~`FIGMA-SYNC.md` § Before the first mirror~~ (D-04), the stack doc | — |
 | 1 · Low-fi prototype from the IA map | `tasks/1-lofi-prototype.md` | `FOUNDATIONS.md`, `COMPONENTS.md`, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `TOKENS.md` § Placeholder theme, `GOVERNANCE.md`, the stack doc | `/responsive` `/accessibility` `/design-tokens` |
 | 2 · Expand base values into tokens | `tasks/2-design-tokens.md` | `FOUNDATIONS.md` § Base values, `TOKENS.md`, `GOVERNANCE.md`, `ACCESSIBILITY.md` § Contrast, `RESPONSIVE.md` § Unit policy, the stack doc § Tokens | `/design-tokens` `/accessibility` |
 | 3 · Apply tokens to components | `tasks/3-apply-tokens.md` | `FOUNDATIONS.md` § Verification matrix, `COMPONENTS.md`, `TOKENS.md`, `RESPONSIVE.md` § Unit policy, `ACCESSIBILITY.md`, `GOVERNANCE.md`, the stack doc | `/design-tokens` `/responsive` `/accessibility` |

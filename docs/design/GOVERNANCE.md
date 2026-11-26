@@ -49,6 +49,13 @@ composing existing components and existing tokens — never with a raw value.
 When the same composition is needed in a second place, it may be proposed
 as a system item. Not before.
 
+**Blocks (D-12).** A block is a registered component marked as a block in
+`COMPONENTS.md`, with a stable block id that a module workflow's page
+description may reference. The threshold applies unchanged: a block is a
+system item once **two** module workflows emit it, or the module frame uses
+it. A need one workflow has is met inside that module's page description by
+composing existing blocks — it is not a new block and is not registered.
+
 ## Minimum step — what counts as "too similar"
 
 Two tokens of the same type that differ by less than this are duplicates;
@@ -83,8 +90,8 @@ The reviewer reports the delta on every task-5 review.
 
 - **Renames and value changes are breaking.** They need the owner, a spec, and
   a migration in the same change: every consumer updated, generated outputs
-  rebuilt, Figma variables updated in place (never deleted and recreated —
-  that breaks bindings).
+  rebuilt~~, Figma variables updated in place (never deleted and recreated —
+  that breaks bindings)~~ (Figma not in use, D-04).
 - **Deprecate, then delete.** Mark the item deprecated in the token source or
   `COMPONENTS.md` with its replacement; delete it in the first change after
   its last consumer is gone.
@@ -100,7 +107,7 @@ Run at the start of any large task-5 effort and before every `G-5`:
 3. Duplicates — pairs under the minimum step
 4. Orphans — defined, never referenced
 5. Completeness — components missing a state, a mode, or a registry entry
-6. Drift — token source vs Figma variables (`FIGMA-SYNC.md` § Drift check)
+6. ~~Drift — token source vs Figma variables (`FIGMA-SYNC.md` § Drift check)~~ — not in use in this project (D-04)
 
 ## Refused additions
 

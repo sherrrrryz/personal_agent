@@ -3,7 +3,7 @@
 > Status: evergreen — playbook: how the project's fixed inputs are collected
 > and decided before any prototype work starts.
 
-**Read first:** `../WORKFLOW.md` · `../FOUNDATIONS.md` · `../HITL.md` · `../DECISIONS.md` · `../TOKENS.md` § One source · `../FIGMA-SYNC.md` § Before the first mirror · the stack doc(s) for the candidate platform(s)
+**Read first:** `../WORKFLOW.md` · `../FOUNDATIONS.md` · `../HITL.md` · `../DECISIONS.md` · `../TOKENS.md` § One source · ~~`../FIGMA-SYNC.md` § Before the first mirror~~ (not in use, D-04) · the stack doc(s) for the candidate platform(s)
 **Pipeline:** reduced — draft → fresh-session review → `G-0`. No spec, no lead, no Figma stage (`../WORKFLOW.md`).
 **Skills:** none · **Gate:** `G-0` (Decide) · **Output:** a filled `FOUNDATIONS.md`
 
@@ -25,11 +25,11 @@ one at a time, mid-work, is the most expensive way to get them.
    and the product's audience.
 6. **Modes:** light and dark are required; ask about high contrast and
    brand variants.
-7. **Figma:** confirm the file, fonts and icon set, and read the plan's
+7. ~~**Figma:** confirm the file, fonts and icon set, and read the plan's
    current limits from Figma's own plan page — modes per collection, Code
    Connect, API access (`FIGMA-SYNC.md` § Before the first mirror). Record
    them as a `DECISIONS.md` entry. Also agree how many task-5 additions may
-   accumulate before a mirror run.
+   accumulate before a mirror run.~~ **Not in use in this project (D-04).**
 8. Present everything at `G-0` as **one** decision packet. Record each answer
    in `DECISIONS.md`, then fill `FOUNDATIONS.md`.
 

@@ -55,44 +55,52 @@ Every component in the registry, without exception:
 ## Registry
 
 Source: `kit` (used as is) · `wrapped` (kit + token binding) · `new` (built,
-spec cited). Status: `lofi` (placeholder theme only) · `styled` · `deprecated → <replacement>`.
+spec cited) · `dependency` (a single-purpose library that is not a UI kit,
+e.g. the React Flow canvas, D-16). Status: `lofi` (placeholder theme only) ·
+`styled` · `deprecated → <replacement>`.
+
+**Blocks (D-12).** A registered component may additionally be a **block**:
+the unit a module workflow's page description may reference by its stable
+block id (`block.<name>`, recorded in Notes). Only blocks may be emitted by a
+workflow; the module frame lays them out, so a block never sets outer margin.
+Admission of blocks: `GOVERNANCE.md` § The admission test, "Blocks".
 
 ### Layout primitives
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 | `<Page>` | | | | | |
 | `<Stack>` | | | | | |
 
 ### Actions
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 | `<Button>` | `wrapped` | `variant`, `size` | | | |
 
 ### Inputs
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 
 ### Navigation
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 
 ### Containers and overlays
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 
 ### Feedback and status
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 
 ### Data display
 
-| Component | Source | Variants | Status | Figma node | Notes |
+| Component | Source | Variants | Status | Figma node (not in use, D-04) | Notes |
 | --- | --- | --- | --- | --- | --- |
 
 ## Kit components deliberately not used
