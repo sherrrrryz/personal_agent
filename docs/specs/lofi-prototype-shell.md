@@ -1,9 +1,9 @@
 # Design spec: low-fi prototype — shell (fake runtime, app shell, chat, blocks, module frame)
 
-> Status: draft
+> Status: approved
 > Task type: 1 low-fi
 > Author: spec session `t1-spec` · Date: 2026-11-26
-> Spec review: `changes requested` (2026-11-26, `.orchestration/reviews/task1-spec-review.md`), revised, re-review pending · Approved by: — (`G-SPEC` waived once by D-41)
+> Spec review: `pass with notes` (pass 3 at `f810aad`, 2026-11-26, `.orchestration/reviews/task1-spec-review.md`; pass 1 and 2 `changes requested`, all blocking and should-fix findings closed) · Approved by: owner waiver D-41, 2026-11-26 — `G-SPEC` waived once; marked `approved` by the orchestration session on the passing review
 
 Part 2 of 3. It builds on [lofi-prototype-system.md](lofi-prototype-system.md) ("part 1": tooling, theme, base components, matrix harness, the wave plan, the frozen-file rule, the meaning of *component evidence* and of `matrix`) and is built upon by [lofi-prototype-screens.md](lofi-prototype-screens.md) ("part 3"). Criteria here are `R-nn`; packages `S6…S12`, `I4`, `I5`.
 

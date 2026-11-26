@@ -1,9 +1,9 @@
 # Design spec: low-fi prototype — screens (modules, topics, workflow editor, memory, onboarding, settings, flows)
 
-> Status: draft
+> Status: approved
 > Task type: 1 low-fi
 > Author: spec session `t1-spec` · Date: 2026-11-26
-> Spec review: `changes requested` (2026-11-26, `.orchestration/reviews/task1-spec-review.md`), revised, re-review pending · Approved by: — (`G-SPEC` waived once by D-41)
+> Spec review: `pass with notes` (pass 3 at `f810aad`, 2026-11-26, `.orchestration/reviews/task1-spec-review.md`; pass 1 and 2 `changes requested`, all blocking and should-fix findings closed) · Approved by: owner waiver D-41, 2026-11-26 — `G-SPEC` waived once; marked `approved` by the orchestration session on the passing review
 
 Part 3 of 3. It builds only from [lofi-prototype-system.md](lofi-prototype-system.md) ("part 1": base components, matrix harness, wave plan, frozen files, *component evidence*) and [lofi-prototype-shell.md](lofi-prototype-shell.md) ("part 2": runtime and its actions, scenes, shell, chat, blocks, `ModuleFrame`). Criteria here are `B-nn`; packages `C1…C7`, `I6`. No token and no kit file is added here.
 

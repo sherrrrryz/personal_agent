@@ -94,6 +94,6 @@ Not checked by `check:docs`; listed so nothing is invisible.
 
 | Spec | Status | The question it answers |
 | --- | --- | --- |
-| [specs/lofi-prototype-system.md](specs/lofi-prototype-system.md) | `draft` | Task 1, part 1: which tooling, placeholder theme, base components and matrix harness does the prototype stand on, and in which waves is all of task 1 built? |
-| [specs/lofi-prototype-shell.md](specs/lofi-prototype-shell.md) | `draft` | Task 1, part 2: how do the fake runtime, the app shell, the chat surfaces, the blocks and the module frame work, and who builds each? |
-| [specs/lofi-prototype-screens.md](specs/lofi-prototype-screens.md) | `draft` | Task 1, part 3: what does every IA screen, the workflow editor and the memory view show, and how are the hero flow and the matrix accepted? |
+| [specs/lofi-prototype-system.md](specs/lofi-prototype-system.md) | `approved` | Task 1, part 1: which tooling, placeholder theme, base components and matrix harness does the prototype stand on, and in which waves is all of task 1 built? |
+| [specs/lofi-prototype-shell.md](specs/lofi-prototype-shell.md) | `approved` | Task 1, part 2: how do the fake runtime, the app shell, the chat surfaces, the blocks and the module frame work, and who builds each? |
+| [specs/lofi-prototype-screens.md](specs/lofi-prototype-screens.md) | `approved` | Task 1, part 3: what does every IA screen, the workflow editor and the memory view show, and how are the hero flow and the matrix accepted? |
