@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider } from 'react-router'
+import { createMemoryRouter, matchRoutes, RouterProvider } from 'react-router'
 import type { RouteObject } from 'react-router'
 import { describe, expect, it } from 'vitest'
 
@@ -9,7 +9,7 @@ import { THEME_STORAGE_KEY } from '@/theme'
 
 import { Providers } from './Providers'
 import { buildRoutes, fallbackStart } from './router'
-import { areaRoutes } from './routes'
+import { areaRoutes, matrixRoutes } from './routes'
 
 function open(path: string, routes: RouteObject[] = buildRoutes()) {
   const router = createMemoryRouter(routes, { initialEntries: [path] })
@@ -19,6 +19,18 @@ function open(path: string, routes: RouteObject[] = buildRoutes()) {
 describe('the router host', () => {
   it('finds every area by glob', () => {
     expect(areaRoutes.some((route) => route.path === '/dev/components')).toBe(true)
+  })
+
+  // `npm run matrix -- --all` walks these paths as written: one that no route
+  // matches would be checked as the not-found screen and pass.
+  it('every matrix route is a concrete path that a registered route answers', () => {
+    expect(matrixRoutes.length).toBeGreaterThan(0)
+    for (const { path } of matrixRoutes) {
+      expect(path, path).toMatch(/^\/[^:*]*$/)
+      const leaf = matchRoutes(buildRoutes(), path)?.at(-1)?.route
+      expect(leaf?.path, path).not.toBe('*')
+      expect(leaf, path).toBeDefined()
+    }
   })
 
   it('opens the gallery at / while no area claims the start', async () => {

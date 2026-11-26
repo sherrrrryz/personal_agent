@@ -2,7 +2,8 @@ import type { RouteObject } from 'react-router'
 
 /**
  * One line of an area's `matrixRoutes`: a path the matrix harness walks
- * (`npm run matrix -- --all`), and the scenes and previews in which that
+ * (`npm run matrix -- --all`) as written — concrete (`/tasks/t-1`), never a
+ * pattern (`/tasks/:id`) — and the scenes and previews in which that
  * screen differs enough to be walked again (`?scene=&preview=`).
  */
 export type MatrixRoute = {

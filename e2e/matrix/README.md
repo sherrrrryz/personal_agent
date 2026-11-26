@@ -14,7 +14,7 @@ people who write flows or change the harness.
 | `matrix.spec.ts`, `environment.spec.ts` | One test per planned cell run; the environment proof that starts every run |
 | `report.mjs`, `self-test.mjs` | The `index.html` writer; `npm run matrix -- --self-test` |
 | `fixtures/` | Self-test pages, outside `src/` on purpose: `pass.html`, `fail.html` (three defects), `passes-fail.html` (defects only the passes see), `blank.html`, `screens/sample/routes.tsx` |
-| `tsconfig.json` | `npx tsc --noEmit -p e2e/matrix/tsconfig.json` — the root `tsc -b` does not cover `e2e/` |
+| `tsconfig.json` | type-checks `e2e/matrix/` and `playwright.config.ts`; referenced by the root `tsconfig.json`, so `tsc -b` and `npm run verify` cover it |
 
 ## Writing a flow
 
@@ -53,7 +53,10 @@ through the dev server, must export
 (a bare path string is accepted). Each route runs in each of its scenes, or
 once without `?scene=` when it lists none. With `--cells full` each preview is
 added: `long` on the four stress cells, any other state at 320 and 1440 light
-zh-CN. A `routes.tsx` without the export stops the run with its name.
+zh-CN. A `routes.tsx` without the export stops the run with its name, and so
+does a path that is a pattern (`/tasks/:id`, `*`): paths are concrete
+(`/tasks/t-1`). `src/app/router.test.tsx` checks that a registered route
+answers every path, so none is walked as the not-found screen.
 
 ## Failure kinds
 

@@ -179,6 +179,10 @@ async function discoverRoutes(root, baseURL) {
         if (!route || typeof route.path !== 'string' || !route.path.startsWith('/')) {
           throw new Error(`--all: ${file} has a matrixRoutes entry without a path: ${JSON.stringify(entry)}`)
         }
+        // A pattern would be walked as written and land on not-found, or on a screen with the id ":id".
+        if (/\/:|\*/.test(route.path)) {
+          throw new Error(`--all: ${file} lists the pattern ${route.path} — matrixRoutes takes concrete paths (/tasks/t-1, not /tasks/:id)`)
+        }
         found.push({
           path: route.path,
           scenes: Array.isArray(route.scenes) ? route.scenes : [],

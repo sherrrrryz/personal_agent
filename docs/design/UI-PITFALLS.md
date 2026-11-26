@@ -37,6 +37,8 @@ platform/version it was observed.>
 | `<The kit component lost its keyboard behaviour after styling>` | [§5](#5-ui-kit) |
 | `<Figma shows a different value from the code>` | `FIGMA-SYNC.md` § Drift check |
 | `<The gate is green and a raw value is still there>` | [§6](#6-token-pipeline) |
+| An import of `@/app` works on this Mac and fails, or loads another module, elsewhere | [§8](#8-tooling-and-the-shell) |
+| `npm run matrix` stops with `no matches found`, or checks a route nobody named | [§8](#8-tooling-and-the-shell) |
 
 ## 1. Text scaling
 
@@ -51,6 +53,29 @@ platform/version it was observed.>
 ## 6. Token pipeline
 
 ## 7. Figma mirror
+
+## 8. Tooling and the shell
+
+### An import of `@/app` works on this Mac and fails, or loads another module, elsewhere
+
+**Rule:** import from `src/app/` by file — `@/app/routes`, `@/app/router`, `@/app/Providers` — and never add an `index.ts` to `src/app/`.
+
+`src/App.tsx` and the folder `src/app/` differ only in case. On macOS's
+case-insensitive disk `@/app` resolves to `App.tsx`; on a case-sensitive one
+(Linux, CI) it resolves to the folder, so the same line imports two different
+things and nothing warns on the machine it was written on. For the same
+reason `main.tsx` imports `./App.tsx` with its extension. Observed with
+Vite 8 and TypeScript 7 on macOS, task 1.
+
+### `npm run matrix` stops with `no matches found`, or checks a route nobody named
+
+**Rule:** quote a matrix route that carries a query: `npm run matrix -- '/dev/components?family=layout'`.
+
+In zsh an unquoted `?` is a filename pattern: the shell stops with
+`zsh: no matches found` before the harness starts, which reads like a missing
+route. In bash the word passes through as written until a file happens to
+match, and then the file's path replaces it. The same holds for `*` and `[`.
+Lines in the task-1 specs written without the quotes are meant with them.
 
 ## Categories worth checking early
 
