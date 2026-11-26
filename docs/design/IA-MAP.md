@@ -145,10 +145,24 @@ prototype-only control (§ Prototype devices).
 screen is rewritten and two no-replies sit in `notifications`. It shows the
 same mechanics in one evening and is the warm-up for the hero flow.
 
-**Prototype devices (not product features).** A *时间推进* control in the shell
-jumps between the hero flow's stages with faked data; the module frame's run
-history and the canvas version history are real product features that the
-device merely fills. Nothing else is simulated.
+**Prototype devices (not product features).** Two controls, in one menu at
+the end of the shell's header. The menu is labelled 原型控制, so neither is read
+as part of the product.
+
+- *时间推进* jumps between the scenes of the story — the warm-up (第一晚, 第二晚)
+  and the hero flow's stages (今天 … 回看) — with faked data, by choosing a
+  scene or with 上一幕 / 下一幕; 重新开始 goes back to first use. The scene she
+  jumped to survives a reload. The module frame's run history and the canvas
+  version history are real product features that the device merely fills.
+- *状态预览* forces every screen into one state — 正常 · 空 · 加载中 · 出错 ·
+  超长内容 — so that each state can be reviewed on the real screens. While a
+  state is forced the header says so (原型控制：正在预览「出错」状态) and offers
+  恢复正常; the navigation stays as it is. It ends at a scene jump and at a
+  reload. Not in the IA confirmed at G-0: added by the task-1 spec
+  (`docs/specs/lofi-prototype-shell.md` § Shell) and accepted by the
+  orchestration session under D-41; the owner sees it at `G-1`.
+
+Nothing else is simulated.
 
 ## Topics, sub-modules and chats (D-20)
 

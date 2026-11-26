@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { Outlet } from 'react-router'
 
 import { focusRing } from '@/components/actions/focus-ring'
@@ -32,11 +32,12 @@ const skipClass = `sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top
 export function Shell({ slots }: { slots?: ShellSlots }) {
   const t = useT('shell')
   const route = useShellRoute()
-  const main = useRef<HTMLElement>(null)
-  const heading = usePageHeading(main)
+  const { main, heading } = usePageHeading()
 
   const expanded = useMediaQuery(expandedQuery)
   const [choice, setChoice] = useState<{ expanded: boolean; open: boolean } | null>(null)
+  // A choice made in one size class is forgotten when the class changes.
+  if (choice && choice.expanded !== expanded) setChoice(null)
   const open = choice && choice.expanded === expanded ? choice.open : expanded
 
   if (route.chrome === 'bare') {
