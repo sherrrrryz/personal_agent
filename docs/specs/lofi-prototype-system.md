@@ -1,247 +1,212 @@
-# Design spec: low-fi prototype — system (scaffold, theme, components, shell, chat, module frame, fake runtime)
+# Design spec: low-fi prototype — system (tooling, placeholder theme, base components, matrix harness)
 
 > Status: draft
 > Task type: 1 low-fi
 > Author: spec session `t1-spec` · Date: 2026-11-26
-> Spec review: pending · Approved by: —
+> Spec review: `changes requested` (2026-11-26, `.orchestration/reviews/task1-spec-review.md`), revised, re-review pending · Approved by: — (`G-SPEC` waived once by D-41: the orchestration session marks it `approved` when the spec review passes)
 
-Part 1 of 2. Part 2 — every IA screen, the workflow editor, the memory panel, the flow walk-through and the matrix run — is [lofi-prototype-screens.md](lofi-prototype-screens.md). Criteria are `A-nn` here, `B-nn` there; packages `S1…S10` here, `C1…C5` there.
+Part 1 of 3. Part 2 — runtime, shell, chat, blocks, module frame — is [lofi-prototype-shell.md](lofi-prototype-shell.md); part 3 — every IA screen, the workflow editor, the flows, the matrix run — is [lofi-prototype-screens.md](lofi-prototype-screens.md). Criteria are `A-nn` here, `R-nn` in part 2, `B-nn` in part 3. All three share one task branch, `design/lofi-prototype`; the plan across them is § Work packages below.
 
 ## Goal
 
-When this is done the owner can open the running prototype and find the whole machine the screens run on: a neutral grey app shell in light and dark, zh-CN and en, with module navigation, the bottom chat bar answering in place or opening a dedicated chat, one module frame that renders any module from registered blocks, and a fake workflow runtime whose 时间推进 control moves the pet-grooming story between its scenes. Every base component is taken from shadcn/ui, registered, tested and usable at 320 px and at 200% text.
+When this is done the prototype has its ground: a neutral grey theme generated from the token source in light and dark, zh-CN and en, every base component taken from shadcn/ui, registered, tested and at least 44 px to the touch, and a command that walks any screen through the verification matrix and says what broke. Nothing the owner would call a screen exists yet; parts 2 and 3 build on this.
 
 ## Inputs
 
-- Brief, IA, base values: `docs/design/FOUNDATIONS.md` (§ Product brief, § UI kit, § Base values, § Verification matrix); `docs/design/IA-MAP.md` (§ Nodes, § Prototype flows, § Prototype devices); playbook `docs/design/tasks/1-lofi-prototype.md`
-- Decisions: D-03, D-05, D-06 (kit, base values, kit-code exemption) · D-08, D-20, D-23, D-39 (chat) · D-10, D-12, D-13, D-16, D-22, D-28 (module, blocks, frame, canvas, modes, one workspace) · D-17, D-19, D-24, D-25 (locales, theme toggle, CJK stack) · D-26, D-27, D-37 (story) · D-32–D-35 (tooling, matrix) · D-04 (no Figma), D-31 (no vision doc), D-40 (orchestration)
+- `docs/design/FOUNDATIONS.md` (§ UI kit, § Token tooling, § Base values, § Modes, § Verification matrix); playbook `docs/design/tasks/1-lofi-prototype.md`; `COMPONENTS.md`, `GOVERNANCE.md`, `TOKENS.md` § Placeholder theme, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `stacks/react-web.md`
+- Decisions: D-03, D-05, D-06 (kit, base values, kit-code exemption — **not extended**) · D-17, D-18, D-19, D-24, D-25 (locales, modes, theme toggle, CJK stack) · D-22 (behaviour modes) · D-32–D-35 (tooling, matrix) · D-04 (no Figma) · D-40, D-41 (orchestration; `G-SPEC` waived once)
 - Platform and kit: web, React 19 + TypeScript, Vite 8; shadcn/ui CLI 4.23.1, style `base-nova`, Base UI primitives, lucide icons; Tailwind v4
 
 ## Scope
 
 ### In scope
 
-- Tooling and scaffold; the token source with the placeholder theme; light/dark; zh-CN/en; test setup
-- Layout primitives; every base component of the inventory below, registered with its accessibility contract
-- App shell (`root`), `chat.bar`, `chat.thread`, `chat.recent`; theme and locale switches; the 时间推进 device
-- Module frame, block registry (7 blocks), page-description model, what-changed markers, pinning
-- Fake workflow runtime: data model, scenes, scripted chat, story fixtures in both locales
+- Tooling and scaffold; the token source with the placeholder theme; light/dark; zh-CN/en; test setup; lint boundary
+- Layout primitives and the base component families: actions, inputs, navigation, containers, feedback, data display
+- The matrix harness (`npm run matrix`) and the integration legs that merge parallel waves
 
 ### Out of scope
 
-- Module, topic, onboarding and settings screens, the workflow editor and memory panel, the flow walk-through, the full matrix run → part 2
-- Real values: brand colour, Geist wiring, elevation, final radius → task 2; component styling → task 3
-- Real backends, accounts, AI calls, persistence beyond `localStorage`; Figma (D-04); RTL (D-17); a high-contrast mode (D-18)
-- Building workflows from scratch on the canvas (the editor is read-and-adjust, D-10)
+- Runtime, shell, chat, blocks, module frame → part 2. Screens, workflow editor, flows, evidence packet → part 3
+- Real values (brand colour, Geist wiring, elevation, final radius) → task 2; component styling → task 3
+- Figma (D-04); RTL (D-17); a high-contrast mode (D-18)
 
 ## Design
 
-### Tooling (exact versions, pinned without a range in `package.json`; registry checked 2026-11-26)
+### Tooling (exact versions, no range in `package.json`; registry checked 2026-11-26)
 
 | Purpose | Package @ version | Notes |
 | --- | --- | --- |
 | Build | `vite` 8.3.8 (installed), `@vitejs/plugin-react` 6.3.0 | D-32 |
 | Styling | `tailwindcss` 4.3.5, `@tailwindcss/vite` 4.3.5, `tw-animate-css` 1.4.0 | D-03 |
-| Kit | `shadcn` CLI 4.23.1 (`init` style `base-nova`, base colour `neutral`), `@base-ui/react` 1.9.0, `lucide-react` 1.81.0, `class-variance-authority` 0.7.1, `clsx` 2.1.1, `tailwind-merge` 3.7.1, `sonner` 2.0.8, `@fontsource-variable/geist` 5.3.0 | Versions the CLI resolves win if they differ; S1 records the installed ones in `FOUNDATIONS.md` § UI kit. Geist is installed but **not imported** in task 1 (placeholder = system stack) |
-| Canvas | `@xyflow/react` 13.0.3 | D-16; the only non-kit UI dependency; stylesheet imported from `node_modules` |
+| Kit | `shadcn` CLI 4.23.1 (`init`: style `base-nova`, base colour `neutral`), `@base-ui/react` 1.9.0, `lucide-react` 1.81.0, `class-variance-authority` 0.7.1, `clsx` 2.1.1, `tailwind-merge` 3.7.1, `sonner` 2.0.8, `@fontsource-variable/geist` 5.3.0 | Versions the CLI resolves win if they differ; S1 records the installed ones. Geist is installed, **not imported** in task 1 |
+| Canvas | `@xyflow/react` 13.0.3 | D-16; the only non-kit UI dependency; used in part 3 |
 | Tokens | `style-dictionary` 5.8.0 | D-33; `npm run tokens:build` |
-| Routing | `react-router` 8.5.3 (library mode, `createBrowserRouter`) | Not a UI kit; Notify at `G-SPEC` |
-| Tests | `vitest` 5.1.2, `jsdom` 31.0.1, `@testing-library/react` 16.3.3, `@testing-library/user-event` 14.6.13, `@testing-library/jest-dom` 8.0.0, `vitest-axe` 0.1.0 + `axe-core` 4.14.1 | `npm test` = `vitest run`; `verify` gains `npm test`. If `vitest-axe` 0.1.0 fails under Vitest 5, S1 calls `axe-core` through a local matcher and records a Notify (D-35 names axe-core as the engine) |
+| Routing | `react-router` 8.5.3 (library mode) | Not a UI kit |
+| Tests | `vitest` 5.1.2, `jsdom` 31.0.1, `@testing-library/react` 16.3.3, `@testing-library/user-event` 14.6.13, `@testing-library/jest-dom` 8.0.0, `vitest-axe` 0.1.0 + `axe-core` 4.14.1 | `npm test` = `vitest run`; `verify` gains it. If `vitest-axe` fails under Vitest 5, S1 calls `axe-core` through a local matcher and records a Notify |
+| Matrix | `@playwright/test` 1.65.1 (Chromium only), `@axe-core/playwright` 4.14.1 | `npm run matrix`. Dev-only. Accepted by the lead under D-41 (was Q2); Notify at `G-1`. It replaces neither the VoiceOver pass nor Lighthouse (D-35) |
 
-| Matrix | `@playwright/test` 1.65.1 (Chromium only), `@axe-core/playwright` 4.14.1 | `npm run matrix` — open question Q2. Dev-only; drives the real browser through the verification matrix, writes screenshots and a measured report to `.orchestration/evidence/` (untracked) |
+No i18n library and no state library (§ Decisions).
 
-No i18n library and no state library: two locales and one in-memory store do not need them (§ Decisions).
+### Code layout and package contracts (S1 writes them into `COMPONENTS.md` § Conventions)
 
-### Code layout and conventions (S1 writes these into `COMPONENTS.md` § Conventions)
-
-`src/components/ui/` kit files (never edited, D-06) · `src/components/<family>/` registered components, tests colocated · `src/shell/` · `src/chat/` · `src/module/` (frame) · `src/blocks/<name>/` · `src/runtime/` · `src/fixtures/` · `src/modules/<ia-id>/` (one module's workflow and page builder) · `src/screens/<area>/` · `src/i18n/` · `src/tokens/generated/`. Sub-parts are named `ParentPart`. Icons: `lucide-react` only.
-
-**Glob registries keep parallel packages off shared files:** `src/i18n/messages/<namespace>.<locale>.ts`, `src/screens/<area>/routes.tsx`, `src/blocks/<name>/index.ts`, `src/modules/<ia-id>/module.ts` and each component's `*.demo.tsx` (shown on the gallery route `/dev/components`) are collected with `import.meta.glob`; no package edits a central index. The registry is split by family from the start (it will pass 40 rows): `docs/design/components/<family>.md` (`layout`, `actions`, `inputs`, `navigation`, `containers`, `feedback`, `data-display`, `chat`, `module`, `data-blocks`, `workflow` — one writer each), each carrying the registry columns **and** the accessibility-contract columns; `COMPONENTS.md` keeps the contract and an index, `ACCESSIBILITY.md` § Per-component contract points to the family files.
+- **Folders:** `src/components/ui/` kit files · `src/components/<family>/` registered components with an `index.ts`, tests and `*.demo.tsx` colocated · `src/hooks/` · `src/lib/` · `src/i18n/` · `src/theme/` · `src/app/` · `src/tokens/generated/` · part 2: `src/runtime/`, `src/fixtures/`, `src/shell/`, `src/chat/`, `src/blocks/<name>/`, `src/module/` · part 3: `src/modules/<ia-id>/`, `src/screens/<area>/`. Sub-parts are named `ParentPart`. Icons: `lucide-react` only.
+- **Import boundary (lint-enforced):** only files under `src/components/` may import from `src/components/ui/`. Everything else imports a component from its family's `index.ts`, which re-exports a `kit` row unchanged or exports the wrapper. A later fix that needs a wrapper therefore changes no importer.
+- **Kit code is `src/components/ui/` and nothing else (D-06).** `src/hooks/use-mobile.ts`, which the CLI writes for `Sidebar`, is **our code**: S1 rewrites it to test `(width < <compact breakpoint>)` with the `rem` value imported from the token build; it holds no number.
+- **Kit files are edited for one reason only:** a built-in English accessible name (`sr-only` "Close", "Toggle Sidebar", the mobile sidebar's title) becomes a prop that our wrapper fills from the messages. No visual value is added. Each patch is listed in `COMPONENTS.md` § Kit patches (file, what, why) so a kit upgrade can re-apply it.
+- **Glob registries keep parallel packages off shared files** (`import.meta.glob`; nobody edits a central index): `src/i18n/messages/<namespace>.<locale>.ts` · top-level routes `src/screens/<area>/routes.tsx`, each also exporting `matrixRoutes` (path, the scenes and previews in which it differs) · child routes of a module `src/screens/<area>/module-routes.tsx` (part 2) · `src/blocks/<name>/index.ts` · `src/modules/<ia-id>/module.ts` · every `*.demo.tsx`, shown on `/dev/components?family=<f>`.
+- **Registry split by family from the start** (it passes 40 rows): `docs/design/components/<family>.md` — `layout`, `actions`, `inputs`, `navigation`, `containers`, `feedback`, `data-display` (here), `chat`, `blocks`, `data-blocks`, `module` (part 2), `workflow` (part 3) — one writer each, carrying the registry columns **and** the accessibility-contract columns. `COMPONENTS.md` keeps the contract, conventions and an index; `ACCESSIBILITY.md` § Per-component contract points to the family files.
+- **Component evidence** — the phrase the criteria of all three parts use. For each component: a test file (render, every variant and state, the keyboard path, `axe` with no violation, and in zh-CN no English accessible name or text), a demo on the gallery, a registry row and a contract row in its family file. A **registry-parity test** (S1) fails when a component folder has no row or a row has no folder.
 
 ### Placeholder theme and tokens
 
-- **Source:** `tokens/*.json` (DTCG): `color.json` — one primitive neutral ramp (the twelve lightness steps of `FOUNDATIONS.md` § Base values, chroma 0) and the semantic tier = **shadcn's role names**, each with a light and a dark value aliasing the ramp; **every role is grey, including `destructive` and `chart-1…5`** — danger is carried by icon and text (hard rule 13). `font.json` — `font.family.sans` = system-ui, then PingFang SC, Microsoft YaHei, Noto Sans CJK SC (D-25). `dimension.json` — `radius` (placeholder: the `sm` step of the shipped radius scale) and its derived steps; `size.target.min`, aliasing the primitive spacing step 11 (0.25rem × 11, on the shipped scale). Nothing else is invented.
-- **Build:** Style Dictionary → `src/tokens/generated/tokens.css`: `:root` (light) and `.dark` blocks, aliases kept as `var()`, header "generated — do not edit". CSS names are shadcn's (`color.muted-foreground` → `--muted-foreground`); S1 records the name transform in `TOKENS.md` § One source and fills § Placeholder theme.
-- **`src/index.css`** holds only: `@import` of Tailwind, `tw-animate-css`, the kit's stylesheet and `tokens.css`; `@custom-variant dark`; the `@theme inline` mapping (`var()` references only); `--color-*: initial` so **no stock palette utility exists** (`bg-red-500` cannot be written); shadow utilities reset so nothing casts a decorative shadow (overlays separate by `border`). The theme block that `shadcn init` writes is moved into `tokens/` and deleted from `src/index.css`.
-- **Default scales:** Tailwind's shipped spacing, type, blur, motion and breakpoint scales are used as shipped through stock utilities (D-05); task 2 lifts them into the source. Breakpoints: compact `< 48rem`, medium `48–64rem`, expanded `≥ 64rem` (Tailwind `md`, `lg`); S1 fills `RESPONSIVE.md` § Breakpoints.
-- **Modes (D-19):** `ThemeProvider` reads `localStorage` `pa.theme` (`system` default · `light` · `dark`), follows `prefers-color-scheme` while `system`; an inline script in `index.html` sets `.dark` and `color-scheme` before first paint.
-- **Locale (D-24) — decided here:** `LocaleProvider` picks from `navigator.languages` (any `zh*` → zh-CN, otherwise en), sets `<html lang>`, and is overridden by `localStorage` `pa.locale`. **The user switches with `LocaleSelect`** (a labelled select, options in their own language: 中文 · English), present in three places: the shell's preferences menu, the `settings` home § 显示, and the onboarding header (settings are unreachable before the shell). Switching re-renders in place, no reload. Fixture content is `{ 'zh-CN', en }` pairs; dates, times and durations go through `Intl` (`3 小时 20 分` / `3 h 20 min`).
+- **Source** `tokens/*.json` (DTCG), three tiers with nothing skipped. **Primitives:** one neutral ramp (the twelve lightness steps of `FOUNDATIONS.md` § Base values, chroma 0); `space.11` (0.25rem × 11) and `border.width.2`, both steps of Tailwind's shipped scales; `radius.sm` (the shipped radius × 0.6); `breakpoint.md` 48rem and `breakpoint.lg` 64rem (Tailwind's shipped values); the font stack system-ui → PingFang SC → Microsoft YaHei → Noto Sans CJK SC (D-25). **Semantic, each an alias:** shadcn's colour role names, a light and a dark value each, **every role grey including `destructive` and `chart-1…5`** (danger is carried by icon and text, hard rule 13) with `ring` on the same step as `foreground`; `radius` and its derived steps; `font.family.sans`; `size.target.min` → `space.11`; `border.width.focus` → `border.width.2`. No component tier.
+- **Build:** Style Dictionary writes `src/tokens/generated/tokens.css` (`:root` and `.dark` blocks with aliases kept as `var()`, plus a generated `@theme` block setting Tailwind's `md` and `lg` breakpoints) and `src/tokens/generated/breakpoints.ts` (the same two values as constants, for `use-mobile.ts`). Both carry "generated — do not edit". CSS names are shadcn's (`color.muted-foreground` → `--muted-foreground`); S1 records the name transform in `TOKENS.md`.
+- **`src/index.css` holds only:** the imports (Tailwind, `tw-animate-css`, the kit's stylesheet, `tokens.css`); `@custom-variant dark`; the `@theme inline` mapping (`var()` references only); `--color-*: initial`, so **no stock palette utility exists**; the shadow scale reset (overlays separate by `border`); **a reduced-motion rule** — under `prefers-reduced-motion: reduce` every animation and transition has zero duration, because the kit animates dialogs and sheets unconditionally and is not edited for it; **a forced-colors rule** giving `:focus-visible` an outline of `border.width.focus` in a system colour, because a box-shadow ring vanishes there. The theme block `shadcn init` writes moves into `tokens/` and leaves this file.
+- **Shipped scales:** Tailwind's spacing, type, blur and motion scales are used as shipped through stock utilities (D-05; `TOKENS.md` § Placeholder theme); task 2 lifts them into the source. Until then those values are not generated from `tokens/` — a Notify at `G-1`.
+- **Modes (D-19):** `ThemeProvider` reads `localStorage` `pa.theme` (`system` default · `light` · `dark`) and follows `prefers-color-scheme` while `system`; an inline script in `index.html` sets `.dark` and `color-scheme` before first paint.
+- **Locale (D-24) — decided here:** `LocaleProvider` picks from `navigator.languages` (any `zh*` → zh-CN, otherwise en), sets `<html lang>`, and is overridden by `localStorage` `pa.locale`. **The user switches with `LocaleSelect`** (a labelled select, options in their own language), present in the shell's preferences menu, on the `settings` home and in the onboarding header. Switching re-renders in place. Dates, times and durations go through `Intl`.
+- **Shared vocabularies (S2, `src/lib/vocab.ts`):** the three behaviour modes (icon + 自主 · 协助 · 待确认 / Autonomous · Assisted · Deferred) and the change kinds (icon + 新 · 已更新 · 已移除), so the picker, the badge and the marker built in parallel cannot diverge.
 
 ### Layout primitives (the only places page padding, gaps and breakpoints are decided)
 
-`Page` (landmark `main` content, page padding, `width: prose | wide | full`, one `h1` slot) · `Stack` (vertical `gap`) · `Inline` (wrapping horizontal cluster, `gap`, `align`, `justify`) · `Grid` (`min` item width → intrinsic `auto-fit` columns, container-query based) · `Section` (heading level + optional actions + body). `gap` values are the names of the spacing scale; no primitive takes a raw number.
+`Page` (the content of `main`; page padding; `width: prose | wide | full`; one `h1` slot) · `Stack` (vertical `gap`) · `Inline` (wrapping cluster; `gap`, `align`, `justify`) · `Grid` (`min` item width → intrinsic columns by container query) · `Section` (heading level, optional actions, body). `gap` takes names of the spacing scale, never a number.
 
 ### Components
 
-Kit rows are used as shipped from `src/components/ui/`; their keyboard and focus behaviour is Base UI's and must survive (`ACCESSIBILITY.md` § Behaviour patterns). **Wrappers exist only where our code must bind a token or narrow props.** Every row gets a test (render, each variant and state, keyboard, `axe`), a registry row and a contract row.
+`wrapped` here always means the same thin thing: the wrapper binds `size.target.min` as minimum block and inline size with height `auto`, lets text wrap, fills the kit's built-in names from the messages and narrows the props. Behaviour stays Base UI's (`ACCESSIBILITY.md` § Behaviour patterns). **Every interactive kit control is `wrapped`; only non-interactive ones are `kit`.**
 
 | Component | Source | Variants | States | Accessibility contract |
 | --- | --- | --- | --- | --- |
-| `Page`, `Stack`, `Inline`, `Grid`, `Section` | `new` | above | — | `Page` → `main`; `Section` → `section` named by its heading; no role otherwise |
-| `Button` | `wrapped` (`button`) | `variant: primary · secondary · ghost · danger · link`; `size: sm · md · icon` | default · hover · focus-visible · pressed · disabled · loading | Native `button`; icon-only requires `aria-label` (type-enforced); `min-block-size`/`min-inline-size` = `size.target.min`, height `auto` (overrides the kit's fixed height); loading sets `aria-busy`, keeps the label |
-| `Field` + `Input`, `Textarea`, `Select`, `Switch`, `RadioGroup`, `Label`, `InputGroup` | `kit` | kit's | default · focus · disabled · invalid · read-only | Every control inside `Field` (visible label = name, description, error text next to the field); min target via a `Field` class binding `size.target.min` |
-| `Toggle`, `ToggleGroup` | `kit` | kit's | pressed / unpressed · disabled | `aria-pressed`; group = one tab stop, arrows move |
-| `BehaviourModePicker` | `new` (`RadioGroup`) | `ceiling?` (options above it disabled, with the reason as text) | per option | Radio group named by its legend; each option = icon + name + one-line meaning |
-| `Sidebar`, `Breadcrumb`, `Tabs`, `DropdownMenu` | `kit` | kit's | selected · disabled | `nav` landmarks named; current item `aria-current="page"`; tabs one tab stop |
-| `Dialog`, `AlertDialog`, `Sheet`, `Tooltip`, `Collapsible` | `kit` | `Sheet side: end · bottom` | open / closed | Focus in, trapped, returned; Escape closes; tooltip never the only label |
-| `Card`, `Separator`, `Table`, `Item`, `Avatar`, `Progress` | `kit` | kit's | — | `Table` with header cells and a caption, inside its own sideways scroller (focusable, named); `Avatar` decorative beside a name |
-| `Badge`, `Alert`, `Sonner` (toast), `Skeleton`, `Spinner`, `Empty` | `kit` | kit's | — | Toasts polite, never the only place an error appears; `Skeleton`/`Spinner` inside a region with `aria-busy` |
-| `DataState` | `new` | `state: ready · loading · empty · error`; slots `empty`, `error` | all four | Loading: `aria-busy` + status text; error: `Alert` with reason and a retry `Button`; state changes announced politely |
-| `BehaviourModeBadge` | `new` (`Badge`) | `mode: autonomous · assisted · deferred` | — | Icon + text (自主 · 协助 · 待确认 / Autonomous · Assisted · Deferred); never colour alone |
-| `ChangeMarker` | `new` (`Badge`) | `kind: new · updated · removed` | — | Icon + text (新 · 已更新 · 已移除); included in the parent's accessible name |
+| `Page`, `Stack`, `Inline`, `Grid`, `Section` | `new` | above | — | `Section` → `section` named by its heading; no role otherwise |
+| `Button` | `wrapped` | `variant: primary · secondary · ghost · danger · link`; `size: sm · md · icon` | default · hover · focus-visible · pressed · disabled · loading | Native `button`; icon-only requires `aria-label` (type-enforced); loading sets `aria-busy` and keeps the label |
+| `Field`, `Input`, `Textarea`, `Select`, `Switch`, `RadioGroup`, `InputGroup` (`Label`: `kit`) | `wrapped` | kit's | default · focus · disabled · invalid · read-only | Every control inside `Field`: visible label = name, description, error text beside the field. `Switch` and radio: the whole labelled row is the target |
+| `Toggle`, `ToggleGroup` | `wrapped` | kit's | pressed · unpressed · disabled | `aria-pressed`; a group is one tab stop, arrows move |
+| `BehaviourModePicker` | `new` (`RadioGroup`) | `ceiling?` — options above it disabled, the reason as text | per option | Radio group named by its legend; each option = icon + name + one line of meaning (vocabulary above) |
+| `Sidebar` (its parts), `Breadcrumb`, `Tabs`, `DropdownMenu` | `wrapped` | kit's | current / selected · disabled | Named `nav`; current item `aria-current="page"`; open-sidebar labels wrap, the icon rail shows icon + tooltip + name; tabs one tab stop, labels wrap |
 | `ThemeToggle`, `LocaleSelect` | `new` (`ToggleGroup`, `Select`) | — | — | Named group / labelled select; `LocaleSelect` options carry `lang` |
-| `ChatComposer` | `new` (`InputGroup` + `Textarea` + `Button`) | `placement: bar · thread · onboarding` | empty · typing · sending · disabled | Labelled textarea; Enter sends, Shift+Enter new line; send button named; grows to 6 lines then scrolls |
-| `ChatMessageList` | `new` (`Item`, `Avatar`) | — | empty · streaming · error | `role="log"`, polite; each message names its author; may embed a block or a `ProposalCard` |
-| `PersistenceSwitch` | `new` (`Switch`) | — | one-off · persistent · confirming | Switch named 设为长期 / Keep as a module; description states what turning it on creates |
-| `ModuleFrame` | `new` | `view: page · workflow` (compact header) | run state: idle-ok · running · failed · never-run | `h1` = module name; run state is text in a status region; 待你确认 *n* and 运行记录 are buttons opening `Sheet`s; 工作流 and 记忆 are links |
-| `BlockRenderer` + blocks `block.summary`, `block.list`, `block.table`, `block.schedule`, `block.proposal` (`ProposalCard`), `block.text`, `block.empty` | `new` | per block, below | each block: ready · loading · empty · error · long | Each block is a `Section` named by its title, with a pin `Toggle` named 固定「title」 |
-| `WorkflowCanvas` | `dependency` (`@xyflow/react`) | `mode: view · diff` | — | Contract and build in part 2 (package C3) |
-| `WorkflowNode`, `WorkflowHandle` | `new` (`Card`, `Badge`) / `dependency` part | `kind: trigger · source · step · condition · action · output · memory`; `diff: added · changed · none` | default · focus · selected | Part 2 |
+| `Dialog`, `AlertDialog`, `Sheet` | `wrapped` | `Sheet side: end · bottom` | open · closed | Focus in, contained, returned; Escape closes; the close control is our `Button` with a localised name |
+| `Collapsible`, `Tooltip`, `Card`, `Separator` | `kit` | kit's | open · closed | The trigger of a `Collapsible` or `Tooltip` is always our `Button`; a tooltip is never the only label |
+| `Badge`, `Alert`, `Skeleton`, `Spinner`, `Empty`, `Progress` | `kit` | kit's | — | `Skeleton` / `Spinner` inside a region with `aria-busy`; `Progress` has a text equivalent |
+| `Sonner` (toast) | `wrapped` | — | — | Polite; never the only place an error appears; action and close meet the target size, names localised |
+| `DataState` | `new` | `state: ready · loading · empty · error`; slots `empty`, `error` | all four | Loading: `aria-busy` + status text; empty: the kit's `Empty` in the slot; error: `Alert` with the reason and a retry `Button`; changes announced politely |
+| `BehaviourModeBadge`, `ChangeMarker` | `new` (`Badge`) | `mode` / `kind` (vocabulary above) | — | Icon + text, never colour alone; part of the parent's accessible name |
+| `Table`, `Item` | `wrapped` | kit's | — | `Table`: header cells, caption, inside its own sideways scroller that is focusable and named; an interactive `Item` meets the target size |
+| `Avatar` | `kit` | kit's | — | Decorative beside a name |
 
-**Kit components deliberately not used** (S1 records in `COMPONENTS.md`): `Calendar` / date picker (pulls a second dependency; `block.schedule` covers the need), `Command`, `Carousel`, `Chart`, `Resizable`, `Drawer`.
+Chat, block and module components are admitted in part 2; the canvas components in part 3. **Kit components deliberately not used** (S1 records them): `Calendar` / date picker (a second dependency; `block.schedule` covers the need), `Command`, `Carousel`, `Chart`, `Resizable`, `Drawer`, `Checkbox`, `Accordion`, `ScrollArea`, `Popover`.
 
-### Shell (`root`) and chat
+### Matrix harness (`npm run matrix`, package M1)
 
-- **Structure:** a grid — kit `Sidebar` (inline-start), then a column of header / scrolling `main` / chat bar. The chat bar is a grid row, never an overlay, so it cannot cover content or the focused element. Expanded: sidebar open with labels. Medium: icon rail (kit `collapsible="icon"`). Compact: sidebar is the kit's off-canvas sheet, opened from the header's menu button.
-- **Sidebar content, in order:** 基础 group — 通知 (with the count of items awaiting her), 消息, 日程, 待办, 邮件, 文件, 话题; group heading from `profession` (我的店 · 宠物美容) — 预约, 顾客与宠物, 商品与库存, 排班, each with its sub-modules nested one level; **最近对话 (`chat.recent`)** — a `Collapsible` group, **collapsed by default** (D-39), persisted, listing the ten latest conversations (title, topic, relative time, a 长期 badge); footer — 设置 and the preferences menu (`ThemeToggle`, `LocaleSelect`). In the icon rail 最近对话 is one icon button that expands the sidebar with the group open.
-- **Header:** sidebar trigger, breadcrumb, and the 时间推进 device.
-- **`chat.bar`:** `ChatComposer` plus, while the input is empty, up to three **suggestion buttons** carrying the current scene's scripted prompts. Sending opens the **in-place panel**: a `Collapsible` region above the composer (heading 关于：<current screen>, `ChatMessageList`, then one row: `PersistenceSwitch`, 在专门对话中打开, 关闭). It is non-modal — the screen behind stays usable — and takes at most half of the shell's block size, scrolling inside. Escape or 关闭 collapses it, returns focus to the composer and toasts 已归档到话题「…」 with a link (D-23). The scripted reply decides the surface: `in-place`, or `thread` → navigates to `chat.thread`. Unscripted input gets one honest canned reply (原型只演示脚本中的对话) in place.
-- **One-off ↔ persistent (D-08):** turning `PersistenceSwitch` on shows an inline confirmation in the list — name (prefilled), parent module (prefilled from the screen's context), 创建 — then creates `<module>.sub.<name>`, adds it to the sidebar and navigates to its workflow. The AI may raise the same confirmation itself as a `ProposalCard` (接受 / 暂不). Turning it off asks in an `AlertDialog` and archives the sub-module (its conversations stay in Topics, D-20).
-- **`chat.thread`** (`/chat/<id>`): `Page` with the topic title, a link to the module it concerns, `PersistenceSwitch`, `ChatMessageList`; **the bottom bar is this thread's composer** (no in-place panel on this screen).
-- **Routes:** `/onboarding/<step>` · `/m/<ia-id>` · `/m/<ia-id>/workflow` · `/m/<ia-id>/memory` · `/topics`, `/topics/<id>` · `/chat/<id>` · `/settings`, `/settings/<page>`; `/` redirects to `/onboarding/profession` until onboarding is done, then to `/m/notifications`; unknown paths show a not-found `Empty`.
-
-### Module frame and block model (D-12)
-
-- **Frame:** header = module name (`h1`); run-state line (上次运行 time · result; 下次运行; 正在运行 with `Spinner`; a failure `Alert` with the reason and a way to fix it); 待你确认 *n* (deferred proposals of this module, in a `Sheet` of `ProposalCard`s); 运行记录 (`Sheet`: one row per run — time, trigger, result, number of changes, workflow version); 立即运行 (the manual trigger); links 工作流 and 记忆. Body = `BlockRenderer` over the latest run's page description inside `DataState`.
-- **Page description:** `{ blocks: [{ key, block, title, span: full | half, props }] }`, emitted by the module's `page(state)` builder — the stand-in for its output nodes. `BlockRenderer` refuses an unregistered `block` id (dev error + an error `Alert`). Order is the workflow's; `span: half` blocks pair up at expanded width and stack below it.
-- **What changed:** each run stores a change set (per block `key` and per item id: `new · updated · removed`) computed against the previous run; the frame shows a `ChangeMarker` on the block title and on each changed item, and a summary line (本次运行：3 处更新). Markers clear on the next run.
-- **Pinning:** a pinned block (its `key` stored per module) keeps its place at the top, in pin order, when a workflow edit re-orders the layout; its content still updates.
-- **Initial block registry:**
-
-| Block id | Shows | Props (shape) | Emitted by (≥ 2) |
-| --- | --- | --- | --- |
-| `block.summary` | A wrapping row of key figures | `items: [{ label, value, delta? }]` | appointments, inventory, shifts, duration, notifications |
-| `block.list` | Items with title, meta, badges, actions | `items: [{ id, title, meta, badges, actions?, href? }]` | notifications, messages, confirmations, clients, inventory |
-| `block.table` | Columns × rows, sideways scroll inside | `columns`, `rows`, `caption` | duration (预计 vs 实际), inventory, clients (visits), shifts |
-| `block.schedule` | Time slots by resource for a day or a week | `range`, `resources`, `slots: [{ id, start, end, title, meta, actions? }]` | appointments (by groomer), calendar, shifts |
-| `block.proposal` | An AI proposal in parts, each 接受 / 拒绝 | `mode`, `parts: [{ id, text, state }]`, `source` | notifications, shifts, the frame's 待你确认, chat |
-| `block.text` | A short AI-written note with links | `body`, `links?` | duration (why this estimate), confirmations, notifications |
-| `block.empty` | Empty state with one next step | `title`, `body`, `action?` | todo, mail, files |
-
-### Fake workflow runtime (`src/runtime/`, `src/fixtures/`)
-
-- **Store:** one in-memory store read through `useSyncExternalStore`; state = `scene(id)` snapshot + the user's actions since the jump. `localStorage` keeps `pa.scene`, `pa.onboarded`, `pa.theme`, `pa.locale`, pins and the sidebar state. Time is the scene's `storyTime`, never the wall clock, so screenshots are reproducible. Every read goes through an async facade with a fixed simulated delay so loading states are real.
-- **Model:** `Module { id (IA id), kind: base | profession | sub, parentId?, name, icon, stub?, workflowId, memoryTableIds }` · `Workflow { id, moduleId, current, versions: [{ n, at, author: ai | user, reason, nodes, edges }] }` · `WfNode { id, kind (7 kinds), label, params, trigger?: schedule | event | manual | module, mode?, emits? (block key), table? }` · `Run { id, moduleId, at, trigger, version, result: ok | failed | running, reason?, changes, page }` · `MemoryTable { id, ownerModuleId, name, columns, rows, readers: moduleId[] }` · `Proposal { id, moduleId, mode, parts, state }` · `Conversation { id, topicId, moduleId?, surface: in-place | thread, persistence, subModuleId?, messages }` · `Topic { id, title, summary, conversationIds, moduleIds }` · `Account`, `ModeSetting { taskKind, ceiling }`.
-- **Split of a module:** `src/fixtures/` holds every story fact — modules, workflows with their versions, memory tables, runs' inputs, proposals, conversations, topics, per scene. `src/modules/<ia-id>/module.ts` (part 2) holds only the output side: `page(state)` and the handlers of the module's own block actions. **Runtime actions** (the only way a screen changes state): `sendMessage`, `createSubModule`, `archiveSubModule`, `promoteSubModule`, `resolveProposalPart`, `approveWorkflowChange`, `saveNodeParams`, `runModule`, `recordActualDuration`, `setCeiling`, `connectAccount`, `disconnectAccount`, `confirmModuleSet`, `togglePin`, `jumpToScene`.
-- **Scenes — the 时间推进 device:** a labelled menu button in the header (原型控制 · 时间推进：<scene>) with radio items in two groups, plus 上一幕 / 下一幕 and 重新开始（回到首次使用）. 热身: `e1` 第一晚 · `e2` 第二晚. 主线: `s0` 今天 · `s1` 变成工作流 · `s2` 第 1–2 周 · `s3` 第 3 周 · `s4` 第 2 个月 · `s5` 回看. Jumping replaces the snapshot, keeps the current route when the module exists in that scene (else goes to 通知), and announces the scene in a live region. A scene's key action is live and lands on the same state as the next snapshot (accepting the proposal in `s0` yields `s1`; `s3` and `s4` each have a *pending* and a *resolved* half). The same menu carries **状态预览** (正常 · 空 · 加载中 · 出错 · 超长内容), which forces every `DataState` and the frame's run state on the current screen — the review aid for the four required states (open question Q1).
-- **Fixtures (zh-CN with en pairs; the story's numbers are the data):** manager 周岚; groomers 小陈, 阿杰. Seed rule 长毛大型 4 h · 短毛小型 2 h · 其他 3 h. Dogs: 金毛 豆豆 3 h 20, 大福 4 h 10 (不配合), 麦芽 3 h 40, 奶茶 3 h 50, Lucky 3 h 45 (mean 3 h 45, range 3 h 20 – 4 h 10); 比熊 雪球 2 h 10; 边牧 Max 3 h 05; 阿拉斯加 可乐 (booked at the default 2 h in `s0`); 柯基 and 法斗 rows stay 尚无数据. From `s0` on the hero snapshots already contain the warm-up's `confirmations` sub-module. A *long content* variant has names and notes 40% longer and 30-row tables.
+- **Cells (D-34 names the axes; this is how they combine):** 100% at 320 · 768 · 1024 · 1440; **200% zoom** at 768 · 1024 · 1440, run as 384 · 512 · 720 CSS px viewports; **root 24 px** at all four widths; each × light/dark × zh-CN/en = **44 cells** per screen. 320 at 200% is not a cell: it is under the WCAG 1.4.10 floor, and 320 × root 24 px is the harder text case. **Root 24 px means the browser's default font size is 24 px — not a style on `html`** — so `rem` media and container queries move with it, as for a real user; the harness's self-test proves both the computed root size and that `(min-width: 48rem)` flips at 1152 px.
+- **Asserted in every cell:** no sideways page scroll; no clipped text (content overflowing a box that hides overflow); every target ≥ 44 × 44 CSS px, measured as the box that answers a click (links inside running text are exempt, WCAG 2.5.8); screenshot saved. **`axe`:** zero violations at 320 and 1440 × light and dark (four cells per screen). **Passes at 320 and 1440, light zh-CN:** `--keyboard` (every focusable reached, focus visible, no trap), `--reduced-motion` (no animation of non-zero duration after opening overlays), `--forced-colors` and `--text-spacing` (WCAG 1.4.12 overrides; no clipped text).
+- **Interface:** `npm run matrix -- [route…] [--all] [--scene <id>] [--preview <state>] [--cells full|stress|smoke] [--flows [name]] [--keyboard] [--reduced-motion] [--forced-colors] [--text-spacing] [--out <dir>]`. `--all` reads every `matrixRoutes`. `stress` = 320 × root 24 px (dark en; light zh-CN), 768 × 200% (light en), 1440 × 200% (dark zh-CN). Scene and preview go in as `?scene=&preview=`; theme and locale as the `pa.*` keys.
+- **Parallel worktrees:** each run starts its own dev server from its working directory on a free port and never reuses one; output goes to `<working directory>/.matrix/<run>/` (git-ignored): screenshots, `report.json`, `index.html`. Only part 3's last package copies a run to `.orchestration/evidence/`.
+- **Self-test:** fixture pages under `e2e/matrix/fixtures/` (outside `src/`, so the raw values of the failing page are not UI source): one passes, one has a sideways scroll, a clipped label and a 24 px target.
 
 ## Additions to the design system
 
 | Addition | Closest existing | Why it does not serve | Uses (≥2) |
 | --- | --- | --- | --- |
-| Token `size.target.min` (2.75rem) | Tailwind spacing step 11 (same value) | A spacing step chosen by value is not a purpose (hard rule 5); the 44 px target floor must change in one place | `Button`, `Field` controls, sidebar items, tabs, toggles |
-| Token `font.family.sans` with the CJK stack | shadcn `--font-sans` (Geist) | Geist has no CJK glyphs (D-25, already approved) | Every text in both locales |
-| `Page`, `Stack`, `Inline`, `Grid`, `Section` | Kit `Card`, raw flex utilities | The kit has no layout primitives; without them every screen decides padding and breakpoints itself (playbook step 3) | Every screen |
-| `Button` wrapper | Kit `button` | Fixed heights `h-6…h-9` clip at 200% and are under 44 px; icon-only can ship unnamed | Everywhere |
-| `DataState` | `Skeleton`, `Empty`, `Alert` composed by hand | Four states on every data surface, hand-composed, drift apart and lose the announcements | Every block, lists, panels |
-| `BehaviourModeBadge`, `BehaviourModePicker` | `Badge`, `RadioGroup` | The three modes need one icon + wording everywhere or colour becomes the carrier | Canvas action nodes, proposals, notifications, `settings.ai-modes`, node inspector |
-| `ChangeMarker` | `Badge` | Same reason: one wording and icon for 新 / 已更新 | Frame block titles, block items, canvas diff, memory rows |
-| `ThemeToggle`, `LocaleSelect` | `ToggleGroup`, `Select` | Bound to the providers; three placements each must stay identical | Shell menu, `settings`, onboarding |
-| `ChatComposer`, `ChatMessageList`, `PersistenceSwitch` | `Textarea`, `Item`, `Switch` | The kit has no chat parts; three surfaces must behave as one (D-30 requires the same components) | `chat.bar`, `chat.thread`, `onboarding.profession`, topic home |
-| `ModuleFrame`, `BlockRenderer` | `Card` + page code | D-12 requires one frame for every module | 12 modules and sub-modules |
-| The 7 blocks | `Card`, `Table`, `Item` | D-12: a workflow may emit only registered blocks; each meets the two-workflow threshold (table above) | Listed per block |
-| `WorkflowCanvas`, `WorkflowNode`, `WorkflowHandle` | Nothing in the kit (known gap, D-16) | No node canvas in shadcn/ui | Every module's and sub-module's editor |
+| Token `size.target.min` (→ `space.11`, 2.75rem) | The spacing step itself | A step picked by value is not a purpose (hard rule 5); the 44 px floor must change in one place | Every wrapper |
+| Token `border.width.focus` (→ `border.width.2`) | The kit's `ring-3` utility | The forced-colors outline needs a named width; `TOKENS.md` already reserves the role | The global focus rule; the canvas node focus (part 3) |
+| Token `font.family.sans` with the CJK stack | shadcn `--font-sans` (Geist) | Geist has no CJK glyphs (D-25, approved) | All text, both locales |
+| Tokens `breakpoint.md`, `breakpoint.lg` | Tailwind's shipped theme keys | `use-mobile.ts` and the utilities must read one value (`RESPONSIVE.md`: breakpoints are tokens) | The hook; every `md:` / `lg:` utility |
+| `Page`, `Stack`, `Inline`, `Grid`, `Section` | `Card`, raw flex utilities | The kit has no layout primitives (playbook step 3) | Every screen |
+| The `wrapped` rows | The kit controls as shipped | Fixed heights `h-7…h-9`, `truncate` and `whitespace-nowrap` clip at 200% and sit under 44 px; built-in names are English | Everywhere |
+| `DataState` | `Skeleton`, `Empty`, `Alert` by hand | Four states on every data surface, hand-composed, drift apart and lose their announcements | Every block, list and panel |
+| `BehaviourModeBadge`, `BehaviourModePicker` | `Badge`, `RadioGroup` | Three modes need one icon and wording everywhere or colour becomes the carrier | Canvas actions, proposals, notifications, `settings.ai-modes`, node inspector |
+| `ChangeMarker` | `Badge` | Same: one wording and icon for 新 / 已更新 / 已移除 | Block titles and items, canvas diff, memory rows |
+| `ThemeToggle`, `LocaleSelect` | `ToggleGroup`, `Select` | Bound to the providers; three placements must stay identical | Shell menu, `settings`, onboarding |
 
-Works in both modes and at every text size: shown by criteria A-06, A-08, A-09, A-23, A-24. The shell, the chat bar and the 时间推进 control are single-use compositions (`src/shell/`, `src/chat/`), not registry items.
+No primitive is added that the base values do not already contain on a shipped scale, so none is an `HITL.md` Always-ask on its own. Both modes and every text size: shown by A-03, A-13, A-14, A-15, A-16.
 
 ## Responsive and adaptive behaviour
 
-| Surface | 320 | 768 | 1024 | 1440 | Risky cells |
-| --- | --- | --- | --- | --- | --- |
-| Shell | Sidebar off-canvas; header = menu button + truncating breadcrumb (full path in the sheet) + device as an icon button with a name | Icon rail | Sidebar open, labels wrap | Same; `Page width` caps line length | 320 × root 24 px: header must wrap to two rows, not clip |
-| Chat bar | Composer full width; suggestions wrap onto rows; the in-place panel's action row wraps | Same | Same | Same | 320 × root 24 px and 768 × 200%: panel + composer must leave `main` reachable (panel ≤ half, collapsible) |
-| Module frame | Header stacks: name, run state, then actions wrapping; blocks single column | Same | `span: half` blocks pair | Same | Long zh/en run-state text; en labels ~40% longer |
-| Blocks | `block.table` and `block.schedule` scroll sideways **inside** the block; `block.schedule` shows one resource at a time with a resource `Select` | Two resources | All resources | All | `block.schedule` at 320 × root 24 px |
-| Sheets / dialogs | Full width, `side: bottom` | `side: end` | Same | Same | Sheet content at 200% scrolls inside, close button stays visible |
+**Which structure a cell gets.** All breakpoints are `rem`, in CSS and in `use-mobile.ts` alike, so the kit's sidebar and our layout always agree. Compact `< 48rem`, medium `48–64rem`, expanded `≥ 64rem`:
 
-Components use container queries; only the shell and `Page` use viewport breakpoints. Truncation is allowed in exactly two text slots — breadcrumb and sidebar label in the icon rail — both with the full text reachable. Motion (collapsible, sheet, toast) is the kit's, inside `prefers-reduced-motion: no-preference`.
+| Width | 100% | 200% zoom | Root 24 px |
+| --- | --- | --- | --- |
+| 320 | compact (20rem) | — | compact (13.3rem) |
+| 768 | medium (48rem) | compact (24rem) | compact (32rem) |
+| 1024 | expanded (64rem) | compact (32rem) | compact (42.7rem) |
+| 1440 | expanded (90rem) | compact (45rem) | medium (60rem) |
+
+Only the shell and `Page` read the viewport; components answer to their container with Tailwind's shipped container steps. `Grid` re-columns by its own width. `Table` scrolls sideways inside itself. `Sheet` is `bottom` in the compact shell and `end` otherwise. `Dialog` content scrolls inside with its actions wrapping beneath. Text wraps everywhere; the single truncating slot in the system is the breadcrumb (full path one tap away). Risky cells: 320 × root 24 px for `Tabs`, `Select`, `ToggleGroup` and sidebar items with en labels; 768 × 200% for sheets.
 
 ## Accessibility
 
-- **Landmarks and order:** skip link → `nav` (模块导航) → `header` → `main` → chat bar (`region` 与 AI 对话). One `h1` per screen. Focus order = reading order; route changes move focus to the `h1` and set the document title.
-- **In-place panel:** a disclosure, not a dialog — the composer's send expands it and focus stays in the composer; new messages are announced by the `log`; Escape collapses it. This is the kit's `Collapsible` behaviour, not a departure.
-- **Status without colour:** run result, behaviour mode, change markers, deferred counts and the pending/resolved state of a proposal are always icon + text.
-- **Targets:** every interactive element ≥ 44 × 44 CSS px through `size.target.min` (measured, A-08). **Focus:** the kit's ring; the placeholder `ring` value is chosen so the ring measures ≥ 3:1 on `background`, `card` and `sidebar` in both modes, ≥ 2 px thick.
-- **Contrast pairs introduced** (S1 fills `TOKENS.md` § Contrast pairs with measured values, both modes): `foreground`/`background`, `card-foreground`/`card`, `popover-foreground`/`popover`, `primary-foreground`/`primary`, `secondary-foreground`/`secondary`, `muted-foreground`/`background` and `/muted`, `accent-foreground`/`accent`, `sidebar-foreground`/`sidebar`, `sidebar-accent-foreground`/`sidebar-accent` (4.5); `border`, `input`, `ring` on `background` (3).
-- **Departures from kit accessibility behaviour:** none. `forced-colors`: selected and pressed states keep a border or icon, not background alone.
-- **Screen reader:** VoiceOver pass per component by the result reviewer; a session that cannot drive it inspects the accessibility tree and reports "not checked".
+- **Targets:** ≥ 44 × 44 CSS px on every interactive element, by the wrappers, measured per family in the matrix (A-13, A-14, A-15) and again on the merged gallery (A-16).
+- **Focus:** the kit's ring, visible on every focusable; measured **as composited on a rendered control** (the kit draws it at half opacity) at ≥ 3:1 on `background`, `card` and `sidebar` in both modes and ≥ 2 px (A-13); under forced colours the outline rule takes over.
+- **Contrast pairs introduced** (S1 fills `TOKENS.md` § Contrast pairs, computed from the source, both modes): `foreground`/`background`, `card-foreground`/`card`, `popover-foreground`/`popover`, `primary-foreground`/`primary`, `secondary-foreground`/`secondary`, `muted-foreground` on `background` and on `muted`, `accent-foreground`/`accent`, `sidebar-foreground`/`sidebar`, `sidebar-accent-foreground`/`sidebar-accent` (4.5); `border`, `input` on `background` (3).
+- **Names in both languages:** no accessible name stays English in zh-CN (kit patches above).
+- **Motion:** honoured globally by the reduced-motion rule. **Forced colours (D-18):** selected, pressed and current states keep a border or an icon, not background alone.
+- **Departures from the kit's accessibility behaviour:** none — names are localised, behaviour is untouched.
 
 ## Decisions and rejected alternatives
 
-- **Two specs, fifteen packages** rather than the lead's ten: the sizing guide puts the base components at ~500K and the frame + blocks + runtime at ~550K, each over one 250K package. Reopen: measured costs after wave 3 (`DECISIONS.md` § Measured costs).
-- **One sidebar holding module navigation and `chat.recent`** (a collapsed group) rather than a second panel: one navigation landmark, one compact pattern. Reopen: the owner wants the recent list visible beside the navigation at `G-1`.
-- **All-grey roles, including `destructive`** — forces meaning into icon and text now; task 2 restores the hue.
-- **No i18n or state library; `react-router` for routing.** Reopen: a third locale, ICU plurals beyond `Intl.PluralRules`, or server data.
-- **Wrappers only where needed** (`Button`); other kit controls are used as shipped and checked at 200% (D-06). Rejected: wrapping all 32 — a second copy of the kit to maintain.
-- **Scenes are snapshots plus live key actions**, not a simulated clock — reproducible screenshots; nothing else is simulated (`IA-MAP.md` § Prototype devices).
-- **Matrix cells, as combined here (D-34 names the axes):** 100% at 320 · 768 · 1024 · 1440; **200% zoom** at 768 · 1024 · 1440 (run as 384 · 512 · 720 CSS px viewports); **root 24 px** at all four widths; each × light/dark × zh-CN/en = 44 cells per screen. 320 at 200% zoom is not a cell: it is below the WCAG 1.4.10 floor, and 320 × root 24 px is the harder text case. Reduced motion, keyboard and the accessibility scan run once per screen at 1440 light zh-CN.
-- **Q2 (for `G-SPEC`, proposed answer: yes):** add Playwright as a dev dependency so the matrix is a command (`npm run matrix [-- <route>]`): per cell it asserts no sideways page scroll, no clipped text (an element whose content overflows a hidden-overflow box), every target ≥ 44 × 44 CSS px, zero `axe` violations, and saves the screenshot. If refused, each package runs a seven-cell covering set by hand in the browser pane (320 · 768 · 1024 · 1440 light zh-CN 100%; 320 dark en root 24 px; 1440 dark en 200%; 1024 light en) and the reviewer re-runs it.
-- **Q1 (for `G-SPEC`, proposed answer: yes):** may the 时间推进 menu also carry 状态预览 to force empty / loading / error / long content? Without it the four states cannot be reviewed on real screens. It is labelled 原型控制 and is not a product feature.
+- **Three specs, twenty-seven packages** against the lead's ten: the sizing guide, the review's finding that parallel packages must not need each other's output, and an integration leg after every parallel wave. Reopen: measured costs after wave 3.
+- **Every interactive kit control wrapped** (reverses the first draft's "only `Button`"): the 44 px floor, wrapping text and localised names cannot be had otherwise without editing kit code for visual values.
+- **`use-mobile.ts` rewritten as our code** rather than extending D-06 to `src/hooks/` (the lead's decision).
+- **All-grey roles including `destructive`**; task 2 restores the hue. **Geist installed, not wired.**
+- **No i18n or state library; `react-router`.** Reopen: a third locale, ICU plurals beyond `Intl.PluralRules`, server data.
+- **Playwright for the matrix** (was Q2; accepted under D-41). Rejected: a hand-run seven-cell covering set — not a command, not repeatable by the reviewer.
 
 ## Owner gates
 
-- **`G-SPEC`** — approve both specs. From `HITL.md` § Always ask, approved here: every `new` row and both tokens in § Additions; the primitive additions are **none** (the placeholder ramp is the base values' own lightness steps); departures from kit accessibility: **none**; hard-rule exceptions: **none** beyond D-06. Notify: `react-router`; Geist installed but not wired; all-grey `destructive`; registry split by family; how the matrix cells combine. Open questions with a proposed answer: Q1 (状态预览), Q2 (Playwright).
-- **`G-1`** — after the independent result review of both specs' packages: the running prototype plus the evidence packet built in part 2 (package C5).
+- **`G-SPEC` — waived once for these specs by D-41.** The Always-ask items the three parts name are covered by the waiver and are listed for the owner at `G-1`: every `new` and `wrapped` row and every token in the Additions tables of parts 1–3. Departures from kit accessibility: none. Hard-rule exceptions: none beyond D-06 as written. Nothing needs a licence, a paid plan, a credential or an account.
+- **Notify at `G-1`** (accepted by the lead under D-41): 状态预览 as a second prototype device (was Q1; part 2); Playwright (was Q2); `react-router`; Geist not wired; all-grey `destructive`; Tailwind's shipped scales not generated from `tokens/` until task 2; the kit patches for localised names; the registry split by family; the 44-cell combination (320 × 200% dropped; `axe`, keyboard, reduced motion, forced colours and text spacing on a subset of cells); part 3's memory view and pet-file route.
+- **`G-1`** — not waived; the evidence packet is part 3's last package.
 
 ## Acceptance criteria
 
-- [ ] **A-01** `npm run verify` and `npm test` exit 0 on the task branch; `package.json` has no version range for the packages in § Tooling — command + `grep '"[\^~]' package.json` on those lines
-- [ ] **A-02** `npm run tokens:build` regenerates `src/tokens/generated/tokens.css` byte-identically (`git diff --exit-code`); `src/index.css` contains no colour, length or duration literal and no `:root` value block — `check:design-values` + `grep -c oklch src/index.css` = 0
-- [ ] **A-03** Every semantic role has a light and a dark value and all are chroma 0 — a token test over `tokens/color.json`; `bg-red-500` in a scratch file produces no CSS rule — build output grep
-- [ ] **A-04** Theme: with no stored choice the app follows `prefers-color-scheme`; `setTheme` overrides and survives reload; `color-scheme` is set; no flash — provider tests + screenshots of the gallery route at 1440 light and dark + a reload with dark stored showing no light frame
-- [ ] **A-05** Locale: `navigator.languages = ['zh-TW']` → zh-CN, `['fr']` → en; `setLocale` switches without reload and sets `<html lang>` — unit tests; no hard-coded UI string in `src/` outside `src/i18n/` and `src/fixtures/` — a test scanning for CJK characters and for missing keys between the two locales of every namespace
-- [ ] **A-06** Layout primitives render at 320 px and at root 24 px with no sideways scroll and no fixed block size — component tests + screenshot of the primitives' demo route at 320 × root 24 px
-- [ ] **A-28** `npm run matrix -- /dev/components` runs the 44 cells, writes screenshots and `report.json`, exits 0; it exits non-zero on a seeded fixture page with a sideways scroll, a clipped label and a 24 px target — command, both runs
-- [ ] **A-07** Actions and inputs (`Button`, `Field` and its controls, `Toggle`, `ToggleGroup`, `BehaviourModePicker`): each has a test file (render, variants, states, keyboard path, `axe` no violations), a demo, a registry row and a contract row in its family file — `npm test` + row count = inventory count
-- [ ] **A-08** `Button` (every variant and size) and every `Field` control measure ≥ 44 × 44 CSS px and grow with text — measured in the browser at 100% and at root 24 px, values recorded in the completion note
-- [ ] **A-26** Navigation, containers and overlays (`Sidebar`, `Breadcrumb`, `Tabs`, `DropdownMenu`, `ThemeToggle`, `LocaleSelect`, `Dialog`, `AlertDialog`, `Sheet`, `Tooltip`, `Collapsible`, `Card`, `Separator`): same evidence as A-07; overlays also prove focus-in, trap, return and Escape — `npm test`
-- [ ] **A-27** Feedback and data display (`Badge`, `Alert`, `Sonner`, `Skeleton`, `Spinner`, `Empty`, `Progress`, `DataState`, `BehaviourModeBadge`, `ChangeMarker`, `Table`, `Item`, `Avatar`): same evidence as A-07; `DataState` proves its four states and announcements — `npm test`
-- [ ] **A-09** Every kit control in the inventory shows no clipped or overflowing text at 200% zoom and at root 24 px, in zh-CN and en, light and dark — screenshots of the component gallery route (`/dev/components`) at 1440 × 200% and 320 × root 24 px, both themes
-- [ ] **A-10** Focus ring measures ≥ 3:1 on `background`, `card`, `sidebar`, both modes, and ≥ 2 px; every pair in § Accessibility is in `TOKENS.md` § Contrast pairs with its measured ratio at or above the requirement — measured values
-- [ ] **A-11** Runtime: for each of the eight scenes `scene(id)` is deterministic and passes invariant tests — breed mean = mean of its dogs' records (金毛 = 3 h 45 at `s3`), a dog with ≥ 2 visits is booked on its own record, `s3` changes memory rows and not the workflow version, `s4` resolved has version 2 with one added condition node, `e2` has two no-reply proposals in `notifications` — `npm test`
-- [ ] **A-12** Every fixture string exists in both locales; the long-content variant exists for every block — test
-- [ ] **A-13** Shell at 320, 768, 1024, 1440: off-canvas / icon rail / open sidebar as specified, no sideways scroll, chat bar never covers content or the focused element — `npm run matrix -- /dev/shell` (the shell around placeholder content) zero failures + screenshots at the four widths, light zh-CN, and 320 × root 24 px dark en
-- [ ] **A-14** Sidebar lists the seven base modules, the profession heading with its four modules and nested sub-modules, 设置; 最近对话 is collapsed on first load, expands, and stays expanded after reload — test + screenshot at 1440
-- [ ] **A-15** The whole shell is operable by keyboard: skip link, sidebar, header, device menu, `main`, chat bar, in order, no trap; route change moves focus to the `h1` — keyboard-path test + recorded tab order
-- [ ] **A-16** 时间推进: each scene is reachable from the menu, by 上一幕 / 下一幕 and by keyboard; the jump is announced; the scene survives reload; 状态预览 forces each of the four states — test + screenshot of the open menu at 320 and 1440
-- [ ] **A-17** Chat bar: a scripted `in-place` prompt opens the panel above the bar with the screen's context in its heading; the screen behind stays operable; Escape collapses, focus returns to the composer, the toast names the topic; a scripted `thread` prompt navigates to `chat.thread`; unscripted input gets the canned reply — tests + screenshots at 320 and 1440 of the open panel
-- [ ] **A-18** `PersistenceSwitch` on → confirmation → sub-module exists in the store, appears in the sidebar under its parent, route = its workflow; the AI-raised `ProposalCard` does the same; switching off archives it after the `AlertDialog` — test
-- [ ] **A-19** `chat.thread`: the bottom bar is the thread's composer; the header shows topic, module link and `PersistenceSwitch`; `chat.recent` items open the thread or the topic record — test + screenshot at 768
-- [ ] **A-20** `ModuleFrame` shows each run state (never-run, ok, running, failed with reason) as text + icon; 待你确认 and 运行记录 open sheets with focus handled; 立即运行 shows 正在运行 then a new run — tests + screenshots of the four run states at 1024 light and 320 dark
-- [ ] **A-21** `BlockRenderer` renders a page description of all seven blocks, refuses an unknown block id, pairs `span: half` at ≥ 64rem and stacks below — test + screenshots at 320 and 1440
-- [ ] **A-22** After a run that changes two items, exactly those items and their block carry a `ChangeMarker` and the summary line counts them; the next run clears them; a pinned block stays first after a layout change and its pin state is announced — test
-- [ ] **A-23** `block.text`, `block.empty`, `block.proposal` each render ready, loading, empty, error and long content, in both locales and themes, without sideways page scroll at 320 × root 24 px — tests + gallery screenshots
-- [ ] **A-24** `block.summary`, `block.list`, `block.table`, `block.schedule`: same as A-23; `block.table` and `block.schedule` scroll inside themselves and their scroller is keyboard-focusable and named; `block.schedule` at 320 shows one resource with a labelled `Select` — tests + gallery screenshots
-- [ ] **A-25** `COMPONENTS.md` (conventions, index, kit-not-used table), the eleven family-file skeletons, `TOKENS.md` § One source / § Placeholder theme, `RESPONSIVE.md` § Breakpoints, `ACCESSIBILITY.md` § Per-component contract pointer, `FOUNDATIONS.md` § UI kit versions and § Commands, `docs/README.md` rows exist — `check:docs` green + reviewer read. (Family-file rows are filled by the package that builds the component.)
+- [ ] **A-01** `npm run verify` and `npm test` exit 0; no version range in `package.json` for the packages of § Tooling — commands + `grep '"[\^~]'` on those lines
+- [ ] **A-02** `npm run tokens:build` regenerates `tokens.css` and `breakpoints.ts` byte-identically (`git diff --exit-code`); `src/index.css` holds no colour, length or non-zero duration literal and no `:root` value block — `check:design-values` + `grep -c oklch src/index.css` = 0
+- [ ] **A-03** Tiers: every semantic token of every type is an alias of a primitive; every colour role has a light and a dark value, all chroma 0; `bg-red-500` in a scratch file produces no rule — token tests + build-output grep
+- [ ] **A-04** `src/hooks/use-mobile.ts` contains no numeric literal and builds its query from `breakpoints.ts` — unit test on the query string + grep
+- [ ] **A-05** The built CSS contains the reduced-motion rule and the forced-colors focus rule; `TOKENS.md` § Contrast pairs lists every pair of § Accessibility with its computed ratio at or above the requirement, both modes — build-output grep + recomputation test
+- [ ] **A-06** Lint fails on a seeded import of `src/components/ui/*` from outside `src/components/`; the registry-parity test fails on a seeded unregistered component; `src/components/ui/` holds no user-visible string literal (each is a prop, listed in `COMPONENTS.md` § Kit patches) — both seeded runs, then removed + grep
+- [ ] **A-07** Docs and config written in the same change: `COMPONENTS.md` (conventions, index, kit-not-used, § Kit patches), the twelve family-file skeletons and their `docs/README.md` rows, `TOKENS.md` § One source / § Placeholder theme / § Contrast pairs, `RESPONSIVE.md` § Breakpoints, `ACCESSIBILITY.md` § Per-component contract pointer, `FOUNDATIONS.md` § UI kit versions, § Token tooling and § Commands, `CLAUDE.md` § Common commands (`test`, `tokens:build` — the lines only), `tokens/README.md`, `tsconfig*.json` alias, `.gitignore` (`.matrix/`, Playwright output), `.oxlintrc.json` — `check:docs` + reviewer read
+- [ ] **A-08** Theme: with no stored choice the app follows `prefers-color-scheme`; `setTheme` overrides and survives reload; `color-scheme` is set; no light frame on a dark reload — provider tests + screenshots of the gallery at 1440 light and dark
+- [ ] **A-09** Locale: `['zh-TW']` → zh-CN, `['fr']` → en; `setLocale` switches without reload and sets `<html lang>`; a scan of `src/` (kit folder included) finds no user-visible string literal — JSX text, `aria-label`, `title`, `alt`, `placeholder` — outside `src/i18n/` and `src/fixtures/`, bar an allowlist file; both locales of every namespace have the same keys — tests
+- [ ] **A-10** Component evidence for `Page`, `Stack`, `Inline`, `Grid`, `Section`; no fixed block size; the two vocabularies export every mode and change kind with a key in both locales — `npm test`
+- [ ] **A-11** Matrix harness: on the passing fixture page it runs the 44 cells and every pass and flag of § Matrix harness, writes screenshots, `report.json` and `index.html` under `.matrix/`, exits 0; on the failing page it exits non-zero naming the three defects; the self-test proves root 24 px; two runs started together from two directories do not share a server — commands. `FOUNDATIONS.md` § Verification matrix "How to run it", `stacks/react-web.md` tools line and the `matrix` line of `CLAUDE.md` § Common commands are written
+- [ ] **A-12** After merging S2 and M1: `verify`, `npm test` and `npm run matrix -- /dev/components?family=layout` are green on the task branch — commands
+- [ ] **A-13** Actions and inputs — component evidence for `Button`, `Field`, `Input`, `Textarea`, `Select`, `Switch`, `RadioGroup`, `InputGroup`, `Toggle`, `ToggleGroup`, `BehaviourModePicker`; `matrix /dev/components?family=actions` and `…=inputs` report zero failures; the composited focus ring of a rendered `Button` and `Input` measures ≥ 3:1 on `background`, `card` and `sidebar`, both modes, ≥ 2 px — `npm test` + matrix + measured values in the completion note
+- [ ] **A-14** Navigation and containers — component evidence for `Sidebar`, `Breadcrumb`, `Tabs`, `DropdownMenu`, `ThemeToggle`, `LocaleSelect`, `Dialog`, `AlertDialog`, `Sheet`, `Collapsible`, `Tooltip`, `Card`, `Separator`; overlays prove focus in, containment, return and Escape; `matrix` on both families with `--reduced-motion` reports zero failures — `npm test` + matrix
+- [ ] **A-15** Feedback and data display — component evidence for `Badge`, `Alert`, `Sonner`, `Skeleton`, `Spinner`, `Empty`, `Progress`, `DataState`, `BehaviourModeBadge`, `ChangeMarker`, `Table`, `Item`, `Avatar`; `DataState` proves its four states and announcements; `matrix` on both families reports zero failures — `npm test` + matrix
+- [ ] **A-16** After merging S3, S4, S5, S6 and S6b: `verify` and `npm test` green; `npm run matrix -- /dev/components` over all 44 cells with `--keyboard`, `--forced-colors` and `--text-spacing` reports zero failures, any fix landing in the component — commands + `report.json`
 
 ## Work packages
 
-Waves: **1** S1 → **2** S2 → **3** S3 · S4 · S5 · S6 in parallel → **4** S7 · S9 · S10 in parallel → **5** S8 with part 2's C1 · C2 · C3 → C4 → C5. Parallel packages work in their own worktrees; the lead names the merge order (suggested: the table's order) and the next wave starts from the merged task branch. **`package.json`, the lockfile, `tokens/`, `src/index.css`, `index.html`, `vite.config.ts` and `design-values.config.json` are written by S1 only** (S1 installs every dependency and every kit file of the inventory and writes every `package.json` script: `test`, `tokens:build`, `matrix`); a later package that needs a change there stops and tells the lead, who serialises it.
+**The plan across the three parts.** Packages in one wave run in parallel, each in its own worktree on a branch cut from `design/lofi-prototype`; an **integration leg** (`I2…I6`) then merges them in the table's order, re-runs `verify`, `npm test` and the matrix over what exists, fixes what the merge broke, and is the only writer while it runs. The next wave starts from the merged branch.
+
+| Wave | Runs | Then |
+| --- | --- | --- |
+| 1 | S1 → S1b | — |
+| 2 | S2 · M1 | I2 |
+| 3 | S3 · S4 · S5 · (S6 → S6b) | I3 |
+| 4 | S7 · S8 · S9 · S10 | I4 |
+| 5 | S11 · S12 | I5 |
+| 6 | C1 · C2 · C3 · C4 | I6 |
+| 7 | C6 → C5 → C7, one at a time | `G-1` review |
+
+**Frozen files.** `package.json`, the lockfile, `tokens/`, `src/tokens/generated/`, `src/index.css`, `index.html`, `vite.config.ts`, `vitest.config.ts`, `tsconfig*.json`, `components.json`, `design-values.config.json`, `.oxlintrc.json`, `.gitignore`, `src/components/ui/**` and `src/hooks/**` are written by S1 and S1b only (S1 installs every dependency and kit file and writes every script: `test`, `tokens:build`, `matrix`); from I3 on, `src/runtime/**` and `src/fixtures/**` are frozen the same way. A package that needs a change in a frozen file stops and tells the lead, who serialises it as a short leg of the owning package before the requester continues. Test-only fixtures inside a package's own folder are always allowed and never imported by app code.
 
 | # | Package | Owns (files) | Criteria | Est. tokens | Depends on | Planned handoff point |
 | --- | --- | --- | --- | --- | --- | --- |
-| S1 | Scaffold, tooling, kit files, placeholder theme, test setup, doc skeletons | The seven root files named above, `components.json`, `tokens/`, `src/tokens/generated/`, `src/components/ui/**`, `src/hooks/**`, `src/lib/utils.ts`, `src/test/**`, `vitest.config.ts`, `docs/design/components/*.md` (skeletons), `COMPONENTS.md`, `TOKENS.md`, `RESPONSIVE.md`, `ACCESSIBILITY.md`, `FOUNDATIONS.md`, `docs/README.md` rows | A-01, A-02, A-03, A-10, A-25 | 190K | — | After `tokens:build` and `verify` are green, before the contrast measurements and doc skeletons |
-| S2 | Providers, i18n core, layout primitives, router host, gallery route, matrix script | `src/main.tsx`, `src/App.tsx`, `src/app/**`, `src/i18n/**` (core + `common` namespace), `src/theme/**`, `src/components/layout/**`, `src/screens/dev/**`, `playwright.config.ts`, `e2e/matrix/**`, `docs/design/components/layout.md` | A-04, A-05, A-06, A-28 | 195K | S1 | After providers, i18n and primitives, before the matrix script |
-| S3 | Base components A — actions, inputs | `src/components/actions/**`, `src/components/inputs/**`, family files `actions.md`, `inputs.md`, namespace `inputs` | A-07, A-08 | 150K | S2 | After `Button` and `Field` controls, before toggles and `BehaviourModePicker` |
-| S4 | Base components B1 — navigation, containers and overlays | `src/components/navigation/**`, `src/components/containers/**`, `navigation.md`, `containers.md`, namespace `navigation` | A-26 | 170K | S2 | After navigation, before overlays |
-| S5 | Base components B2 — feedback, data display | `src/components/feedback/**`, `src/components/data-display/**`, `feedback.md`, `data-display.md`, namespace `feedback` | A-27 | 165K | S2 | After feedback, before data display |
-| S6 | Fake runtime, data model, scenes, scripted chat, fixtures | `src/runtime/**`, `src/fixtures/**` | A-11, A-12 | 200K | S2 | After the model, store and `e1`–`s1`, before `s2`–`s5` |
-| S7 | App shell and 时间推进 device | `src/shell/**`, `src/screens/root/**`, namespace `shell`; the layout line in `src/app/RootLayout.tsx` (S2 is finished) | A-13, A-14, A-15, A-16 | 170K | S3, S4, S5, S6 | After the shell layout and sidebar, before the device and keyboard pass |
-| S8 | Chat — composer, messages, bar + in-place panel, persistence, thread, recent | `src/chat/**`, `src/screens/chat/**`, `chat.md`, namespace `chat`; the chat-bar slot line in `src/shell/AppShell.tsx` (after S7 merged) | A-17, A-18, A-19 | 210K | S7 | After composer, list and in-place panel, before persistence and thread |
-| S9 | Module frame, the generic `/m/<ia-id>` route, `BlockRenderer`, markers, pinning, `block.text` · `block.empty` · `block.proposal` | `src/module/**`, `src/screens/module/**`, `src/blocks/{text,empty,proposal}/**`, `module.md`, namespace `module` | A-20, A-21, A-22, A-23 | 220K | S3, S4, S5, S6 | After the frame and renderer, before the three blocks |
-| S10 | Data blocks — `block.summary` · `block.list` · `block.table` · `block.schedule`; the kit-control pass at 200% | `src/blocks/{summary,list,table,schedule}/**`, `data-blocks.md`, namespace `blocks`; fixes from A-09 in `src/components/{actions,inputs,navigation,containers,feedback,data-display}/**` (their packages are finished; S9 does not write there) | A-09, A-24 | 200K | S3, S4, S5, S6 | After summary, list, table; `block.schedule` and the A-09 pass are the second leg |
+| S1 | Scaffold, dependencies, kit files, token source and build, `src/index.css`, test setup | The frozen files above except the runtime folders; `scripts/build-tokens.mjs`, `src/lib/utils.ts`, `src/test/**`, `TOKENS.md`, `tokens/README.md` | A-01, A-02, A-03, A-05 | 150K | — | After the install and `tokens:build`, before the CSS rules and the contrast table |
+| S1b | Hook rewrite, kit patches, lint boundary, parity test, doc skeletons | `src/hooks/**`, `src/components/ui/**` (patches), `.oxlintrc.json`, `src/test/registry-parity.test.ts`, and the docs and config named in A-07 except S1's two | A-04, A-06, A-07 | 110K | S1 | After the hook and patches, before the docs |
+| S2 | Providers, i18n core, vocabularies, layout primitives, router host, gallery route | `src/main.tsx`, `src/App.tsx`, `src/app/**`, `src/i18n/**` (core + `common`), `src/theme/**`, `src/lib/vocab.ts`, `src/components/layout/**`, `src/screens/dev/**`, `components/layout.md` | A-08, A-09, A-10 | 165K | S1b | After providers and i18n, before the primitives |
+| M1 | Matrix harness | `playwright.config.ts`, `e2e/matrix/**`, `scripts/matrix.mjs`; the doc lines named in A-11 | A-11 | 150K | S1b | After cells and assertions pass the self-test, before the passes and `--flows` |
+| I2 | Merge wave 2 | Whatever the merge needs | A-12 | 30K | S2, M1 | — |
+| S3 | Actions, inputs | `src/components/actions/**`, `src/components/inputs/**`, `actions.md`, `inputs.md`, namespace `inputs` | A-13 | 175K | I2 | After `Button` and the `Field` controls, before toggles, the picker and the ring measurement |
+| S4 | Navigation, containers | `src/components/navigation/**`, `src/components/containers/**`, `navigation.md`, `containers.md`, namespace `navigation` | A-14 | 195K | I2 | After navigation, before overlays |
+| S5 | Feedback, data display | `src/components/feedback/**`, `src/components/data-display/**`, `feedback.md`, `data-display.md`, namespace `feedback` | A-15 | 180K | I2 | After feedback, before data display |
+| I3 | Merge wave 3; the merged gallery pass | Fixes in `src/components/**` (their packages are finished) | A-16 | 80K | S3, S4, S5, S6b | After the merge is green, before the full-cell gallery run |
+
+S6 and S6b (runtime and story data) are specified in part 2 and run in wave 3 beside S3–S5.
 
 ## Review plan
 
-One independent result review after wave 4 (system) and one after C5 (whole task, part 2). The system review probes hardest: every kit control at 200% and root 24 px in both locales (D-06) — especially `Select`, `Tabs`, `Badge`, sidebar items and `Sheet` headers; the focus ring's measured contrast in dark; the shell at 320 × root 24 px; dark mode on the shell with a full module page, not on components alone; the in-place panel by keyboard and by screen reader; `tokens.css` rebuilt byte-identical; that no package wrote a file outside its row.
+Two independent result reviews: one after I5, of everything screens stand on (parts 1 and 2); one after C7, of the whole task (part 3). The first probes hardest, for this part: every wrapped control at 320 × root 24 px and 768 × 200% in en — `Select`, `Tabs`, `ToggleGroup`, sidebar items, sheet headers; target sizes measured, not eyeballed; the focus ring's composited contrast in dark; zh-CN accessible names of every overlay; reduced motion on dialogs and sheets; `tokens.css` rebuilt byte-identical; that `use-mobile.ts` and the CSS agree at 1024 × root 24 px; that no package wrote outside its row. The reviewer re-runs `npm run matrix`.
