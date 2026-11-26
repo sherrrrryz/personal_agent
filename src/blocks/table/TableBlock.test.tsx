@@ -108,7 +108,9 @@ describe('block.table', () => {
     const names = screen.getAllByRole('region').map((region) => region.getAttribute('aria-labelledby'))
     expect(names).toHaveLength(2)
     const demo = tableBlock.demo(locale)
-    expect(screen.getByRole('region', { name: demo.props.caption })).toBeInTheDocument()
+    // Its own caption: the definition's caption is on the renderer's demo page of the same gallery.
+    expect(screen.getByRole('region', { name: translate(locale, 'data-blocks', 'table.demo.alone.caption') })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: demo.props.caption })).not.toBeInTheDocument()
     expect(screen.getByRole('region', { name: demo.long.caption })).toBeInTheDocument()
   })
 })

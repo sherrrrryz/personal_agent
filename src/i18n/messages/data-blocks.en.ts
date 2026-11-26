@@ -71,6 +71,7 @@ const messages = {
   'table.demo.title': 'Grooming time by breed',
   'table.demo.caption': 'Grooming time by breed, rule against measurement',
   'table.demo.long.caption': 'Grooming time by dog, all 40 records',
+  'table.demo.alone.caption': 'Grooming time by breed, the block on its own',
   'table.demo.col.breed': 'Breed',
   'table.demo.col.size': 'Size',
   'table.demo.col.rule': 'Rule',

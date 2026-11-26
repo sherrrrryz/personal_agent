@@ -76,10 +76,10 @@ describe('countPageChanges', () => {
 describe('the block registry', () => {
   const definition = (id: string) => ({ id, Component: () => null, demo: () => ({}) })
 
-  it('holds the three blocks of this family under their ids', () => {
-    for (const id of ['block.text', 'block.empty', 'block.proposal']) {
-      expect(blockRegistry.get(id)?.id).toBe(id)
-    }
+  it('holds the seven blocks of the contract under their ids', () => {
+    // After wave 4 every id of the contract has its folder: a block that fails to register shows here.
+    expect([...blockRegistry.keys()].sort()).toEqual([...blockIds].sort())
+    for (const id of blockIds) expect(blockRegistry.get(id)?.id).toBe(id)
     // Only ids of the contract are ever registered.
     for (const id of blockRegistry.keys()) expect(blockIds as readonly string[]).toContain(id)
   })

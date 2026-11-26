@@ -72,6 +72,13 @@ Two schedules of the same day on one page would be two landmarks with one
 name (axe `landmark-unique`). A table's caption is written by the page
 builder and differs per table; a range does not.
 
+So a page builder gives every `block.table` on a page **its own caption, and
+one that is not the block's title**: the renderer makes each block a `region`
+named by its title, and a caption with the same words is a second landmark
+of that name. Seen on the gallery (I4): the renderer's demo page and this
+family's demo drew one table definition, one caption twice — the family demo
+(`TableBlock.demo.tsx`) now captions its own table.
+
 ### The actions of an entry beside a squeezed text
 
 **Rule:** an entry's actions answer to the entry's container (`@md`), not to how far the text can shrink.
