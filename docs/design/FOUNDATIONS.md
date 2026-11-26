@@ -155,11 +155,15 @@ element is `IA-MAP.md` § Nodes.
   add literals. Wrappers, compositions and screens we write follow every rule.
   Reviewers check kit controls for clipped text at 200% zoom instead
 - **Known gaps:** a **node-based canvas** for the workflow editor
-  (`<module>.workflow`, D-10) — shadcn/ui has nothing of the kind. Open at
-  `G-0` (`.orchestration/G0-decision-packet.md` § 9): a specialised dependency
-  such as React Flow styled from tokens, or a component built through the
-  admission test. Other gaps are listed when the task-1 spec fixes the
-  component inventory
+  (`<module>.workflow`, D-10) — shadcn/ui has nothing of the kind. Decided
+  (D-16): **React Flow** (`@xyflow/react`, MIT) is the single-purpose canvas
+  dependency — pan, zoom, drag, edges, selection. It is not a second UI kit:
+  node bodies, handles, toolbars and panels are shadcn components; every
+  visual value in our overrides comes from tokens; the library's own stylesheet
+  is imported from `node_modules` and never copied in. Keyboard operation and
+  focus of the canvas are verified against `ACCESSIBILITY.md` in the task-1
+  review. Version pinned when installed. Other gaps are listed when the task-1
+  spec fixes the component inventory
 
 Building a component the kit already provides is forbidden. Wrapping one to
 bind it to tokens is the normal case.
