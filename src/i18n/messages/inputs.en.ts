@@ -65,6 +65,16 @@ const messages = {
   'group.demo.currency': 'yuan',
   'group.demo.message': 'Message to the owner',
   'group.demo.send': 'Send',
+  // BehaviourModePicker demo.
+  'modePicker.demo.free': 'Sending a message to a customer',
+  'modePicker.demo.freeHelp': 'The most the assistant may do on its own for this kind of task.',
+  'modePicker.demo.unset': 'Not set',
+  'modePicker.demo.unsetHelp': 'The assistant decides, and prepares the work for your approval unless it is sure.',
+  'modePicker.demo.capped': 'Moving the appointment when the groomer runs late',
+  'modePicker.demo.cappedHelp': 'This step changes an appointment.',
+  'modePicker.demo.lowest': 'Ordering more shampoo when stock runs low',
+  'modePicker.demo.error': 'The choice could not be saved, so the earlier one is shown. Choose again.',
+  'modePicker.demo.disabled': 'Archiving finished appointments (set by the shop)',
   // Toggle and ToggleGroup demos.
   'toggle.demo.pin': 'Pin to the top',
   'toggle.demo.mute': 'Mute reminders',
