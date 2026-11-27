@@ -8,6 +8,22 @@
       }
     }
   },
+  "surface": {
+    "frosted": {
+      "$type": "dimension",
+      "$description": "Geometry of a frosted surface (D-47); its colours are color.surface-frosted and color.surface-frosted-shadow. No mode.",
+      "blur": {
+        "$value": "{blur.md}",
+        "$description": "Radius of the backdrop blur: how far what scrolls beneath the surface is smeared."
+      },
+      "shadow": {
+        "blur": {
+          "$value": "{blur.sm}",
+          "$description": "Blur radius of the small shadow. The shadow has no offset: it reads the same under a bar at the top and above a bar at the bottom."
+        }
+      }
+    }
+  },
   "radius": {
     "$type": "dimension",
     "base": {

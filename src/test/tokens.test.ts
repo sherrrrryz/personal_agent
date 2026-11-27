@@ -107,6 +107,9 @@ const STOCK: Record<string, { light: Stock; dark: Stock }> = {
   'sidebar-ring': { light: n400, dark: n500 },
 }
 
+/** Colour roles of ours beside shadcn/ui's: the frosted surface and its small shadow (D-47). */
+const FROSTED = ['surface-frosted', 'surface-frosted-shadow']
+
 /** The roles `docs/design/TOKENS.md` § Changed from stock lists: the owner's colour changes (D-43). */
 function changedRoles(): Set<string> {
   const doc = readFileSync(join(REPO_ROOT, 'docs/design/TOKENS.md'), 'utf8')
@@ -120,8 +123,20 @@ describe('stock theme (D-43)', () => {
     expect(roles('dark').sort()).toEqual(roles('light').sort())
   })
 
-  it('has every shadcn/ui role, and no other', () => {
-    expect(roles('light').sort()).toEqual(Object.keys(STOCK).map((role) => `color.${role}`).sort())
+  it('has every shadcn/ui role, and beside them only the two colours of the frosted surface (D-47)', () => {
+    expect(roles('light').sort()).toEqual([...Object.keys(STOCK), ...FROSTED].map((role) => `color.${role}`).sort())
+  })
+
+  it('the frosted surface (D-47) has a colour and a shadow colour in both modes, a blur and a shadow blur', () => {
+    for (const role of FROSTED)
+      for (const mode of ['light', 'dark'] as const)
+        expect(resolveRawColor(`color.${role}`, mode, tokens).alpha, `color.${role} (${mode}) is translucent`).toBeLessThan(1)
+    const alias = (path: string) => semantic.find((token) => token.path === path)?.value
+    expect(alias('surface.frosted.blur')).toBe('{blur.md}')
+    expect(alias('surface.frosted.shadow.blur')).toBe('{blur.sm}')
+    // One place for the look: the class in src/index.css reads all four, and nothing else in src/ does.
+    for (const name of ['--surface-frosted)', '--surface-frosted-shadow)', '--surface-frosted-blur)', '--surface-frosted-shadow-blur)'])
+      expect(indexCss.slice(indexCss.indexOf('.surface-frosted {')), name).toContain(`var(${name}`)
   })
 
   it('every colour role holds its stock value in both modes, unless TOKENS.md § Changed from stock lists it', () => {

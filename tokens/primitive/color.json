@@ -20,7 +20,22 @@
       "$type": "color",
       "$description": "White at an opacity: the stock dark theme draws its borders this way. The step is the opacity in percent.",
       "10": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.1 } },
-      "15": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15 } }
+      "15": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15 } },
+      "70": {
+        "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.7 },
+        "$description": "White at 70%: the frosted surface in light mode (D-47)."
+      }
+    },
+    "neutral-900-alpha": {
+      "$type": "color",
+      "$description": "Neutral 900 at an opacity: the frosted surface in dark mode (D-47) — the stock dark raised surface (card, popover), let through. The step is the opacity in percent.",
+      "70": { "$value": { "colorSpace": "oklch", "components": [0.205, 0, 0], "alpha": 0.7 } }
+    },
+    "black-alpha": {
+      "$type": "color",
+      "$description": "Black at an opacity: the small shadow of a frosted surface (D-47), light (10) and dark (40). The step is the opacity in percent.",
+      "10": { "$value": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.1 } },
+      "40": { "$value": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.4 } }
     },
     "red": {
       "$type": "color",

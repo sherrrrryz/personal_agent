@@ -32,6 +32,7 @@ The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
 | --- | --- | --- |
 | `Input`, `Textarea`, `Select`, `InputGroup` | While **invalid and focused**, the kit's own ring (`focusRingOverInvalid`, `src/components/actions/focus-ring.ts`); no other state changes | `focus-not-visible` in the keyboard pass: the kit's invalid tint outranks `:focus-visible`, so a focused invalid field looks unfocused (WCAG 2.4.7) |
 | `Select` | The trigger fills its field (`w-full`), keeps the kit's height as a minimum and lets a chosen value wrap | Clipped text at 320 px: the kit cuts the value to one line (`line-clamp-1`) with nowhere to read the rest |
+| `Select` | `surface-frosted` on the list: a translucent background, a backdrop blur and the small shadow instead of the kit's `bg-popover` and `shadow-md`; the kit's ring stays. The kit's two scroll buttons inside a long list keep their opaque `bg-popover` | **Visible, by the owner's decision D-47**: surfaces that float over the page are frosted (`../TOKENS.md` § Frosted surface) |
 
 **Removed with D-43:** the 44 px minimum on every control and row; the dashed edge and `muted` fill of a
 read-only control (read-only is the native state and looks like any field); the full `primary` border of a

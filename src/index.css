@@ -5,7 +5,8 @@
  * tokens/ into src/tokens/generated/tokens.css (npm run tokens:build), with
  * the stock values. To change a colour, change it in tokens/ — see
  * docs/design/TOKENS.md § Changing a colour. This file maps the variables
- * onto Tailwind's theme keys and holds the two global accessibility rules.
+ * onto Tailwind's theme keys and holds the two global accessibility rules
+ * and the one class of ours that is a look: `surface-frosted` (D-47).
  */
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
@@ -47,6 +48,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-surface-frosted: var(--surface-frosted);
+  --color-surface-frosted-shadow: var(--surface-frosted-shadow);
 
   --radius-sm: var(--radius-step-sm);
   --radius-md: var(--radius-step-md);
@@ -99,5 +102,47 @@
 @media (forced-colors: active) {
   :focus-visible {
     outline: var(--border-width-focus) solid var(--focus-forced);
+  }
+}
+
+/*
+ * Frosted surface (D-47) — the one place where the look of a surface of ours
+ * that floats or sticks over scrolling content is written: a translucent
+ * background, a backdrop blur and a small shadow, each from a token
+ * (tokens/semantic: color.surface-frosted, color.surface-frosted-shadow,
+ * surface.frosted.blur, surface.frosted.shadow.blur). Put the class beside
+ * the surface's stock background (`bg-background`, the kit's `bg-popover`).
+ *
+ * Unlayered, so it beats the kit's own background and shadow utilities
+ * whatever their order — a kit overlay takes the class from our wrapper and
+ * its file is not edited. The shadow is set the way Tailwind's shadow
+ * utilities set it, so a ring the kit draws on the same element stays.
+ *
+ * Fallbacks: without `backdrop-filter` the stock background is kept (a
+ * translucent bar with no blur lets the text beneath show through). Under
+ * `prefers-reduced-transparency: reduce` and `forced-colors: active` the
+ * surface goes back to its stock, opaque background — `revert-layer` hands the
+ * property back to the utilities — with no blur.
+ */
+.surface-frosted {
+  --tw-shadow: 0 0 var(--surface-frosted-shadow-blur) var(--surface-frosted-shadow);
+  box-shadow:
+    var(--tw-inset-shadow, 0 0 transparent), var(--tw-inset-ring-shadow, 0 0 transparent),
+    var(--tw-ring-offset-shadow, 0 0 transparent), var(--tw-ring-shadow, 0 0 transparent), var(--tw-shadow);
+}
+
+@supports ((backdrop-filter: none) or (-webkit-backdrop-filter: none)) {
+  .surface-frosted {
+    background-color: var(--surface-frosted);
+    -webkit-backdrop-filter: blur(var(--surface-frosted-blur));
+    backdrop-filter: blur(var(--surface-frosted-blur));
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .surface-frosted {
+    background-color: revert-layer;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

@@ -43,7 +43,9 @@ HOW TO BUILD THIS DOC
   `{ value, unit }` and the only units are `px` and `rem`; composite types
   exist for `shadow`, `typography`, `border`, `transition`, `gradient`.
   **Blur, opacity, z-index and breakpoints are not spec types** — store blur
-  and breakpoints as `dimension`, opacity and z-index as `number`.
+  and breakpoints as `dimension`, opacity and z-index as `number`. The build
+  has no case for the composite `shadow` type: a shadow is a colour token and
+  dimension tokens, put together where it is drawn (§ Frosted surface).
 - **Two conventions of this repo beyond the format** (the build understands
   them; another tool will not): a **string token** (`$type: "string"`) holds a
   CSS keyword that is not a colour value — today only the system colour
@@ -76,7 +78,8 @@ HOW TO BUILD THIS DOC
   `size.target.min` were withdrawn by D-43 and are removed: they build no rule. Tailwind's own palette,
   opacity modifiers and shadow scale are **left in place** — the kit files
   use them (`bg-black/10`, `shadow-md`, `ring-foreground/10`). That file
-  holds no value of its own.
+  holds no value of its own. It also holds the one class of ours that is a
+  look, `surface-frosted` (D-47, § Frosted surface).
 
 ## Modes
 
@@ -106,6 +109,7 @@ history of this file.
 | --- | --- | --- |
 | Primitive | `color.neutral.0 … 950` — twelve steps | shadcn/ui's neutral ramp, OKLCH, chroma 0; named after Tailwind's neutral scale, `0` is white |
 | Primitive | `color.white-alpha.10`, `.15` | White at 10% and 15%: the stock dark theme's borders |
+| Primitive | `color.white-alpha.70` · `color.neutral-900-alpha.70` · `color.black-alpha.10`, `.40` · `blur.sm` (8px), `blur.md` (12px) | The frosted surface (D-47, § Frosted surface). The blur steps are named after Tailwind's blur scale; fixed unit by the allowlist (`RESPONSIVE.md` § Unit policy) |
 | Primitive | `color.red.400`, `.600` · `color.blue.700` | The stock theme's `destructive` (dark, light) and its dark `sidebar-primary`; named after Tailwind's scales |
 | Primitive | `color.system.highlight` | The CSS system colour `Highlight`, a string token |
 | Primitive | `border.width.2` (2px) | A step of Tailwind's shipped border-width scale |
@@ -117,12 +121,14 @@ history of this file.
 | Semantic | `border.width.focus` → `border.width.2` | Width of the forced-colours focus outline |
 | Semantic | `radius.base` → `radius.lg`, and `radius.step.sm … 4xl` | The steps are the base × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`pa.scale`) — shadcn/ui's own formula |
 | Semantic | `font.family.sans` → `font.stack.sans` | All text, both locales |
+| Semantic | `color.surface-frosted`, `color.surface-frosted-shadow` (light and dark) · `surface.frosted.blur`, `surface.frosted.shadow.blur` | The frosted surface (D-47): ours, not shadcn/ui's — § Frosted surface |
 | Primitive | `duration.120` · `.300` · `.500` · `.1200` (ms) | Lengths of time, `$type: duration`, `{ value, unit: "ms" }`; named by their value. Added by package K1 (D-45) — the first motion values of our own |
 | Semantic | `motion.simulated.delay` → `duration.120` | How long a faked read and a faked run take (`SIMULATED_DELAY` in `src/runtime/store.ts`) |
 | Semantic | `motion.reply.beat` → `duration.500` · `motion.reply.write` → `duration.1200` · `motion.reply.settle` → `duration.300` | The replay of an AI reply (`components/chat.md` § The replay of a reply): the thinking state and each step · a text being written out · the pause before each thing the text carries. Read by the runtime, `ChatMessageList` and the onboarding interview from `motion.ts`; no mode |
 
 **Not generated from `tokens/`:** Tailwind's shipped spacing, type,
-line-height, font-weight, shadow, blur, opacity, z-index and motion scales
+line-height, font-weight, shadow, blur (but for the frosted surface's two
+steps), opacity, z-index and motion scales
 and its colour palette are used through stock utilities as shipped (D-05,
 D-43) — a transition or an animation in a class is still Tailwind's or the
 kit's; the `motion.*` tokens above time what our own code waits for. The breakpoints `sm`, `xl` and `2xl` are Tailwind's shipped ones and
@@ -141,6 +147,43 @@ The owner changes a few specific colours and nothing else (D-43). One place:
 2. **Build:** `npm run tokens:build` — rewrites
    `src/tokens/generated/tokens.css`; never edit that file or `src/index.css`.
 3. **Record:** add the role to § Changed from stock and run `npm test`.
+
+## Frosted surface
+
+Surfaces of ours that float or stick over scrolling content are frosted
+(D-47, which amends D-43 for this one look): a translucent background, a
+backdrop blur, a small shadow. **One set of tokens, one class** — to change
+the look, change a value here and run `npm run tokens:build`; no component
+holds any of it.
+
+| Token (semantic) | Light → primitive | Dark → primitive | CSS | What it is |
+| --- | --- | --- | --- | --- |
+| `color.surface-frosted` | `color.white-alpha.70` | `color.neutral-900-alpha.70` | `--surface-frosted` | The surface's background. Dark is the stock raised surface (`card`, `popover`) let through, not the page colour: raised surfaces get lighter |
+| `color.surface-frosted-shadow` | `color.black-alpha.10` | `color.black-alpha.40` | `--surface-frosted-shadow` | Colour of the small shadow |
+| `surface.frosted.blur` | `blur.md` (12px) | — (no mode) | `--surface-frosted-blur` | Radius of the backdrop blur |
+| `surface.frosted.shadow.blur` | `blur.sm` (8px) | — (no mode) | `--surface-frosted-shadow-blur` | Blur radius of the shadow; it has no offset, so it reads the same under the top bar and above the bottom one |
+
+- **Stronger or weaker:** more see-through = a lower opacity step for
+  `color.surface-frosted` (add the primitive, e.g. `color.white-alpha.60`,
+  point the role at it in both mode files); more blur = point
+  `surface.frosted.blur` at a larger `blur.*` step.
+- **The class:** `surface-frosted` in `src/index.css`, the only reader of the
+  four tokens (`src/test/tokens.test.ts` pins that). It is **unlayered**, so
+  it replaces a kit surface's own `bg-popover` and `shadow-*` from our wrapper
+  without the kit file being edited; a ring the kit draws on the same element
+  stays. Write it beside the surface's stock background (`bg-background` on
+  our bars, the kit's own on an overlay) — that background is the fallback.
+- **Fallbacks, in the class:** no `backdrop-filter` support,
+  `prefers-reduced-transparency: reduce`, `forced-colors: active` → the stock
+  opaque background, no blur.
+- **No foreground token:** text on a frosted surface is the role the surface
+  already carries (`foreground` on the bars, `popover-foreground` on an
+  overlay). Contrast over it is not measured (D-43).
+- **Where it is used** (the admission test's "two real places"): the shell's
+  header and chat bar row; `DropdownMenu`, `Select`'s list, `Dialog`,
+  `AlertDialog`, `Sheet`. The two colours are mapped to Tailwind keys
+  (`--color-surface-frosted…`) only because every colour role is; do not
+  write `bg-surface-frosted` — use the class.
 
 ## Changed from stock
 
@@ -194,3 +237,12 @@ pairs" binds nothing in this project.
 - **Style Dictionary reports two tokens with one CSS name as a "collision"
   warning**; the build turns warnings into errors. Read it as: two source
   paths map to the same custom property.
+- **A class of ours cannot outrank a kit utility from inside the utilities
+  layer.** Tailwind sorts a many-property utility before the single-property
+  ones, so an `@utility` that sets a background loses to the kit's
+  `bg-popover` on the same element. `surface-frosted` is therefore written
+  unlayered, and hands the property back with `revert-layer` in its
+  fallbacks.
+- **A library's own stylesheet can outrank an unlayered class.** Sonner styles
+  a toast with attribute selectors of higher specificity than one class: the
+  toast does not take `surface-frosted` and stays stock (D-47).

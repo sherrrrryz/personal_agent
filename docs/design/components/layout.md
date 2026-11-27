@@ -62,6 +62,18 @@ target-size and no contrast requirement; the "Min target" column binds nothing.
 | `Grid` | None | — | Not interactive; items keep the source order at every column count | — | — | — |
 | `Section` | `region` (a `section` with a name) | Its heading, by `aria-labelledby`; two sections on one page need different titles | Not interactive | — | — | — |
 
+**The shell's two bars lie over `main` (D-47).** `Page` and `ModuleFrame` sit
+in the shell's `main` (`src/shell/Shell.tsx`), which fills the whole column:
+the shell's header is laid over its start and the chat bar row
+(`[data-shell-bar]`) over its end, both frosted (`surface-frosted`,
+`../TOKENS.md` § Frosted surface), and the page scrolls beneath them. `main`
+keeps the room of each bar as padding and as `scroll-padding` — measured, as
+`--shell-header-size` and `--shell-bar-size` on `[data-shell]`
+(`src/shell/use-bar-sizes.ts`) — so a page's first and last content and a
+focused control are never under a bar. A screen does nothing for this; a
+`sticky top-0` of its own inside `main` would stick **under** the header — add
+`top-(--shell-header-size)`.
+
 Controls placed in the `actions` slot of `Page` or `Section` bring their own
 contract (their family file); the slot adds none and wraps them under the
 title rather than shrinking them.

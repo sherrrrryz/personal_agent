@@ -9,6 +9,7 @@ import { AppSidebar } from './AppSidebar'
 import { useShellRoute } from './route'
 import { ShellHeader } from './ShellHeader'
 import type { ShellSlots } from './slots'
+import { useBarSizes } from './use-bar-sizes'
 import { expandedQuery, useMediaQuery } from './use-media'
 import { usePageHeading } from './use-page-heading'
 
@@ -18,10 +19,15 @@ const skipClass = `sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top
 /**
  * What surrounds every screen (spec part 2 § Shell). Inside the shell: a skip
  * link, the sidebar at the inline start, then a column of header, `main` and
- * the bottom row. `main` is the one part that scrolls; the bottom row is a
- * row of the layout, never an overlay, so it cannot cover the page or the
- * focused element. A bare route (onboarding, `/dev/*`, not-found) gets `main`
- * alone — `route.ts` says which is which.
+ * the bottom row. All three stand in the one cell of a grid: `main` is the one
+ * part that scrolls and fills the cell, the header is laid at its start and
+ * the bottom row at its end — both frosted surfaces (D-47), so the page
+ * scrolls beneath them. Neither is taken out of the flow. `main` keeps their
+ * room as padding and as `scroll-padding` (`useBarSizes` measures both), so
+ * the first and last content and the focused element are never left under a
+ * bar.
+ * A bare route (onboarding, `/dev/*`, not-found) gets `main` alone —
+ * `route.ts` says which is which.
  *
  * Size classes (spec part 1 § Responsive): expanded — sidebar open; medium —
  * icon rail; compact — the kit's sheet, opened from the header. The trigger
@@ -40,6 +46,9 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
   if (choice && choice.expanded !== expanded) setChoice(null)
   const open = choice && choice.expanded === expanded ? choice.open : expanded
 
+  const { chatBar: ChatBar, sidebarRecent } = slots ?? route.slots
+  const shell = useBarSizes(route.chrome !== 'bare' && Boolean(ChatBar))
+
   if (route.chrome === 'bare') {
     return (
       <main id="main" ref={main} tabIndex={-1}>
@@ -48,7 +57,6 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
     )
   }
 
-  const { chatBar: ChatBar, sidebarRecent } = slots ?? route.slots
   const skip = (event: MouseEvent) => {
     // Focus moves; the address keeps no `#main` for the router to carry along.
     event.preventDefault()
@@ -62,20 +70,31 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
       </a>
       <SidebarProvider open={open} onOpenChange={(next) => setChoice({ expanded, open: next })}>
         <AppSidebar recent={sidebarRecent} />
-        <div className="flex h-svh min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto" data-shell="">
+        <div
+          ref={shell}
+          className="grid h-svh min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-clip overflow-y-auto"
+          data-shell=""
+        >
           <ShellHeader heading={heading} />
           {/*
             Sideways the page is cut, not scrolled: a screen that is too wide
             then fails the matrix as clipped text instead of passing with a
             scroll bar nobody looked for. The minimum keeps `main` reachable
             in a short window; the column scrolls as a whole when even that
-            does not fit.
+            does not fit. `isolate`: nothing a screen stacks rises over the
+            two bars. The padding is the bars' room, the scroll padding keeps
+            a focused control out from under them.
           */}
-          <main id="main" ref={main} tabIndex={-1} className="relative min-h-48 flex-1 overflow-x-clip overflow-y-auto">
+          <main
+            id="main"
+            ref={main}
+            tabIndex={-1}
+            className="relative isolate col-start-1 row-start-1 min-h-48 scroll-pt-(--shell-header-size) scroll-pb-(--shell-bar-size) overflow-x-clip overflow-y-auto pt-(--shell-header-size) pb-(--shell-bar-size)"
+          >
             <Outlet />
           </main>
           {ChatBar && (
-            <div className="border-t" data-shell-bar="">
+            <div className="surface-frosted z-10 col-start-1 row-start-1 self-end border-t bg-background" data-shell-bar="">
               <ChatBar />
             </div>
           )}

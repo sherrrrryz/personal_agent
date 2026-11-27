@@ -6,6 +6,12 @@
       "2": { "$value": { "value": 2, "unit": "px" } }
     }
   },
+  "blur": {
+    "$type": "dimension",
+    "$description": "Blur radii: two steps of Tailwind's shipped blur scale (D-47). Fixed unit: RESPONSIVE.md § Unit policy allowlist (shadow and blur geometry).",
+    "sm": { "$value": { "value": 8, "unit": "px" } },
+    "md": { "$value": { "value": 12, "unit": "px" } }
+  },
   "radius": {
     "$type": "dimension",
     "lg": {
