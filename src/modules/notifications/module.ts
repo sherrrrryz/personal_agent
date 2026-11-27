@@ -1,14 +1,17 @@
 import { moduleId, tableId } from '@/fixtures/keys'
 import { formatDateTime, formatNumber, translate, type MessageKey, type MessageParams } from '@/i18n'
-import { datePart, openProposals, resolveModule, stringCell, tableOf, toDate, type ModuleDefinition } from '@/runtime'
+import { datePart, isResolved, resolveModule, stringCell, tableOf, toDate, type ModuleDefinition } from '@/runtime'
 import type { PageBlock } from '@/blocks/types'
 import { modulePath } from '@/shell'
 
 // 通知 (`notifications`, spec part 3 § Screens and flows): the figures, one
 // `block.proposal` per deferred item of any module — each naming the module it
 // comes from — and the important items the workflow ranked. The first
-// unresolved proposal is the page's primary action. With nothing waiting and
-// nothing ranked the page is one `block.empty`.
+// unresolved proposal is the page's primary action. An item she has decided
+// stays, with its outcome, until the story day is over; the line of 重要的事
+// that only announced it goes at once. A proposal to change a workflow links
+// to the editor, which opens on the change. With nothing waiting and nothing
+// ranked the page is one `block.empty`.
 
 /** The key of a proposal's block is the proposal's id, so its 接受 / 拒绝 name it. */
 const definition: ModuleDefinition = {
@@ -16,18 +19,24 @@ const definition: ModuleDefinition = {
 
   page(view, _preview, { locale }) {
     const t = (key: MessageKey<'base-modules'>, params?: MessageParams) => translate(locale, 'base-modules', key, params)
-    const source = (id: string) => {
+    const source = (id: string, tab: 'page' | 'workflow' = 'page') => {
       const module = resolveModule(view, id)?.module
-      return { label: module?.name[locale] ?? id, href: module && !module.archived ? modulePath(module.id) : undefined }
+      const path = module && !module.archived ? modulePath(module.id) : undefined
+      return { label: module?.name[locale] ?? id, href: path && tab === 'workflow' ? `${path}/workflow` : path }
     }
 
-    // Newest first; a deferred item waits here until every part is decided.
-    const waiting = openProposals(view).filter((proposal) => proposal.mode === 'deferred')
-    const notices = [...(tableOf(view, tableId.notices)?.rows ?? [])].sort((a, b) =>
-      (stringCell(b, 'at') ?? '').localeCompare(stringCell(a, 'at') ?? ''),
-    )
+    const today = datePart(view.storyTime)
+    // Newest first. A deferred item waits here until every part is decided, and stays for the rest of that day.
+    const shown = [...view.proposals]
+      .reverse()
+      .filter((proposal) => proposal.mode === 'deferred' && (!isResolved(proposal) || datePart(proposal.decidedAt ?? '') === today))
+    const waiting = shown.filter((proposal) => !isResolved(proposal))
+    const decided = new Set(view.proposals.filter(isResolved).map((proposal) => proposal.id))
+    const notices = [...(tableOf(view, tableId.notices)?.rows ?? [])]
+      .filter((row) => !decided.has(stringCell(row, 'proposal') ?? ''))
+      .sort((a, b) => (stringCell(b, 'at') ?? '').localeCompare(stringCell(a, 'at') ?? ''))
 
-    if (waiting.length === 0 && notices.length === 0) {
+    if (shown.length === 0 && notices.length === 0) {
       return {
         blocks: [
           {
@@ -41,7 +50,6 @@ const definition: ModuleDefinition = {
       }
     }
 
-    const today = datePart(view.storyTime)
     const newToday =
       waiting.filter((proposal) => datePart(proposal.at) === today).length +
       notices.filter((row) => datePart(stringCell(row, 'at') ?? '') === today).length
@@ -59,7 +67,7 @@ const definition: ModuleDefinition = {
           ],
         },
       },
-      ...waiting.map(
+      ...shown.map(
         (proposal): PageBlock => ({
           key: proposal.id,
           block: 'block.proposal',
@@ -69,7 +77,7 @@ const definition: ModuleDefinition = {
             mode: proposal.mode,
             summary: proposal.summary?.[locale],
             parts: proposal.parts.map((part) => ({ id: part.id, text: part.text[locale], state: part.state })),
-            source: source(proposal.moduleId),
+            source: source(proposal.moduleId, proposal.onAccept.action === 'approveWorkflowChange' ? 'workflow' : 'page'),
           },
         }),
       ),

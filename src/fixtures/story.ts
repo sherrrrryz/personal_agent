@@ -97,7 +97,7 @@ export function firstChange(draft: Snapshot): void {
   request(draft, 'tudou')
   customerWrote(draft, 'msg-shen', 'buding', tx('朋友介绍来的，布丁周四第一次去你们店，要准备什么吗？', 'A friend recommended you. Buding comes for the first time on Thursday — anything we should prepare?'), moduleId.clients, '2026-11-23T16:20')
   setNotices(draft, [
-    ['notice-review', tx('每周复盘：金毛的时长有两条修改建议，等你确认。', 'Weekly review: two suggested changes to the Golden Retriever times wait for you.'), duration, '2026-11-23T18:00'],
+    ['notice-review', tx('每周复盘：金毛的时长有两条修改建议，等你确认。', 'Weekly review: two suggested changes to the Golden Retriever times wait for you.'), duration, '2026-11-23T18:00', proposalId.review],
     ['notice-buding', tx('新顾客：布丁（金毛）周四 10:00 第一次到店。', 'New customer: Buding (Golden Retriever) comes for the first time on Thursday at 10:00.'), moduleId.clients, '2026-11-23T16:25'],
     ['notice-shampoo', shampoo, moduleId.inventory, '2026-11-22T21:00'],
   ])
@@ -162,7 +162,7 @@ export function workflowChanges(draft: Snapshot): void {
   request(draft, 'naicha')
   customerWrote(draft, 'msg-cao', 'yuanbao', tx('元宝周四第一次去，它有点怕生，可以先让它熟悉一下环境吗？', 'Yuanbao comes for the first time on Thursday. It is shy with strangers — could it get used to the place first?'), moduleId.clients, '2027-01-04T15:10')
   setNotices(draft, [
-    ['notice-first-visit', tx('每周复盘：建议给「服务时长」的工作流新增一个条件，等你确认。', 'Weekly review: a new condition is suggested for the Service duration workflow and waits for you.'), duration, '2027-01-04T18:00'],
+    ['notice-first-visit', tx('每周复盘：建议给「服务时长」的工作流新增一个条件，等你确认。', 'Weekly review: a new condition is suggested for the Service duration workflow and waits for you.'), duration, '2027-01-04T18:00', proposalId.firstVisit],
     ['notice-yuanbao', tx('新顾客：元宝（边牧）周四 10:00 第一次到店。', 'New customer: Yuanbao (Border Collie) comes for the first time on Thursday at 10:00.'), moduleId.clients, '2027-01-04T15:15'],
     ['notice-shampoo', shampoo, moduleId.inventory, '2027-01-03T21:00'],
   ])

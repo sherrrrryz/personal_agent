@@ -96,12 +96,22 @@ describe('the base modules’ pages (B-02)', () => {
     expect(first).toHaveTextContent('服务时长')
     expect(await axe(document.body)).toHaveNoViolations()
 
-    // 接受 on each part goes to the runtime; the resolved proposal leaves the page.
+    // 接受 on each part goes to the runtime. The decided item stays for the day with its outcome,
+    // the figure drops to zero, and the line that only announced it leaves 重要的事.
     for (const accept of within(proposal).getAllByRole('button', { name: /^接受/ })) await userEvent.click(accept)
-    await waitFor(() => expect(main().queryByRole('region', { name: /^每周复盘：金毛的时长和实际差得多/ })).toBeNull())
+    await waitFor(() => expect(within(proposal).queryByRole('button', { name: /^接受/ })).toBeNull())
+    expect(within(proposal).getAllByText('已接受')).toHaveLength(2)
+    await waitFor(() => expect(within(important).queryByText('每周复盘：金毛的时长有两条修改建议，等你确认。')).toBeNull())
+    expect(within(important).getAllByRole('listitem')).toHaveLength(2)
     const review = runtime.getState().proposals.find((each) => each.id === 'proposal-duration-review')
     expect(review?.parts.map((part) => part.state)).toEqual(['accepted', 'accepted'])
     expect(review?.applied).toBe(true)
+  })
+
+  it('通知 in s4: the proposal to change the workflow links to the editor, which opens on the change', async () => {
+    open('/m/notifications', { scene: 's4' })
+    const proposal = await block('每周复盘：建议修改工作流')
+    expect(hrefOf(within(proposal).getByRole('link', { name: /服务时长/ }))).toBe(`${modulePath(duration)}/workflow`)
   })
 
   it('通知 in e2: one proposal per customer who has not answered', async () => {

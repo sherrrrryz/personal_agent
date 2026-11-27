@@ -268,6 +268,8 @@ export type Proposal = {
   conversationId?: string
   /** Set when `onAccept` has run. */
   applied?: boolean
+  /** The story time at which the last part was decided. 通知 keeps a deferred item until that day is over. */
+  decidedAt?: string
 }
 
 // ── Conversations and topics ────────────────────────────────────────────────

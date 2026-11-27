@@ -37,11 +37,14 @@ export function notice(draft: Snapshot, id: string, text: Text, source: string):
   updateMemory(draft, [{ tableId: tableId.notices, rowId: id, cells: { text, source, at: draft.storyTime }, insert: true }])
 }
 
-/** The important items as the notifications workflow ranks them now: the old ones give way. */
-export function setNotices(draft: Snapshot, items: Array<[id: string, text: Text, source: string, at?: string]>): void {
+/**
+ * The important items as the notifications workflow ranks them now: the old ones give way.
+ * An item that only announces a proposal names it (`proposal`): 通知 drops the line once she has decided.
+ */
+export function setNotices(draft: Snapshot, items: Array<[id: string, text: Text, source: string, at?: string, proposal?: string]>): void {
   const notices = tableOf(draft, tableId.notices)
   if (!notices) return
-  notices.rows = items.map(([id, text, source, at]) => row(id, { text, source, at: at ?? draft.storyTime }))
+  notices.rows = items.map(([id, text, source, at, proposal]) => row(id, { text, source, at: at ?? draft.storyTime, ...(proposal ? { proposal } : {}) }))
   notices.updatedAt = draft.storyTime
 }
 

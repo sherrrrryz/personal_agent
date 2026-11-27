@@ -360,6 +360,7 @@ export function approveWorkflowChange(draft: Snapshot, input: { workflowId: stri
   if (proposal) {
     for (const part of proposal.parts) if (part.state === 'pending') part.state = 'accepted'
     proposal.applied = true
+    proposal.decidedAt ??= draft.storyTime
   }
   applyEstimates(draft)
   return true
@@ -424,6 +425,7 @@ export function resolveProposalPart(
   part.state = input.resolution
   if (proposal.applied || proposal.parts.some((each) => each.state === 'pending')) return null
   proposal.applied = true
+  proposal.decidedAt = draft.storyTime
   // A workflow change that was refused takes its draft with it.
   if (proposal.onAccept.action === 'approveWorkflowChange' && proposal.parts.every((each) => each.state === 'rejected')) {
     const { workflowId } = proposal.onAccept.input
@@ -590,10 +592,16 @@ export function findScript(state: Snapshot, text: string, context: ChatContext):
   )
 }
 
+/** The sub-module a script's conversation becomes is already there: asking again would only propose it twice. */
+function alreadyBuilt(state: Snapshot, script: ChatScript): boolean {
+  const slug = subModuleTemplates[script.template ?? '']?.slug
+  return slug !== undefined && state.modules.some((module) => !module.archived && module.id.endsWith(`.sub.${slug}`))
+}
+
 /** The scripted prompts the chat bar offers on this screen, at most three. */
 export function suggestedPrompts(state: Snapshot, context: ChatContext): ChatScript[] {
   return chatScripts
-    .filter((script) => script.scenes.includes(state.scene) && (script.where?.(state, context) ?? true))
+    .filter((script) => script.scenes.includes(state.scene) && !alreadyBuilt(state, script) && (script.where?.(state, context) ?? true))
     .slice(0, 3)
 }
 
