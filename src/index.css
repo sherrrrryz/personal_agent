@@ -6,7 +6,8 @@
  * the stock values. To change a colour, change it in tokens/ — see
  * docs/design/TOKENS.md § Changing a colour. This file maps the variables
  * onto Tailwind's theme keys and holds the two global accessibility rules
- * and the one class of ours that is a look: `surface-frosted` (D-47).
+ * and the two classes of ours that are a look: `surface-frosted` (D-47) and
+ * `surface-backdrop` (D-52).
  */
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
@@ -49,6 +50,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-canvas: var(--canvas);
+  --color-backdrop-from: var(--backdrop-from);
+  --color-backdrop-via: var(--backdrop-via);
+  --color-backdrop-to: var(--backdrop-to);
   --color-surface-frosted: var(--surface-frosted);
   --color-surface-frosted-shadow: var(--surface-frosted-shadow);
 
@@ -145,5 +149,29 @@
     background-color: revert-layer;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+
+/*
+ * Backdrop (D-52) — the one place where the onboarding page's background is
+ * written: a light gradient (tokens/semantic: color.backdrop-from, -via, -to;
+ * dark in color.dark.json) under a grain (surface.backdrop.grain, a tile of
+ * mid-grey specks that darken the light gradient and lighten the dark one, so
+ * one tile serves both modes). On the element
+ * that scrolls, the backdrop stays put while the page moves over it.
+ * `bg-background` beside the class is the fallback.
+ *
+ * Under `prefers-reduced-transparency: reduce` and `forced-colors: active`
+ * the backdrop goes back to the stock background, plain.
+ */
+.surface-backdrop {
+  background-image:
+    var(--surface-backdrop-grain),
+    linear-gradient(to bottom right, var(--backdrop-from), var(--backdrop-via), var(--backdrop-to));
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .surface-backdrop {
+    background-image: none;
   }
 }

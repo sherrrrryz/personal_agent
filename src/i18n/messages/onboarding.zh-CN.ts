@@ -3,6 +3,7 @@ import type en from './onboarding.en'
 
 const messages: Translation<typeof en> = {
   'step.progress': '第 {step} 步，共 {total} 步',
+  'menu.appearance': '语言和外观',
   'action.back': '上一步',
   'action.cancel': '取消',
   'action.cancel.note': '不重新访谈，回到设置。',

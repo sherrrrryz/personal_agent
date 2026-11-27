@@ -5,6 +5,7 @@ import type { Messages } from '../types'
 // connector list.
 const messages = {
   'step.progress': 'Step {step} of {total}',
+  'menu.appearance': 'Language and appearance',
   'action.back': 'Back',
   'action.cancel': 'Cancel',
   'action.cancel.note': 'Return to settings without another interview.',

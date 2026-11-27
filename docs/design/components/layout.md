@@ -84,3 +84,33 @@ focused control are never under a bar. A screen does nothing for this; a
 Controls placed in the `actions` slot of `Page` or `Section` bring their own
 contract (their family file); the slot adds none and wraps them under the
 title rather than shrinking them.
+
+### The onboarding page
+
+**The onboarding page (D-52)** is outside the shell (a bare route), so its
+layout, `src/screens/onboarding/OnboardingLayout.tsx`, brings its own chrome
+in the same pattern as the shell's bars. Its root is the element that scrolls
+(`[data-onboarding]`, `h-svh`), drawn with the grainy gradient
+`surface-backdrop` (`../TOKENS.md` § Backdrop). Over it, fixed:
+
+- **The top bar** (`[data-onboarding-header]`): a transparent row (`p-2`,
+  `pointer-events-none`) holding a small floating panel (`shellPanelClass`) —
+  the app name in capitals at the start, a slim `Progress` (`w-44`) whose
+  label is the step in words (第 1 步，共 3 步) at the end.
+- **The bottom bar** (`[data-onboarding-bar]`): an empty transparent row
+  (`empty:hidden`, so it takes no room) that a step fills through a portal
+  (`useOnboardingBar` in `paths.ts`); the interview puts its composer and
+  继续 there, in a floating panel as wide as `Page`'s `prose` measure.
+- **The ⋯ button** (`AppearanceMenu`, `[data-onboarding-fab]`): round,
+  frosted, at the bottom end corner; a `DropdownMenu` of 语言 and 外观. At
+  1024 px it stays clear of the bottom panel (which is `prose` wide and
+  centred).
+
+In the flow, under the top bar: **the AI's portrait slot**
+(`[data-agent-avatar-slot]`, `size-44`, centred, `aria-hidden`), then the
+step's `Page`. The root keeps both bars' room as padding and as
+`scroll-padding` — measured, as `--onboarding-header-size` and
+`--onboarding-bar-size` on the root (`use-onboarding-bars.ts`, the shell's
+`use-bar-sizes.ts` again) — so the first and last content, a message brought
+into view and a focused control are never under a bar. The layout scrolls the
+root to the top on a step change (`main` does not scroll here).

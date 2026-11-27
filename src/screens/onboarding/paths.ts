@@ -52,3 +52,16 @@ export function useOnboarding(): OnboardingProgress {
   if (!progress) throw new Error('useOnboarding: a step is rendered outside OnboardingLayout')
   return progress
 }
+
+/**
+ * The onboarding page's bottom bar (D-52): a floating row the layout holds at
+ * the end of the window, which the interview fills with its composer through
+ * a portal. `null` before the layout has mounted — the step then draws its
+ * composer in place.
+ */
+export const OnboardingBarContext = createContext<HTMLElement | null>(null)
+
+/** The bottom bar, or `null` where there is none yet. */
+export function useOnboardingBar(): HTMLElement | null {
+  return useContext(OnboardingBarContext)
+}

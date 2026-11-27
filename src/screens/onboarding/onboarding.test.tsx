@@ -253,14 +253,39 @@ describe('onboarding, re-entry from settings (B-15)', () => {
     expect(await screen.findByText('这个功能还没有内容')).toBeInTheDocument()
   })
 
-  it('the language select in the onboarding header switches the step in place', async () => {
+  it('the ⋯ button at the corner holds language and appearance (D-52); the language switches the step in place', async () => {
     const { router } = open('/onboarding/profession')
     await heading('先聊聊你的工作')
-    await userEvent.click(screen.getByRole('combobox', { name: '语言' }))
-    await userEvent.click(within(await screen.findByRole('listbox')).getByRole('option', { name: 'English' }))
+    // Neither is in the top bar any more.
+    expect(screen.queryByRole('combobox', { name: '语言' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: '语言和外观' }))
+    const menu = await screen.findByRole('menu')
+    expect(within(menu).getByRole('group', { name: '外观' })).toBeInTheDocument()
+    expect(within(menu).getByRole('menuitemradio', { name: '跟随系统' })).toBeInTheDocument()
+    await userEvent.click(within(menu).getByRole('menuitemradio', { name: 'English' }))
     await heading('Tell me about your work')
     expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
     expect(screen.getByText('Hello — let me get to know your work first. What do you do?')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/onboarding/profession')
+  })
+
+  it('lays the steps out under a top bar with the name and the step, the AI portrait slot, and the composer in the bottom bar (D-52)', async () => {
+    const { container, router } = open('/onboarding/profession')
+    await heading('先聊聊你的工作')
+    const page = container.querySelector('[data-onboarding]')!
+    expect(page).toHaveClass('surface-backdrop')
+    const header = page.querySelector(':scope > [data-onboarding-header]')!
+    expect(within(header as HTMLElement).getByText('Personal Agent')).toHaveClass('uppercase')
+    expect(within(header as HTMLElement).getByRole('progressbar', { name: '第 1 步，共 3 步' })).toBeInTheDocument()
+    expect(page.querySelector('[data-agent-avatar-slot]')).toHaveAttribute('aria-hidden', 'true')
+    const bar = page.querySelector(':scope > [data-onboarding-bar]') as HTMLElement
+    expect(within(bar).getByRole('textbox', { name: '你的回答' })).toBeInTheDocument()
+    expect(within(bar).getByRole('button', { name: '继续' })).toBeInTheDocument()
+
+    // Step 2 has no composer: the bottom bar is empty (and hidden, so it takes no room); the slot is still there.
+    await act(() => router.navigate('/onboarding/modules'))
+    await heading('你的功能')
+    expect(bar).toBeEmptyDOMElement()
+    expect(page.querySelector('[data-agent-avatar-slot]')).toBeInTheDocument()
   })
 })

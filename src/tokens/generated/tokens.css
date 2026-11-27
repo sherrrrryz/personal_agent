@@ -14,6 +14,10 @@
   --primitive-color-warm-800: oklch(0.269 0.01 55);
   --primitive-color-warm-900: oklch(0.205 0.008 52);
   --primitive-color-warm-950: oklch(0.145 0.006 50);
+  --primitive-color-peach-50: oklch(0.972 0.024 62);
+  --primitive-color-peach-950: oklch(0.215 0.024 52);
+  --primitive-color-lilac-50: oklch(0.962 0.02 300);
+  --primitive-color-lilac-950: oklch(0.2 0.028 295);
   --primitive-color-white-alpha-10: oklch(1 0 0 / 0.1);
   --primitive-color-white-alpha-15: oklch(1 0 0 / 0.15);
   --primitive-color-warm-alpha-0-70: oklch(0.995 0.004 85 / 0.7);
@@ -33,6 +37,7 @@
   --primitive-duration-300: 300ms;
   --primitive-duration-500: 500ms;
   --primitive-duration-1200: 1200ms;
+  --primitive-texture-grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.3 0 0 0 0 0.3 2 0 0 0 -0.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.24'/%3E%3C/svg%3E");
 
   /* semantic — light (default) */
   --background: var(--primitive-color-warm-0);
@@ -67,6 +72,9 @@
   --sidebar-border: var(--primitive-color-warm-200);
   --sidebar-ring: var(--primitive-color-warm-400);
   --canvas: var(--primitive-color-warm-100);
+  --backdrop-from: var(--primitive-color-peach-50);
+  --backdrop-via: var(--primitive-color-warm-50);
+  --backdrop-to: var(--primitive-color-lilac-50);
   --surface-frosted: var(--primitive-color-warm-alpha-0-70);
   --surface-frosted-shadow: var(--primitive-color-black-alpha-10);
   --focus-forced: var(--primitive-color-system-highlight);
@@ -82,6 +90,7 @@
   --font-family-sans: var(--primitive-font-stack-sans);
   --surface-frosted-blur: var(--primitive-blur-md);
   --surface-frosted-shadow-blur: var(--primitive-blur-sm);
+  --surface-backdrop-grain: var(--primitive-texture-grain-fine);
   --motion-simulated-delay: var(--primitive-duration-120);
   --motion-reply-beat: var(--primitive-duration-500);
   --motion-reply-write: var(--primitive-duration-1200);
@@ -121,6 +130,9 @@
   --sidebar-border: var(--primitive-color-white-alpha-10);
   --sidebar-ring: var(--primitive-color-warm-500);
   --canvas: var(--primitive-color-warm-950);
+  --backdrop-from: var(--primitive-color-peach-950);
+  --backdrop-via: var(--primitive-color-warm-950);
+  --backdrop-to: var(--primitive-color-lilac-950);
   --surface-frosted: var(--primitive-color-warm-alpha-900-70);
   --surface-frosted-shadow: var(--primitive-color-black-alpha-40);
 }

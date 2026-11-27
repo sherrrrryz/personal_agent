@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 
 import { Button } from '@/components/actions'
@@ -8,8 +9,9 @@ import { interview, interviewMessages, longInterview } from '@/fixtures'
 import { useLocale, useT, type Locale } from '@/i18n'
 import { prefersReducedMotion } from '@/lib/reduced-motion'
 import { REPLY_PACE, useRuntimeState, type Message } from '@/runtime'
+import { shellPanelClass } from '@/shell/panel'
 
-import { onboardingPaths, settingsPaths, useOnboarding, useReentry } from './paths'
+import { onboardingPaths, settingsPaths, useOnboarding, useOnboardingBar, useReentry } from './paths'
 
 const total = interview.questions.length
 
@@ -50,6 +52,7 @@ export function ProfessionStep() {
   const [reply, setReply] = useState<'idle' | 'thinking' | 'writing' | 'failed'>('idle')
   const [draft, setDraft] = useState('')
   const noteId = useId()
+  const bar = useOnboardingBar()
 
   const long = preview === 'long'
   const done = long || answered >= total
@@ -76,9 +79,9 @@ export function ProfessionStep() {
     return () => clearTimeout(timer)
   }, [reply, preview, answered, setAnswered])
 
-  // The composer stays at the end of the window (it is sticky), so the newest message would arrive
-  // underneath it: after each exchange the end of the page is brought into view. Not when the step
-  // opens — a long interview is read from its start.
+  // The composer floats over the end of the page (D-52), so the newest message would arrive
+  // underneath it: after each exchange the end of the page is brought into view — the page keeps the
+  // composer's room as scroll padding. Not when the step opens — a long interview is read from its start.
   const end = useRef<HTMLDivElement>(null)
   const opened = useRef(true)
   useEffect(() => {
@@ -132,6 +135,40 @@ export function ProfessionStep() {
     )
   }
 
+  // The composer and 继续, in a floating frosted panel as wide as the page's reading measure.
+  const composer = (
+    <div className={`${shellPanelClass} mx-auto max-w-prose p-3`} data-onboarding-panel="">
+      <Stack gap="md">
+        <ChatComposer
+          placement="onboarding"
+          value={draft}
+          onValueChange={(text) => {
+            cancelAnimationFrame(frame.current)
+            setDraft(text)
+          }}
+          onSend={send}
+          sending={arriving}
+          disabled={done}
+        />
+        <Inline gap="sm">
+          <Button
+            disabled={!done}
+            focusableWhenDisabled
+            aria-describedby={done ? undefined : noteId}
+            onClick={() => navigate(to(onboardingPaths.modules))}
+          >
+            {t('profession.continue')}
+          </Button>
+          {!done && (
+            <p id={noteId} className="text-sm text-muted-foreground">
+              {t('profession.continue.note')}
+            </p>
+          )}
+        </Inline>
+      </Stack>
+    </div>
+  )
+
   return (
     <Page
       title={t('profession.title')}
@@ -147,37 +184,8 @@ export function ProfessionStep() {
     >
       {/* The page scrolls here, not the list: its own following is off, the step brings the end into view (above). */}
       <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('thinking')} />
-      {/* The composer stays at the end of the window while the interview scrolls above it. */}
-      <div className="sticky bottom-0 bg-background py-4">
-        <Stack gap="md">
-          <ChatComposer
-            placement="onboarding"
-            value={draft}
-            onValueChange={(text) => {
-              cancelAnimationFrame(frame.current)
-              setDraft(text)
-            }}
-            onSend={send}
-            sending={arriving}
-            disabled={done}
-          />
-          <Inline gap="sm">
-            <Button
-              disabled={!done}
-              focusableWhenDisabled
-              aria-describedby={done ? undefined : noteId}
-              onClick={() => navigate(to(onboardingPaths.modules))}
-            >
-              {t('profession.continue')}
-            </Button>
-            {!done && (
-              <p id={noteId} className="text-sm text-muted-foreground">
-                {t('profession.continue.note')}
-              </p>
-            )}
-          </Inline>
-        </Stack>
-      </div>
+      {/* The composer floats in the layout's bottom bar (D-52) while the interview scrolls beneath it. */}
+      {bar ? createPortal(composer, bar) : composer}
       <div ref={end} />
     </Page>
   )

@@ -34,6 +34,9 @@
     "sidebar-border": { "$value": "{color.white-alpha.10}" },
     "sidebar-ring": { "$value": "{color.warm.500}" },
     "canvas": { "$value": "{color.warm.950}" },
+    "backdrop-from": { "$value": "{color.peach.950}" },
+    "backdrop-via": { "$value": "{color.warm.950}" },
+    "backdrop-to": { "$value": "{color.lilac.950}" },
     "surface-frosted": { "$value": "{color.warm-alpha.900-70}" },
     "surface-frosted-shadow": { "$value": "{color.black-alpha.40}" }
   }

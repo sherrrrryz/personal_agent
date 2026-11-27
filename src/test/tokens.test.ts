@@ -109,8 +109,10 @@ const STOCK: Record<string, { light: Stock; dark: Stock }> = {
 
 /** Colour roles of ours beside shadcn/ui's: the frosted surface and its small shadow (D-47) … */
 const FROSTED = ['surface-frosted', 'surface-frosted-shadow']
-/** … and the canvas the floating sidebar and the cards stand on (D-50). */
-const OURS = [...FROSTED, 'canvas']
+/** … the canvas the floating sidebar and the cards stand on (D-50) … */
+/** … and the three stops of the onboarding backdrop gradient (D-52). */
+const BACKDROP = ['backdrop-from', 'backdrop-via', 'backdrop-to']
+const OURS = [...FROSTED, 'canvas', ...BACKDROP]
 
 /** The roles `docs/design/TOKENS.md` § Changed from stock lists: the owner's colour changes (D-43). */
 function changedRoles(): Set<string> {
@@ -125,7 +127,7 @@ describe('stock theme (D-43)', () => {
     expect(roles('dark').sort()).toEqual(roles('light').sort())
   })
 
-  it('has every shadcn/ui role, and beside them only the two colours of the frosted surface (D-47)', () => {
+  it('has every shadcn/ui role, and beside them only ours: the frosted surface (D-47), the canvas (D-50), the backdrop (D-52)', () => {
     expect(roles('light').sort()).toEqual([...Object.keys(STOCK), ...OURS].map((role) => `color.${role}`).sort())
   })
 
@@ -154,6 +156,17 @@ describe('stock theme (D-43)', () => {
     expect([...differing].sort(), 'list a changed role in TOKENS.md § Changed from stock, and remove stale rows').toEqual(
       [...changed].sort(),
     )
+  })
+
+  it('the backdrop (D-52) is opaque in both modes and has one grain; the class in src/index.css reads all four', () => {
+    for (const role of BACKDROP)
+      for (const mode of ['light', 'dark'] as const)
+        expect(resolveRawColor(`color.${role}`, mode, tokens).alpha, `color.${role} (${mode}) is opaque`).toBe(1)
+    const grain = semantic.filter((token) => token.path === 'surface.backdrop.grain')
+    expect(grain.map((token) => [token.mode, token.value])).toEqual([['light', '{texture.grain.fine}']])
+    const backdrop = indexCss.slice(indexCss.indexOf('.surface-backdrop {'))
+    for (const name of ['--surface-backdrop-grain)', '--backdrop-from)', '--backdrop-via)', '--backdrop-to)'])
+      expect(backdrop, name).toContain(`var(${name}`)
   })
 
   it('the base radius is the stock 0.625rem', () => {
