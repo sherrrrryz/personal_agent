@@ -13,7 +13,7 @@ const messages: Translation<typeof en> = {
   'history.view': '查看',
   'history.view.name': '查看版本 {n}',
   'history.compare': '与当前对比',
-  'history.compare.name': '把版本 {n} 与当前版本对比',
+  'history.compare.name': '与当前对比：版本 {n}',
 
   'old.title': '你正在查看版本 {n}——只读',
   'old.body': '当前生效的是版本 {current}。旧版本只能查看，不能修改，也不能恢复。',

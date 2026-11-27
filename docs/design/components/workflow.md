@@ -25,8 +25,8 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 | Component | Source | Variants | Status | Notes |
 | --- | --- | --- | --- | --- |
-| `WorkflowCanvas` | `dependency` | `mode`: `view` · `diff` | `lofi` | `@xyflow/react` 13.0.3 (D-16): pan and zoom only — nodes are not draggable, connectable or deletable (D-10). Takes `nodes` **in flow order** (`flowOrder`) and `edges`; positions come from `rankLayout` over the sizes the library measured and one step of the spacing scale, never typed coordinates. `selectedId`, `revealId` (the `?node=` deep link: that node in the middle at full size), `onOpenNode`. Zoom is our three `Button`s (放大 · 缩小 · 适应画面); the wheel scrolls the page. `mode: diff` only reaches the DOM here (`data-mode`, `data-diff`, edge class `workflow-edge-added` / `-changed`) — drawing it is package C6's. Loading and error are the editor's `DataState` around both views, not states of the canvas |
-| `WorkflowNode` | `new` | `kind`: `trigger` · `source` · `step` · `condition` · `action` · `output` · `memory`; `selected`; `diff`: `added` · `changed` · `none` | `lofi` | The kit's `Card` (`size: sm`): kind icon + the kind in words, `label`, `lines` (what it holds), an action's `mode` as `BehaviourModeBadge` and 受上限限制 when `capped`, `links`, and the line 接到：… from `connectsTo`. As wide as its container; plain content — the canvas makes it focusable, 步骤列表 passes the opening button as `action`. `diff` is carried as `data-diff` for C6 |
+| `WorkflowCanvas` | `dependency` | `mode`: `view` · `diff` | `lofi` | `@xyflow/react` 13.0.3 (D-16): pan and zoom only — nodes are not draggable, connectable or deletable (D-10). Takes `nodes` **in flow order** (`flowOrder`) and `edges`; positions come from `rankLayout` over the sizes the library measured and one step of the spacing scale, never typed coordinates. `selectedId`, `revealId` (the `?node=` deep link: that node in the middle at full size), `onOpenNode`. Zoom is our three `Button`s (放大 · 缩小 · 适应画面); the wheel scrolls the page. `mode: diff` (a comparison): `data-mode` on the root; a node with a `diff` ends its name with the change (条件：…，新); a connector with a `diff` is dashed (added) or dotted (changed) — classes `workflow-edge-added` / `-changed` in `flow.css` — and carries the change's word as its label. Loading and error are the editor's `DataState` around both views, not states of the canvas |
+| `WorkflowNode` | `new` | `kind`: `trigger` · `source` · `step` · `condition` · `action` · `output` · `memory`; `selected`; `diff`: `added` · `changed` · `none` | `lofi` | The kit's `Card` (`size: sm`): kind icon + the kind in words, `label`, `lines` (what it holds), an action's `mode` as `BehaviourModeBadge` and 受上限限制 when `capped`, `links`, and the line 接到：… from `connectsTo`. As wide as its container; plain content — the canvas makes it focusable, 步骤列表 passes the opening button as `action`. `diff` (`added` · `changed`): a `ChangeMarker` (新 · 已更新) beside the kind and a border of its own style — dashed for added, dotted for changed — never colour alone; `data-diff` on the card |
 | `WorkflowHandle` | `dependency` | `type`: `target` · `source` | `lofi` | The library's `Handle` as the library draws it, on the start (`target`) or end (`source`) edge of a node. Never connectable; only inside `WorkflowCanvas` |
 
 ## Accessibility contract
@@ -54,6 +54,12 @@ target-size and no contrast requirement; the "Min target" column binds nothing.
 - **The library's attribution link stays** (a small "React Flow" link in the corner of the canvas, one tab stop
   after the nodes): the library asks for a paid subscription before `hideAttribution` is used, and the project
   takes on no paid plan. Its text is the library's, in English.
+- **A connector's label is unpainted by the library's base stylesheet** (black box, black text): `flow.css` sets
+  the label's fill to the page's surface and text. Any new label needs nothing more.
+- **The editor's comparison, history and read-only banner are slot files** (`src/screens/workflow/diff/slots.tsx`,
+  `history/slots.tsx`, found by glob): the editor holds *what is shown* (`EditorShown`), the slots change it. A
+  workflow with a pending change (`workflow.proposed`) opens on the comparison; `?history=open` opens the
+  version-history sheet with the page.
 - **The library's root is `role="application"`** and cannot be changed; give it the same name as the region.
 - **A node's `aria-describedby`** is written by the library and replaced by ours through `domAttributes`; ours
   repeats the library's id (`react-flow__node-desc-<flow id>`) and adds the node's 接到 line.

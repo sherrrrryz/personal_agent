@@ -14,7 +14,7 @@ const messages = {
   'history.view': 'View',
   'history.view.name': 'View version {n}',
   'history.compare': 'Compare with current',
-  'history.compare.name': 'Compare version {n} with the current version',
+  'history.compare.name': 'Compare with current: version {n}',
 
   'old.title': 'You are looking at version {n} — read-only',
   'old.body': 'Version {current} is the one in force. An older version can be read but not changed or restored.',
