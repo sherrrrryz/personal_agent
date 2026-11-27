@@ -30,7 +30,7 @@ function drawnOrder(props: ScheduleBlockProps): string[] {
 
 const columnClasses = (container: HTMLElement) =>
   Array.from(container.querySelectorAll('[data-resource]'), (column) =>
-    column.className.includes('hidden @2xl:flex') ? 'from-2xl' : column.className.includes('hidden @md:flex') ? 'from-md' : 'always',
+    column.className.includes('hidden @2xl:grid') ? 'from-2xl' : column.className.includes('hidden @md:grid') ? 'from-md' : 'always',
   )
 
 describeBlockStates(scheduleBlock, {
@@ -128,6 +128,37 @@ describe('block.schedule', () => {
     expect(screen.getAllByText(monday)).toHaveLength(3)
     const firstList = within(container.querySelector<HTMLElement>('[data-resource]')!).getAllByRole('list')[0]
     expect(firstList).toHaveAccessibleName(`${demo.long.resources[0].label} ${monday}`)
+  })
+
+  it('one day is one row across the resources: every column takes the grid’s rows, a name and then a cell per day (D-46)', () => {
+    const demo = scheduleBlock.demo('en')
+    const week = renderBlock('en', <ScheduleBlock props={demo.long} changes={{}} state="ready" />)
+    const grid = week.container.querySelector<HTMLElement>('[data-slot="schedule-grid"]')!
+    // A row for the names and one per day; the columns fill in the order of the resources.
+    expect(grid.style.gridTemplateRows).toBe('repeat(8, auto)')
+    expect(grid.className).toContain('grid-flow-col')
+    const columns = Array.from(grid.children) as HTMLElement[]
+    expect(columns.map((column) => column.dataset.resource)).toEqual(demo.long.resources.map((resource) => resource.id))
+    // Row n of the grid holds child n of every column: the same day for everyone.
+    const rows = columns.map((column) => {
+      expect(column.className).toContain('row-span-full')
+      expect(column.className).toContain('grid-rows-subgrid')
+      // A size container cannot take its rows from the grid.
+      expect(column.className).not.toContain('@container')
+      return Array.from(column.children, (cell) => (cell as HTMLElement).dataset.day ?? 'name')
+    })
+    expect(rows[0]).toEqual(['name', '2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08'])
+    expect(rows[1]).toEqual(rows[0])
+    expect(rows[2]).toEqual(rows[0])
+    week.unmount()
+
+    // One day: the names share a row, the day's cells the next.
+    const day = renderBlock('en', <ScheduleBlock props={demo.props} changes={{}} state="ready" />)
+    const dayGrid = day.container.querySelector<HTMLElement>('[data-slot="schedule-grid"]')!
+    expect(dayGrid.style.gridTemplateRows).toBe('repeat(2, auto)')
+    for (const column of dayGrid.children) {
+      expect(Array.from(column.children, (cell) => (cell as HTMLElement).dataset.day ?? 'name')).toEqual(['name', '2026-11-05'])
+    }
   })
 
   it('a slot outside the range or of an unknown resource is not drawn', () => {

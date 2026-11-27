@@ -18,9 +18,9 @@ type Slot = ScheduleBlockProps['slots'][number]
 // others from `@2xl`. A resource that is not drawn is `display: none`: out of
 // sight and out of the accessibility tree alike, and one choice away.
 const shown = {
-  always: 'flex',
-  fromMd: 'hidden @md:flex',
-  from2xl: 'hidden @2xl:flex',
+  always: 'grid',
+  fromMd: 'hidden @md:grid',
+  from2xl: 'hidden @2xl:grid',
 } as const
 
 // The choice of resource is needed only while some resource is not drawn.
@@ -29,10 +29,27 @@ const pickerShown = {
   until2xl: '@2xl:hidden',
 } as const
 
+// One day is one row across the resources (D-46). The grid has a row for the
+// names and a row per day; a resource is a column that spans them all and
+// takes its rows from the grid (`subgrid`), so its cell of a day starts where
+// every other resource's does, and a row is as high as its highest cell. The
+// columns fill in the order of the resources; one that is not drawn takes no
+// column and adds nothing to a row's height.
+const gridClass = 'grid grid-flow-col gap-x-4 gap-y-3'
+
+// The number of rows comes from the range, and a column is one share of the
+// width but never narrower than its own minimum (`auto-cols-fr` would let a
+// column shrink under it and run into its neighbour). Neither is a design
+// value: a count and a share.
+const gridTracks = (days: number) => ({ gridTemplateRows: `repeat(${days + 1}, auto)`, gridAutoColumns: '1fr' })
+
 // Alone, a column takes the block's width; beside others it keeps a readable
 // width, and the row scrolls inside the scroller when they do not all fit.
-// Each column is a size container: its entries' actions stay under the text.
-const columnClass = '@container min-w-0 flex-1 flex-col gap-3 @md:min-w-48'
+const columnClass = 'row-span-full min-w-0 grid-rows-subgrid @md:min-w-48'
+
+// Each cell is a size container: its entries' actions stay under the text. (A
+// size container cannot be a subgrid, so it is the cell, not the column.)
+const cellClass = '@container flex min-w-0 flex-col gap-2'
 
 type ColumnProps = {
   resource: ScheduleBlockProps['resources'][number]
@@ -43,7 +60,7 @@ type ColumnProps = {
   onAction?: (actionId: string, itemId: string) => void
 }
 
-/** One resource: its name, then its slots in order of time — per day when the range has several. */
+/** One resource: its name, then a cell per day with its slots in order of time; the day is named when the range has several. */
 function ResourceColumn({ resource, days, slots, changes, visibility, onAction }: ColumnProps) {
   const t = useT('data-blocks')
   const format = useFormat()
@@ -58,7 +75,7 @@ function ResourceColumn({ resource, days, slots, changes, visibility, onAction }
         const ofDay = slots.filter((slot) => datePart(slot.start) === day)
         const dayId = `${labelId}-${day}`
         return (
-          <div key={day} data-day={day} className="flex flex-col gap-2">
+          <div key={day} data-day={day} className={cellClass}>
             {days.length > 1 && (
               <p id={dayId} className="text-sm font-medium text-muted-foreground">
                 {format.date(toDate(day), { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -93,9 +110,10 @@ function ResourceColumn({ resource, days, slots, changes, visibility, onAction }
 
 /**
  * `block.schedule` — time slots by resource over a day or a week. The
- * resources are columns in a scroller that has a name and is a tab stop; how
- * many are drawn follows the block's own width, and below the step that shows
- * them all a labelled `Select` chooses the one to start from.
+ * resources are columns in a scroller that has a name and is a tab stop, and
+ * a day is one row across them; how many are drawn follows the block's own
+ * width, and below the step that shows them all a labelled `Select` chooses
+ * the one to start from.
  */
 export function ScheduleBlock({ props, changes, state, onAction }: BlockComponentProps<'block.schedule'>) {
   const t = useT('data-blocks')
@@ -154,7 +172,7 @@ export function ScheduleBlock({ props, changes, state, onAction }: BlockComponen
           data-slot="schedule-scroller"
           className={`overflow-x-auto rounded-md border p-3 ${focusRing}`}
         >
-          <div className="flex gap-4">
+          <div data-slot="schedule-grid" className={gridClass} style={gridTracks(days.length)}>
             {resources.map((resource, index) => (
               <ResourceColumn
                 key={resource.id}

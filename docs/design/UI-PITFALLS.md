@@ -54,6 +54,7 @@ platform/version it was observed.>
 | A screen passes `--cells smoke` and fails `--cells full` | [§8](#8-tooling-and-the-shell) |
 | After a scene jump a click on 页面 · 工作流 · 记忆 does nothing | [§8](#8-tooling-and-the-shell) |
 | A conversation gets taller and taller by itself after she sends a message, or an answer is cut at its beginning | [§5](#5-ui-kit) |
+| Cells that should line up across columns are staggered | [§2](#2-layout-and-reflow) |
 
 ## 1. Text scaling
 
@@ -116,6 +117,16 @@ bottom of a full sidebar (scene `s2` at 1440 × 900) adds its rows below the
 scroller's edge: the chevron turns, the rows exist, a test in jsdom finds
 them, and on the screen nothing changes. Observed with Chromium, task 1, S12;
 the third test of `flow panel-open` asserts it.
+
+### Cells that should line up across columns are staggered
+
+**Rule:** put the rows on one grid and make each column a `subgrid` of them.
+
+Columns that each stack their own cells cannot share a row. `subgrid` is
+dropped silently when the column is a size container (`@container`) — move
+the container to the cell — and `auto-cols-fr` is `minmax(0, 1fr)`, which
+lets a column with a minimum width overlap its neighbour: use `1fr`. Seen on
+排班, K2, D-46.
 
 ## 3. Theme and colour
 
