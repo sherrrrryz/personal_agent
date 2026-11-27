@@ -3,7 +3,6 @@ import type { Messages } from '../types'
 // Namespace `module` — the module frame (`src/module/`), the `/m/<ia-id>`
 // routes and `/dev/frame` (`src/screens/module/`).
 const messages = {
-  'views.label': 'Feature views',
   'view.page': 'Page',
   'view.workflow': 'Process',
   'view.memory': 'Records',
@@ -19,9 +18,9 @@ const messages = {
 
   'settings.open': 'Feature settings',
   'settings.title': 'Feature settings',
-  'settings.description': 'The views, update state and records of {module}.',
-  'settings.views': 'Views',
-  'settings.run': 'Updates',
+  'settings.description': 'When {module} updated, its process and its records.',
+  'settings.full': 'Open as a page',
+  'settings.full.name': 'Open {part} as a page',
 
   'failure.title': 'The last update failed',
   'failure.account-expired': 'The connection to {account} has expired, so this update could read nothing from it.',

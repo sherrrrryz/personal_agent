@@ -350,9 +350,9 @@ describe('the containers family as a whole', () => {
 
   it.each(sources)('%s sets no fixed block size, cuts no text, has no outer margin and no matrix waiver', (_file, source) => {
     // `max-h-full` is the one block limit: an overlay is never taller than the window and scrolls inside.
-    expect(source.match(/(?<![\w-:])(?:h|size|max-h)-(?:\d|\[|px|full|screen|dvh|svh|target)[\w./[\]-]*/g) ?? []).toEqual(
-      source.includes('overlaySurface =') ? ['max-h-full'] : [],
-    )
+    // The wide `Dialog` (D-52) keeps a share of the window free above and below — a fraction, never a length.
+    const limits = [...(source.includes('overlaySurface =') ? ['max-h-full'] : []), ...(source.includes("wide: '") ? ['max-h-11/12'] : [])]
+    expect(source.match(/(?<![\w-:])(?:h|size|max-h)-(?:\d|\[|px|full|screen|dvh|svh|target)[\w./[\]-]*/g) ?? []).toEqual(limits)
     expect(source.match(/\b(?:truncate|line-clamp-\d+|overflow-hidden|whitespace-nowrap)\b/g) ?? []).toEqual([])
     expect(source.match(/(?<![\w-])-?m[trblxyse]?-[\w./[\]-]+/g) ?? []).toEqual([])
     expect(source).not.toContain('data-matrix-allow')

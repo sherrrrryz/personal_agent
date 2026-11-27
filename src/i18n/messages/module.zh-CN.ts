@@ -2,7 +2,6 @@ import type { Translation } from '../types'
 import type en from './module.en'
 
 const messages: Translation<typeof en> = {
-  'views.label': '功能视图',
   'view.page': '页面',
   'view.workflow': '流程',
   'view.memory': '资料',
@@ -18,9 +17,9 @@ const messages: Translation<typeof en> = {
 
   'settings.open': '功能设置',
   'settings.title': '功能设置',
-  'settings.description': '「{module}」的视图、更新状态和记录。',
-  'settings.views': '视图',
-  'settings.run': '更新',
+  'settings.description': '「{module}」的更新时间、流程和资料。',
+  'settings.full': '整页打开',
+  'settings.full.name': '整页打开「{part}」',
 
   'failure.title': '上次更新失败',
   'failure.account-expired': '「{account}」的授权已过期，这次更新没能从它那里读到内容。',

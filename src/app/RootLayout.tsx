@@ -1,5 +1,8 @@
 import { Sonner } from '@/components/feedback'
+import { ModuleSettingsPanelsContext } from '@/module'
 import { Shell } from '@/shell'
+
+import { settingsPanels } from './settings-panels'
 
 /**
  * The element of the root route: what surrounds every screen. The layout line
@@ -18,9 +21,9 @@ import { Shell } from '@/shell'
  */
 export function RootLayout() {
   return (
-    <>
+    <ModuleSettingsPanelsContext value={settingsPanels}>
       <Shell />
       <Sonner position="top-center" />
-    </>
+    </ModuleSettingsPanelsContext>
   )
 }

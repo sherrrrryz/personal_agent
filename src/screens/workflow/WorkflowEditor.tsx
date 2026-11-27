@@ -30,18 +30,29 @@ type ViewKind = 'canvas' | 'list'
 export function WorkflowEditor({ slots = registeredSlots }: { slots?: readonly EditorSlots[] }) {
   const { module, basePath } = useRouteModule()
   const t = useT('workflow')
-  const [attempt, setAttempt] = useState(0)
   return (
     <ModuleFrame module={module} view="workflow" title={t('title')} width="full">
-      <Editor
-        // Another module, or another try after a failure, starts the editor afresh.
-        key={`${module.id}:${attempt}`}
-        module={module}
-        basePath={basePath}
-        slots={slots}
-        onRetry={() => setAttempt((count) => count + 1)}
-      />
+      {/* Another module, or another try after a failure, starts the editor afresh. */}
+      <WorkflowPanel key={module.id} module={module} basePath={basePath} slots={slots} />
     </ModuleFrame>
+  )
+}
+
+/**
+ * The editor without its frame: the version line, the switch, the view and the
+ * inspector. The `workflow` view puts it in `main`; 功能设置 puts it in its
+ * 流程 part (D-52, `./settings-panel.tsx`).
+ */
+export function WorkflowPanel({ module, basePath, slots = registeredSlots }: { module: Module; basePath: string; slots?: readonly EditorSlots[] }) {
+  const [attempt, setAttempt] = useState(0)
+  return (
+    <Editor
+      key={`${module.id}:${attempt}`}
+      module={module}
+      basePath={basePath}
+      slots={slots}
+      onRetry={() => setAttempt((count) => count + 1)}
+    />
   )
 }
 

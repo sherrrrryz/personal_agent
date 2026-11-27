@@ -56,7 +56,7 @@ function open(
 
 const status = () => document.querySelector<HTMLElement>('[data-run-status]')!
 
-/** Opens 功能设置 (D-50), where the views, the run state, 待你确认 and 更新记录 are. */
+/** Opens 功能设置 (D-50, D-52): the update state, 待你确认, 更新记录 and 刷新, then 流程, then 资料. */
 async function openSettings(name = '功能设置') {
   await userEvent.click(screen.getByRole('button', { name }))
   return screen.findByRole('dialog', { name })
@@ -260,6 +260,21 @@ describe('ModuleFrame — 更新记录 (R-14)', () => {
 })
 
 describe('ModuleFrame — the four views (R-14)', () => {
+  it('opens 功能设置 as a large window in the middle of the screen (D-52)', async () => {
+    open()
+    const settings = await openSettings()
+    expect(settings).toHaveAttribute('data-size', 'wide')
+    // Outside the app no screen hands the frame its parts: the two headings and their links stay.
+    expect(within(settings).getAllByRole('heading', { level: 3 })).toHaveLength(2)
+  })
+
+  it('closes 功能设置 when a link inside it is followed', async () => {
+    open()
+    const settings = await openSettings()
+    await userEvent.click(within(settings).getByRole('link', { name: '整页打开「流程」' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '功能设置' })).toBeNull())
+  })
+
   it.each(['page', 'workflow', 'memory', 'child'] as const)('draws the same controls in the %s view, and no visible title (D-50)', async (view) => {
     open({ view })
     // Outside the shell the controls stand at the top of the frame; inside it, in the header's slot.
@@ -276,16 +291,16 @@ describe('ModuleFrame — the four views (R-14)', () => {
     expect(document.querySelector('[data-run-status]') !== null).toBe(view === 'page')
     expect(screen.queryAllByRole('navigation')).toHaveLength(0)
     const settings = await openSettings()
-    const nav = within(settings).getByRole('navigation', { name: '功能视图' })
-    const links = within(nav).getAllByRole('link')
-    expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
-      ['页面', `/m/${demoModuleId}`],
-      ['流程', `/m/${demoModuleId}/workflow`],
-      ['资料', `/m/${demoModuleId}/memory`],
-    ])
-    const current = links.filter((link) => link.getAttribute('aria-current') === 'page').map((link) => link.textContent)
-    expect(current).toEqual(view === 'child' ? [] : [{ page: '页面', workflow: '流程', memory: '资料' }[view]])
+    // D-52: the update state and its buttons on top, then 流程, then 资料 — each also a page of its own.
     expect(within(settings).getByText(/上次更新|尚未更新/)).toBeInTheDocument()
+    const status = settings.querySelector<HTMLElement>('[data-slot="module-settings-status"]')!
+    expect(within(status).getAllByRole('button').map((button) => button.textContent)).toEqual(['待你确认（2）', '更新记录', '刷新'])
+    const parts = within(settings).getAllByRole('heading', { level: 3 })
+    expect(parts.map((heading) => heading.textContent)).toEqual(['流程', '资料'])
+    const links = [within(settings).getByRole('link', { name: '整页打开「流程」' }), within(settings).getByRole('link', { name: '整页打开「资料」' })]
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([`/m/${demoModuleId}/workflow`, `/m/${demoModuleId}/memory`])
+    const current = links.filter((link) => link.getAttribute('aria-current') === 'page').map((link) => link.getAttribute('href'))
+    expect(current).toEqual(view === 'workflow' || view === 'memory' ? [`/m/${demoModuleId}/${view}`] : [])
   })
 
   it('starts the view links from `basePath` when a demo shows the frame elsewhere', async () => {
@@ -303,11 +318,7 @@ describe('ModuleFrame — the four views (R-14)', () => {
       </Providers>,
     )
     const settings = await openSettings(document.documentElement.lang === 'en' ? 'Feature settings' : '功能设置')
-    expect(within(settings).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
-      '/dev/frame',
-      '/dev/frame/workflow',
-      '/dev/frame/memory',
-    ])
+    expect(within(settings).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/dev/frame/workflow', '/dev/frame/memory'])
   })
 })
 
@@ -340,7 +351,6 @@ describe('ModuleFrame — accessibility and wording (R-14)', () => {
     for (const control of [...screen.getAllByRole('button'), ...screen.getAllByRole('link')]) {
       expect(control.getAttribute('aria-label') ?? '').not.toMatch(/[A-Za-z]{2,}/)
     }
-    expect(screen.getByRole('navigation').getAttribute('aria-label')).toBe('功能视图')
     expect(document.body.textContent).not.toMatch(/[A-Za-z]{2,}/)
   })
 
@@ -350,7 +360,7 @@ describe('ModuleFrame — accessibility and wording (R-14)', () => {
     expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument()
     await openSettings('Feature settings')
     expect(await screen.findByRole('button', { name: 'Awaiting you (2)' })).toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Feature views' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open Process as a page' })).toBeInTheDocument()
     expect(status()).toHaveTextContent(/Last updated: Nov 26, 2026, 8:00 AM · failed/)
     expect(status()).toHaveTextContent('The platform could not be reached. Nothing was changed.')
     expect(screen.getByRole('button', { name: 'Update history' })).toBeInTheDocument()

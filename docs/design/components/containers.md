@@ -30,6 +30,7 @@ The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
 
 | Component | What is added | Why |
 | --- | --- | --- |
+| `Dialog` (`size: wide`, D-52) | `sm:max-w-4xl xl:max-w-6xl max-h-11/12` on the surface | **Visible, by the owner's decision D-52**: 功能设置 is a large centred window; it keeps a share of the window free above and below |
 | `Dialog`, `AlertDialog`, `Sheet` | `max-h-full overflow-y-auto` on the surface | Invisible at the default size. At 200% zoom or root 24 px the kit's overlay grows past the window and its end cannot be reached |
 | `Dialog`, `AlertDialog`, `Sheet` | `surface-frosted` on the surface (the same constant, `overlaySurface`): a translucent background, a backdrop blur and the small shadow instead of the kit's `bg-popover` and shadow; the kit's ring and scrim stay | **Visible, by the owner's decision D-47**: surfaces that float over the page are frosted. The look is `../TOKENS.md` § Frosted surface |
 
@@ -47,7 +48,7 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 
 | Component | Source | Variants | Status | Notes |
 | --- | --- | --- | --- | --- |
-| `Dialog` | `wrapped` | `trigger`; `open`, `defaultOpen`, `onOpenChange`; slots `title`, `description`, `footer`, children | `lofi` | A task that interrupts the page. Never taller than the window: what does not fit scrolls inside, the actions wrap beneath. No scrim and no shadow in the placeholder theme — it separates from the page by its border. The close control is our `Button`, named in the user's language |
+| `Dialog` | `wrapped` | `trigger`; `open`, `defaultOpen`, `onOpenChange`; `size: default · wide` (default `default`; D-52); slots `title`, `description`, `footer`, children | `lofi` | A task that interrupts the page. `wide` is a large window in the middle of the screen for a whole working surface (功能设置): `max-w-4xl`, `max-w-6xl` from `xl`, at most eleven twelfths of the window high, scrolling inside; `default` is the kit's measure. Never taller than the window: what does not fit scrolls inside, the actions wrap beneath. No scrim and no shadow in the placeholder theme — it separates from the page by its border. The close control is our `Button`, named in the user's language |
 | `AlertDialog` | `wrapped` | `trigger`; `open`, `defaultOpen`, `onOpenChange`; `title`, `description`, `confirmLabel`, `confirmVariant: primary · danger` (default `primary`), `onConfirm`, `cancelLabel` | `lofi` | A question that must be answered: two buttons, cancel first. Both close it; only the confirming one calls `onConfirm`. A press outside does not close it. `cancelLabel` is "Cancel" in the user's language unless set |
 | `Sheet` | `wrapped` | `side: end · bottom` (default `end`); `trigger`; `open`, `defaultOpen`, `onOpenChange`; slots `title`, `description`, `footer`, children | `lofi` | A panel beside the page for detail and history. `end` is the kit's right edge (no RTL, D-17); the caller passes `bottom` in the compact size class. Scrolls inside, separates by its border, our close `Button` |
 | `Collapsible` | `kit` | `open`, `defaultOpen`, `onOpenChange`; sub-parts `CollapsibleTrigger`, `CollapsibleContent` | `lofi` | Re-exported unchanged. The trigger is always our `Button`, passed as `render` |
