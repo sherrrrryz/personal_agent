@@ -21,6 +21,12 @@ export type PageProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'styl
   /** Controls that act on the whole page; they wrap under the title when room runs out. */
   actions?: ReactNode
   width?: PageWidth
+  /**
+   * `content` (default): as tall as what it holds; `main` scrolls. `fill`: exactly the block size
+   * of `main`, so that a child with `min-h-0 flex-1` — a conversation — takes the room that is
+   * left and scrolls inside itself.
+   */
+  height?: 'content' | 'fill'
 }
 
 /**
@@ -28,10 +34,10 @@ export type PageProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'styl
  * shell — the only one that reads the viewport: the padding steps up at the
  * `md` and `lg` breakpoint tokens. Everything inside answers to its container.
  */
-export function Page({ title, description, actions, width = 'wide', children, ...rest }: PageProps) {
+export function Page({ title, description, actions, width = 'wide', height = 'content', children, ...rest }: PageProps) {
   return (
-    <div className="px-4 py-6 md:px-6 md:py-8 lg:px-8" {...rest}>
-      <div className={cn('mx-auto flex w-full min-w-0 flex-col gap-6', widthClass[width])}>
+    <div className={cn('px-4 py-6 md:px-6 md:py-8 lg:px-8', height === 'fill' && 'flex h-full flex-col')} {...rest}>
+      <div className={cn('mx-auto flex w-full min-w-0 flex-col gap-6', widthClass[width], height === 'fill' && 'min-h-0 flex-1')}>
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="text-2xl font-semibold wrap-break-word">{title}</h1>

@@ -191,7 +191,9 @@ function usePanelLimit(inside: { current: HTMLElement | null }): number | undefi
  * The in-place panel: heading 关于：<screen>, the conversation, then one row —
  * the persistence switch, 在专门对话中打开, 关闭. Not a dialog: the screen
  * behind stays in use. It is never taller than half the shell — less in a
- * short window (`usePanelLimit`) — and scrolls inside, so `main` keeps its room.
+ * short window (`usePanelLimit`) — so `main` keeps its room; the conversation
+ * scrolls inside it (the kit's `MessageScroller`), and the panel itself scrolls
+ * only when the heading and the last row alone no longer fit.
  */
 function InPlacePanel({
   panel,
@@ -215,42 +217,7 @@ function InPlacePanel({
   // A measured limit, not a design value: it follows whatever block size the shell has in this window.
   const maxBlockSize = usePanelLimit(scroller)
 
-  // The panel is the scroller, so it decides what a new message shows: the newest exchange from
-  // its start — her question, or the answer's first line when the question alone would fill the
-  // panel — whatever the panel's size and however long the answer grows. Only the panel moves (the
-  // shell around it stays), and it stops as soon as she scrolls: a new message starts it again.
   const messages = messagesOf(conversation, locale)
-  const last = messages.at(-1)
-  const newest = `${messages.length}:${last?.id}`
-  const grown = `${last?.status}:${last?.text.length}`
-  const pin = useRef({ newest: '', top: 0, on: true })
-  useLayoutEffect(() => {
-    const panel = scroller.current
-    if (!panel) return
-    const kept = pin.current
-    if (kept.newest !== newest) {
-      kept.newest = newest
-      kept.on = true
-    } else if (Math.abs(panel.scrollTop - kept.top) > 1) {
-      kept.on = false
-    }
-    if (!kept.on) return
-    const items = [...panel.querySelectorAll<HTMLElement>('[data-slot="chat-message-list"] [data-author]')]
-    const answer = items.at(-1)
-    if (!answer) return
-    const question = answer.dataset.author === 'user' ? answer : items.findLast((item) => item.dataset.author === 'user')
-    const top = (item: HTMLElement) => item.getBoundingClientRect().top
-    const whole = question !== undefined && top(answer) - top(question) < panel.clientHeight / 2
-    const from = whole ? question : answer
-    if (from === items[0]) {
-      // The first message: the heading above it stays in view too.
-      panel.scrollTop = 0
-    } else {
-      const inset = parseFloat(getComputedStyle(panel).paddingBlockStart) || 0
-      panel.scrollTop += top(from) - panel.getBoundingClientRect().top - inset
-    }
-    kept.top = panel.scrollTop
-  }, [newest, grown, maxBlockSize])
 
   return (
     <div
@@ -265,21 +232,23 @@ function InPlacePanel({
       <h2 id={headingId} className="text-base font-semibold wrap-anywhere">
         {t('panel.heading', { screen: panel.screen })}
       </h2>
-      <ChatMessageList
-        label={t('panel.log')}
-        messages={messages}
-        // The list's own following scrolls every scroller around it; here the panel does it (above).
-        follow={false}
-        onRetry={onRetry}
-        renderAttachment={(attachment, message) => (
-          <MessageAttachmentBlock
-            attachment={attachment}
-            messageId={message.id}
-            index={message.attachments?.indexOf(attachment) ?? 0}
-            level={3}
-          />
-        )}
-      />
+      {/* The room that is left between the heading and the last row is the conversation's: the kit's
+          scroller fills it, keeps the newest exchange in view and offers the jump to the latest message. */}
+      <div className="flex min-h-32 flex-1 flex-col">
+        <ChatMessageList
+          label={t('panel.log')}
+          messages={messages}
+          onRetry={onRetry}
+          renderAttachment={(attachment, message) => (
+            <MessageAttachmentBlock
+              attachment={attachment}
+              messageId={message.id}
+              index={message.attachments?.indexOf(attachment) ?? 0}
+              level={3}
+            />
+          )}
+        />
+      </div>
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div className="min-w-0 flex-1 basis-64">
           <ConversationPersistence conversation={conversation} screenModuleId={screenModuleId} />

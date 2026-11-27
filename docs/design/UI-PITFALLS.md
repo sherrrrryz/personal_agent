@@ -53,6 +53,7 @@ platform/version it was observed.>
 | In forced colours every sidebar item and button has a frame, and the current item or selected tab looks like the others | [§3](#3-theme-and-colour) |
 | A screen passes `--cells smoke` and fails `--cells full` | [§8](#8-tooling-and-the-shell) |
 | After a scene jump a click on 页面 · 工作流 · 记忆 does nothing | [§8](#8-tooling-and-the-shell) |
+| A conversation gets taller and taller by itself after she sends a message, or an answer is cut at its beginning | [§5](#5-ui-kit) |
 
 ## 1. Text scaling
 
@@ -166,6 +167,22 @@ inside one frame — only a script can do it — walk out into the covered page.
 The harness waits for the guard and, for a route that opens on a modal
 (`…/appointments/<id>`, `?history=open`), walks the dialog only
 (`e2e/matrix/README.md` § Limits). Task 1, C7.
+
+### A conversation gets taller and taller by itself after she sends a message
+
+**Rule:** the kit's `MessageScroller` scrolls only inside a box of limited height that is a flex column (`ChatMessageList` fills it); a surface where the page scrolls instead passes `follow={false}`.
+
+The scroller places a new turn of hers (`scrollAnchor`) at the top of its
+viewport and, to be able to, adds room under it: the viewport's size less
+what follows the turn. Where nothing limits the list, the viewport is as tall
+as its content, the added room makes it taller, and the room is measured
+again — the onboarding interview grew by about 4000 px a second. With
+`follow={false}` no turn is an anchor and nothing is added. The same
+component's `autoScroll` was tried and left off: it follows the end of a
+growing answer, so in the in-place panel the answer's beginning — the part
+she reads first — had scrolled away when it was complete (the flow
+`panel-open` asserts that it has not). Detail: `components/chat.md`
+§ Pitfalls. Observed with Chromium and `@shadcn/react` 0.3.1, task 1, K1.
 
 ## 6. Token pipeline
 

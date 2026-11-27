@@ -2,7 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider, useParams } from 'react-router'
 import type { RouteObject } from 'react-router'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import { Providers } from '@/app/Providers'
 import { Sonner, toast } from '@/components/feedback'
@@ -260,62 +260,23 @@ describe('the chat bar and its in-place panel (R-17)', () => {
     expect(runtime.getState().conversations[0]?.messages).toHaveLength(2)
   })
 
-  it('long: the panel is a named, focusable scroller and shows the newest exchange from its start', async () => {
-    // jsdom lays nothing out: every message gets a box 100 px under the one before, in a panel 300 px tall.
-    const boxes = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-      const scroller = this.closest('[data-chat-panel]')
-      const index = scroller ? [...scroller.querySelectorAll('[data-author]')].indexOf(this) : -1
-      return new DOMRect(0, index < 0 ? 0 : 100 + index * 100 - (scroller?.scrollTop ?? 0), 0, 100)
-    })
-    const size = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(300)
-    try {
-      open(`/m/${appointments}`)
-      await screen.findByRole('heading', { level: 1, name: '预约' })
-      await ask('第一句')
+  it('long: the panel bounds the conversation, which scrolls inside it in the kit’s named, focusable viewport', async () => {
+    open(`/m/${appointments}`)
+    await screen.findByRole('heading', { level: 1, name: '预约' })
+    for (const text of ['第一句', '第二句', '第三句']) {
+      await ask(text)
       await waitFor(() => expect(composer()).toHaveValue(''))
-      const opened = panel()
-      expect(opened).toHaveAttribute('tabindex', '0')
-      expect(opened).toHaveClass('overflow-y-auto')
-      // The first exchange: from the top, the heading 关于：… with it.
-      expect(opened.scrollTop).toBe(0)
-
-      for (const text of ['第二句', '第三句']) {
-        await ask(text)
-        await waitFor(() => expect(composer()).toHaveValue(''))
-      }
-      expect(within(opened).getAllByText(canned)).toHaveLength(3)
-      // The third question (the fifth message, 500 px down) at the panel's top, its answer under it.
-      expect(opened.scrollTop).toBe(500)
-
-      // She scrolls back to read; the next message brings the newest exchange into view again.
-      opened.scrollTop = 120
-      await ask('第四句')
-      await waitFor(() => expect(composer()).toHaveValue(''))
-      expect(opened.scrollTop).toBe(700)
-    } finally {
-      boxes.mockRestore()
-      size.mockRestore()
     }
-  })
-
-  it('long: a question that would fill the panel gives way to the answer’s first line', async () => {
-    const boxes = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-      const scroller = this.closest('[data-chat-panel]')
-      const index = scroller ? [...scroller.querySelectorAll('[data-author]')].indexOf(this) : -1
-      return new DOMRect(0, index < 0 ? 0 : 100 + index * 100 - (scroller?.scrollTop ?? 0), 0, 100)
-    })
-    // A panel 150 px tall: the answer begins 100 px under its question, past the panel's middle.
-    const size = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(150)
-    try {
-      open(`/m/${appointments}`)
-      await screen.findByRole('heading', { level: 1, name: '预约' })
-      await ask('第一句')
-      await within(panel()).findByText(canned)
-      await waitFor(() => expect(panel().scrollTop).toBe(200))
-    } finally {
-      boxes.mockRestore()
-      size.mockRestore()
-    }
+    const opened = panel()
+    // The panel keeps its own fallback scroll for a window too short for its heading and last row.
+    expect(opened).toHaveAttribute('tabindex', '0')
+    expect(opened).toHaveClass('overflow-y-auto')
+    const viewport = within(opened).getByRole('region', { name: '这段对话' })
+    expect(viewport).toHaveAttribute('tabindex', '0')
+    expect(within(viewport).getAllByText(canned)).toHaveLength(3)
+    // Each of her turns is where the kit's scroller starts the newest exchange.
+    expect(viewport.querySelectorAll('[data-author="user"][data-scroll-anchor="true"]')).toHaveLength(3)
+    expect(viewport.querySelectorAll('[data-author="ai"][data-scroll-anchor="true"]')).toHaveLength(0)
   })
 
   it('en: the bar, the panel and the toast are in English', async () => {
@@ -571,7 +532,8 @@ describe('the bar in the shell (R-20)', () => {
     expect(row).toContainElement(panel())
     expect(main).not.toContainElement(panel())
     // Nothing of the bar is taken out of the flow: it cannot lie over the page.
-    for (const element of [row, ...row.querySelectorAll('*')]) {
+    // (The kit's jump-to-latest button is placed inside the conversation's own scroller, not over the page.)
+    for (const element of [row, ...row.querySelectorAll('*:not([data-slot="message-scroller-button"])')]) {
       expect([...element.classList].filter((name) => /^(?:fixed|absolute|sticky)$/.test(name))).toEqual([])
     }
   })

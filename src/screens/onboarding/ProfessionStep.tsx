@@ -114,7 +114,8 @@ export function ProfessionStep() {
         ) : undefined
       }
     >
-      <ChatMessageList messages={messages} label={t('profession.log')} onRetry={() => setReply('streaming')} />
+      {/* The page scrolls here, not the list: its own following is off, the step brings the end into view (above). */}
+      <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('streaming')} />
       {/* The composer stays at the end of the window while the interview scrolls above it. */}
       <div className="sticky bottom-0 bg-background py-4">
         <Stack gap="md">

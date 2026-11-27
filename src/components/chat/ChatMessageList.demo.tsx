@@ -81,7 +81,9 @@ export default function ChatMessageListDemo() {
         ))}
       </ToggleGroup>
       <p className="text-sm text-muted-foreground">{t('demo.list.note')}</p>
+      {/* No limited height here — the gallery scrolls — so the list's own following is off (chat.md § Pitfalls). */}
       <ChatMessageList<DemoAttachment>
+        follow={false}
         messages={view === 'conversation' ? [...opening, ...added] : []}
         state={view === 'loading' || view === 'error' ? view : undefined}
         onReload={() => setView('conversation')}
@@ -126,13 +128,8 @@ export default function ChatMessageListDemo() {
         />
       </DemoGroup>
       <DemoGroup caption={t('demo.list.longCaption')}>
-        {/* What the in-place panel does: a region of limited height that scrolls and can be reached by keyboard. */}
-        <div
-          role="group"
-          aria-label={t('demo.list.scroller')}
-          tabIndex={0}
-          className="max-h-96 min-w-0 overflow-y-auto rounded-lg border p-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
+        {/* What the in-place panel does: a flex column of limited height — the list scrolls inside it. */}
+        <div className="flex max-h-96 min-w-0 flex-col rounded-lg border p-2">
           <ChatMessageList label={t('demo.list.long')} messages={sixty} />
         </div>
       </DemoGroup>

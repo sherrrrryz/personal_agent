@@ -156,7 +156,7 @@ describe('onboarding, the first run (B-14)', () => {
 
     open('/onboarding/profession', { search: '?preview=long' })
     await heading('先聊聊你的工作')
-    expect(within(screen.getByRole('log', { name: '职业访谈' })).getAllByRole('listitem')).toHaveLength(40)
+    expect(screen.getByRole('log', { name: '职业访谈' }).querySelectorAll('[data-author]')).toHaveLength(40)
     expect(screen.getByRole('button', { name: '继续' })).not.toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByRole('textbox', { name: '你的回答' })).toBeDisabled()
   })

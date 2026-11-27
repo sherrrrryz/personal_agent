@@ -1,11 +1,19 @@
 import { CircleAlert, MessagesSquare } from 'lucide-react'
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 
 import { Button } from '@/components/actions'
-import { Item, ItemContent, ItemGroup, ItemMedia, ItemTitle } from '@/components/data-display'
 import { DataState, type DataStateValue } from '@/components/feedback'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Bubble, BubbleContent } from '@/components/ui/bubble'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { Message, MessageContent, MessageHeader } from '@/components/ui/message'
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from '@/components/ui/message-scroller'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { useFormat, useT } from '@/i18n'
@@ -58,9 +66,12 @@ export type ChatMessageListProps<Attachment = unknown> = {
   errorTitle?: ReactNode
   error?: ReactNode
   /**
-   * Keeps the newest message in view as messages arrive or an answer grows —
-   * unless she has scrolled away from the end. Default: on, off when `readOnly`.
-   * It never scrolls when the list first appears.
+   * Keeps the newest exchange in view: a new turn of hers goes to the top of
+   * the list's viewport and the answer arrives under it (the kit's
+   * `scrollAnchor`), so an answer is read from its first line. Default: on,
+   * off when `readOnly`. It only ever moves the list's own viewport: a
+   * surface that gives the list no limited height — the page scrolls
+   * instead — turns it off.
    */
   follow?: boolean
 }
@@ -69,12 +80,21 @@ const statusClass =
   'flex min-w-0 items-center gap-2 rounded-lg text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
 
 // Message text: her line breaks kept, a long word or address broken rather than pushed past the edge.
-const textClass = 'min-w-0 text-base whitespace-pre-wrap wrap-anywhere'
+const textClass = 'min-w-0 whitespace-pre-wrap wrap-anywhere'
+
+// The kit's scroller fills its parent. In a parent of limited height that is a flex column the
+// list takes the room that is left and scrolls inside; anywhere else it is as tall as its
+// messages and the page scrolls. `DataState` takes no class, so its two boxes are reached from here.
+const rootClass =
+  'flex min-h-0 min-w-0 flex-1 flex-col [&>[data-slot=data-state]]:flex [&>[data-slot=data-state]]:min-h-0 [&>[data-slot=data-state]]:flex-1 [&>[data-slot=data-state]]:flex-col [&>[data-slot=data-state]>[data-slot=data-state-content]]:flex [&>[data-slot=data-state]>[data-slot=data-state-content]]:min-h-0 [&>[data-slot=data-state]>[data-slot=data-state-content]]:flex-1 [&>[data-slot=data-state]>[data-slot=data-state-content]]:flex-col'
 
 /**
  * A conversation: who said what, in order, with whatever a message carries
- * drawn through `renderAttachment`. A `log` that says each new message
- * politely. It does not scroll by itself — the surface around it does.
+ * drawn through `renderAttachment`. Built from the kit's Chat parts —
+ * `MessageScroller`, `Message`, `Bubble` (D-45): her turns are bubbles at the
+ * end, the AI's are unframed text at the start, and the scroller keeps the
+ * newest turn in view and offers a jump to the latest message. A `log` that
+ * says each new message politely.
  */
 export function ChatMessageList<Attachment = unknown>({
   messages,
@@ -95,33 +115,7 @@ export function ChatMessageList<Attachment = unknown>({
   const common = useT('common')
   const format = useFormat()
   const shown = state ?? (messages.length === 0 ? 'empty' : 'ready')
-
-  const end = useRef<HTMLDivElement>(null)
-  // Whether the end of the list was on screen before the latest change; true until measured.
-  const endInView = useRef(true)
-  useEffect(() => {
-    const marker = end.current
-    if (!marker || typeof IntersectionObserver === 'undefined') return
-    const observer = new IntersectionObserver(([entry]) => {
-      endInView.current = entry.isIntersecting
-    })
-    observer.observe(marker)
-    return () => observer.disconnect()
-  }, [shown])
-
-  const last = messages.at(-1)
-  const tail = `${messages.length}:${last?.id}:${last?.status}:${last?.text.length}`
-  const seen = useRef(tail)
-  const count = useRef(messages.length)
-  useEffect(() => {
-    if (seen.current === tail) return
-    seen.current = tail
-    const added = messages.length > count.current
-    count.current = messages.length
-    if (!follow) return
-    // Her own message always comes into view; an answer only if she is still at the end.
-    if (endInView.current || (added && last?.author === 'user')) end.current?.scrollIntoView?.({ block: 'nearest' })
-  }, [tail, follow, messages.length, last?.author])
+  const name = label ?? t('list.label')
 
   function retry(message: ChatMessage<Attachment>, status: HTMLElement | null) {
     // The button is about to leave; focus goes to the status line of the same message.
@@ -130,97 +124,109 @@ export function ChatMessageList<Attachment = unknown>({
   }
 
   return (
-    <DataState
-      state={shown}
-      loadingLabel={t('list.loading')}
-      loading={<MessageSkeleton />}
-      empty={
-        empty ?? (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <MessagesSquare aria-hidden="true" />
-              </EmptyMedia>
-              <EmptyTitle>{t('list.empty.title')}</EmptyTitle>
-              <EmptyDescription>{t('list.empty.body')}</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )
-      }
-      errorTitle={errorTitle ?? t('list.error.title')}
-      error={error ?? t('list.error.body')}
-      onRetry={onReload}
-    >
-      <div
-        role="log"
-        aria-label={label ?? t('list.label')}
-        aria-live={readOnly ? 'off' : 'polite'}
-        data-slot="chat-message-list"
-        className="min-w-0"
+    <div data-slot="chat-message-list" className={rootClass}>
+      <DataState
+        state={shown}
+        loadingLabel={t('list.loading')}
+        loading={<MessageSkeleton />}
+        empty={
+          empty ?? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <MessagesSquare aria-hidden="true" />
+                </EmptyMedia>
+                <EmptyTitle>{t('list.empty.title')}</EmptyTitle>
+                <EmptyDescription>{t('list.empty.body')}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )
+        }
+        errorTitle={errorTitle ?? t('list.error.title')}
+        error={error ?? t('list.error.body')}
+        onRetry={onReload}
       >
-        <ItemGroup>
-          {messages.map((message) => {
-            const status = message.status ?? 'done'
-            const mine = message.author === 'user'
-            const sent = message.at ? new Date(message.at) : null
-            return (
-              <Item key={message.id} variant={mine ? 'muted' : 'outline'} data-author={message.author} data-status={status}>
-                <ItemMedia className="self-start">
-                  {/* The name is beside it as text; the avatar is decoration. */}
-                  <Avatar aria-hidden="true">
-                    <AvatarFallback>{t(mine ? 'list.initial.user' : 'list.initial.ai')}</AvatarFallback>
-                  </Avatar>
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>
-                    <span>{mine ? (userName ?? t('list.author.user')) : (aiName ?? t('list.author.ai'))}</span>
-                    {sent && !Number.isNaN(sent.getTime()) && (
-                      <time dateTime={message.at} className="font-normal text-muted-foreground">
-                        {format.dateTime(sent)}
-                      </time>
-                    )}
-                  </ItemTitle>
-                  {message.text !== '' &&
-                    (status === 'streaming' ? (
-                      // Each arriving piece would be read out one by one: the partial text is kept
-                      // out of the announcements, and the finished text — a new element, by its
-                      // key — is said once, whole.
-                      <p key="partial" aria-live="off" className={textClass}>
-                        {message.text}
-                      </p>
-                    ) : (
-                      <p key="whole" className={textClass}>
-                        {message.text}
-                      </p>
-                    ))}
-                  {status !== 'done' && (
-                    <MessageStatus
-                      failed={status === 'failed'}
-                      streamingText={t('list.streaming')}
-                      failedText={t('list.failed')}
-                      retryLabel={!readOnly && onRetry ? common('action.retry') : null}
-                      onRetry={(element) => retry(message, element)}
-                    />
-                  )}
-                </ItemContent>
-                {renderAttachment && message.attachments && message.attachments.length > 0 && (
-                  // Under the whole message, not in the text column: a block needs the full inline size.
-                  <div data-slot="chat-message-attachments" className="flex min-w-0 basis-full flex-col gap-3">
-                    {message.attachments.map((attachment, index) => (
-                      // Attachments have no identity the list can read; their order is fixed.
-                      <div key={index} className="min-w-0">
-                        {renderAttachment(attachment, message)}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Item>
-            )
-          })}
-        </ItemGroup>
-        <div ref={end} data-slot="chat-message-list-end" />
-      </div>
-    </DataState>
+        {/* A record is read from its start; a live conversation opens at its newest message. */}
+        <MessageScrollerProvider defaultScrollPosition={readOnly ? 'start' : 'end'}>
+          <MessageScroller>
+            {/* The viewport's built-in name is English: it takes the log's own. */}
+            <MessageScrollerViewport aria-label={name}>
+              <MessageScrollerContent aria-label={name} aria-live={readOnly ? 'off' : 'polite'}>
+                {messages.map((message) => {
+                  const status = message.status ?? 'done'
+                  const mine = message.author === 'user'
+                  const sent = message.at ? new Date(message.at) : null
+                  return (
+                    <MessageScrollerItem
+                      key={message.id}
+                      messageId={message.id}
+                      // A new turn of hers is where the newest exchange starts — only where the list
+                      // follows: the kit makes room under an anchored turn, and in a box with no
+                      // limit that room would grow without end (§ Pitfalls).
+                      scrollAnchor={mine && follow}
+                      data-author={message.author}
+                      data-status={status}
+                    >
+                      <Message align={mine ? 'end' : 'start'}>
+                        <MessageContent>
+                          {/* Who said it is text, not only the side it stands on. */}
+                          <MessageHeader className="gap-2">
+                            <span>{mine ? (userName ?? t('list.author.user')) : (aiName ?? t('list.author.ai'))}</span>
+                            {sent && !Number.isNaN(sent.getTime()) && (
+                              <time dateTime={message.at} className="font-normal">
+                                {format.dateTime(sent)}
+                              </time>
+                            )}
+                          </MessageHeader>
+                          {message.text !== '' && (
+                            <Bubble align={mine ? 'end' : 'start'} variant={mine ? 'muted' : 'ghost'}>
+                              {status === 'streaming' ? (
+                                // Each arriving piece would be read out one by one: the partial text is kept
+                                // out of the announcements, and the finished text — a new element, by its
+                                // key — is said once, whole.
+                                <BubbleContent key="partial" render={<p />} aria-live="off" className={textClass}>
+                                  {message.text}
+                                </BubbleContent>
+                              ) : (
+                                <BubbleContent key="whole" render={<p />} className={textClass}>
+                                  {message.text}
+                                </BubbleContent>
+                              )}
+                            </Bubble>
+                          )}
+                          {status !== 'done' && (
+                            <MessageStatus
+                              failed={status === 'failed'}
+                              streamingText={t('list.streaming')}
+                              failedText={t('list.failed')}
+                              retryLabel={!readOnly && onRetry ? common('action.retry') : null}
+                              onRetry={(element) => retry(message, element)}
+                            />
+                          )}
+                          {renderAttachment && message.attachments && message.attachments.length > 0 && (
+                            // Under the text, across the whole message: a block needs the full inline size.
+                            <div data-slot="chat-message-attachments" className="flex w-full min-w-0 flex-col gap-3">
+                              {message.attachments.map((attachment, index) => (
+                                // Attachments have no identity the list can read; their order is fixed.
+                                <div key={index} className="min-w-0">
+                                  {renderAttachment(attachment, message)}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </MessageContent>
+                      </Message>
+                    </MessageScrollerItem>
+                  )
+                })}
+              </MessageScrollerContent>
+            </MessageScrollerViewport>
+            {/* Named from the messages (kit patch `label`, COMPONENTS.md § Kit patches). */}
+            <MessageScrollerButton label={t('list.latest')} />
+          </MessageScroller>
+        </MessageScrollerProvider>
+      </DataState>
+    </div>
   )
 }
 
@@ -237,7 +243,7 @@ type MessageStatusProps = {
 function MessageStatus({ failed, streamingText, failedText, retryLabel, onRetry }: MessageStatusProps) {
   const line = useRef<HTMLParagraphElement>(null)
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2 pt-1">
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
       <p ref={line} tabIndex={-1} data-slot="chat-message-status" className={statusClass}>
         {failed ? (
           <CircleAlert aria-hidden="true" className="size-4 shrink-0" />

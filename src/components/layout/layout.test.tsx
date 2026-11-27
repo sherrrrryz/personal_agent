@@ -233,7 +233,10 @@ describe('the layout family as a whole', () => {
   it.each(sources)('%s sets no fixed block size', (_file, source) => {
     // A block size may only be a minimum (`min-h-*`); `h-*`, `size-*` and
     // `max-h-*` utilities and height styles would clip wrapped or enlarged text.
-    expect(source.match(/(?<![\w-])(?:h|size|max-h)-(?:\d|\[|px|full|screen|dvh|svh|target)[\w./[\]-]*/g) ?? []).toEqual([])
+    // The one exception: `Page` with `height: fill` is exactly as tall as `main` (`h-full`) so that a
+    // conversation can scroll inside it (D-45); it clips nothing — what does not fit spills and `main` scrolls.
+    const sizes = source.match(/(?<![\w-])(?:h|size|max-h)-(?:\d|\[|px|full|screen|dvh|svh|target)[\w./[\]-]*/g) ?? []
+    expect(sizes).toEqual(_file === 'Page.tsx' ? ['h-full'] : [])
     expect(source.match(/\b(?:height|blockSize|maxHeight)\s*:/g) ?? []).toEqual([])
     expect(source.match(/\b(?:truncate|line-clamp-\d+|overflow-hidden|whitespace-nowrap)\b/g) ?? []).toEqual([])
   })

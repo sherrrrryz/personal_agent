@@ -15,6 +15,7 @@ import { setMediaQuery } from '@/test/match-media'
 
 import { Breadcrumb, BreadcrumbEllipsis } from './breadcrumb'
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from './dialog'
+import { MessageScroller, MessageScrollerButton, MessageScrollerProvider } from './message-scroller'
 import { Sheet, SheetContent, SheetTitle } from './sheet'
 import { Sidebar, SidebarProvider, SidebarRail, SidebarTrigger } from './sidebar'
 import { Spinner } from './spinner'
@@ -110,5 +111,17 @@ describe('each built-in name is a prop', () => {
   it('Spinner: the status is named by the caller', () => {
     render(<Spinner aria-label="加载中" />)
     expect(screen.getByRole('status', { name: '加载中' })).toBeInTheDocument()
+  })
+
+  it('MessageScrollerButton: label names the jump button', () => {
+    const { container } = render(
+      <MessageScrollerProvider>
+        <MessageScroller>
+          <MessageScrollerButton label="回到最新消息" />
+        </MessageScroller>
+      </MessageScrollerProvider>,
+    )
+    const button = container.querySelector('[data-slot="message-scroller-button"]')!
+    expect(button.textContent).toBe('回到最新消息')
   })
 })
