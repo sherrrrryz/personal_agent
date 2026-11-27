@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState, type ComponentType, type ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LocaleProvider, LOCALE_STORAGE_KEY } from '@/i18n'
 import { axe } from '@/test/axe'
+import { setMediaQuery } from '@/test/match-media'
 
 import { ChatComposer, ChatMessageList, PersistenceSwitch, type ChatMessage } from './index'
 
@@ -232,7 +233,93 @@ describe('ChatMessageList', () => {
     )
     const answer = container.querySelector('[data-status="streaming"]')!
     expect(answer.querySelectorAll('p')).toHaveLength(1)
-    expect(answer).toHaveTextContent(/正在回答…$/)
+    // Nothing has arrived yet: it is thinking (D-45).
+    expect(answer).toHaveAttribute('data-phase', 'thinking')
+    expect(answer).toHaveTextContent(/正在思考…$/)
+  })
+
+  it('working: the steps are open with the last one running; once the text comes they fold under a line that counts them', async () => {
+    const turn = (rest: Partial<ChatMessage>): ChatMessage[] => [conversation[0], { id: 'a1', author: 'ai', text: '', status: 'streaming', ...rest }]
+    const { container, rerender } = zh(<ChatMessageList messages={turn({ phase: 'working', steps: ['查看明天的预约'] })} />)
+    const answer = () => container.querySelector('[data-author="ai"][data-status]')!
+    expect(answer()).toHaveAttribute('data-phase', 'working')
+    const trigger = () => within(answer() as HTMLElement).getByRole('button')
+    expect(trigger()).toHaveTextContent('正在处理…')
+    expect(trigger()).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText('查看明天的预约').closest('[data-slot="trace-line"]')).toHaveAttribute('data-status', 'running')
+    // The disclosure is the working state: no second status line under it.
+    expect(answer().querySelector('[data-slot="chat-message-status"]')).toBeNull()
+
+    rerender(
+      <LocaleProvider>
+        <ChatMessageList messages={turn({ phase: 'working', steps: ['查看明天的预约', '给每位顾客发确认消息'] })} />
+      </LocaleProvider>,
+    )
+    expect(screen.getByText('查看明天的预约').closest('[data-slot="trace-line"]')).not.toHaveAttribute('data-status')
+    expect(screen.getByText('给每位顾客发确认消息').closest('[data-slot="trace-line"]')).toHaveAttribute('data-status', 'running')
+
+    rerender(
+      <LocaleProvider>
+        <ChatMessageList messages={turn({ status: 'done', text: '已发出。', steps: ['查看明天的预约', '给每位顾客发确认消息'] })} />
+      </LocaleProvider>,
+    )
+    expect(trigger()).toHaveTextContent('已完成 2 步')
+    expect(trigger()).toHaveAttribute('aria-expanded', 'false')
+    // She can read them again; a title never carries the kit's ellipsis.
+    await userEvent.click(trigger())
+    expect(trigger()).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText('查看明天的预约')).toBeInTheDocument()
+    expect(container.querySelector('.truncate')).toBeNull()
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('writing: text that arrives is written out over time, said once when whole; what was there at first is not written again', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    try {
+      const reply = '明天的预约见下表。我已经给每位顾客发了一条确认消息。'
+      const turn = (rest: Partial<ChatMessage>): ChatMessage[] => [conversation[0], { id: 'a1', author: 'ai', text: '', status: 'streaming', ...rest }]
+      const { container, rerender } = zh(<ChatMessageList messages={turn({ phase: 'thinking' })} />)
+      const show = (rest: Partial<ChatMessage>) =>
+        rerender(
+          <LocaleProvider>
+            <ChatMessageList messages={turn(rest)} />
+          </LocaleProvider>,
+        )
+      const partial = () => container.querySelector('[data-author="ai"] [data-slot="bubble-content"]')
+      expect(partial()).toBeNull()
+
+      show({ phase: 'writing', text: reply })
+      act(() => vi.advanceTimersByTime(200))
+      const begun = partial()!.textContent ?? ''
+      expect(begun.length).toBeLessThan(reply.length)
+      expect(reply.startsWith(begun)).toBe(true)
+      expect(partial()).toHaveAttribute('aria-live', 'off')
+      act(() => vi.advanceTimersByTime(2000))
+      expect(partial()).toHaveTextContent(reply)
+
+      show({ status: 'done', text: reply })
+      expect(partial()).not.toHaveAttribute('aria-live')
+      expect(partial()).toHaveTextContent(reply)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    // A conversation opened while an answer is arriving: the part that is there stands at once.
+    const late = zh(<ChatMessageList messages={[conversation[0], { id: 'a2', author: 'ai', text: '明天有五个预约。', status: 'streaming' }]} />)
+    expect(late.container.querySelector('[data-author="ai"] [data-slot="bubble-content"]')).toHaveTextContent('明天有五个预约。')
+  })
+
+  it('reduced motion: text that arrives is there whole at once', () => {
+    setMediaQuery('(prefers-reduced-motion: reduce)', true)
+    const reply = '明天的预约见下表。我已经给每位顾客发了一条确认消息。'
+    const turn = (rest: Partial<ChatMessage>): ChatMessage[] => [conversation[0], { id: 'a1', author: 'ai', text: '', status: 'streaming', ...rest }]
+    const { container, rerender } = zh(<ChatMessageList messages={turn({ phase: 'thinking' })} />)
+    rerender(
+      <LocaleProvider>
+        <ChatMessageList messages={turn({ phase: 'writing', text: reply })} />
+      </LocaleProvider>,
+    )
+    expect(container.querySelector('[data-author="ai"] [data-slot="bubble-content"]')).toHaveTextContent(reply)
   })
 
   it('error: a failed answer says so in words with an icon, and retry asks again and keeps focus on the message', async () => {

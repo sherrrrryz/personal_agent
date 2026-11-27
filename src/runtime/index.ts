@@ -30,13 +30,14 @@ export {
   getRuntime,
   parsePreview,
   parseSceneRef,
+  REPLY_PACE,
   resetRuntime,
   runtimeActionNames,
   sceneRefs,
   SIMULATED_DELAY,
   storageKeys,
 } from './store'
-export type { Runtime, RuntimeActions, RuntimeOptions, SceneRef } from './store'
+export type { ReplyPace, Runtime, RuntimeActions, RuntimeOptions, SceneRef } from './store'
 export { isText, textIn, tx, typed } from './text'
 export type { Text } from './text'
 export { addDays, addMinutes, datePart, nextAt, timePart, toDate } from './time'

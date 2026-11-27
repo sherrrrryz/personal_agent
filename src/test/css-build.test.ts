@@ -21,7 +21,9 @@ export const MAPPED = ['bg-background', 'text-muted-foreground', 'border-border'
 export const STOCK = ['bg-black/10', 'text-white', 'shadow-xs', 'shadow-md', 'shadow-lg', 'ring-foreground/10']
 
 const escapeClass = (name: string) => name.replace(/[:/]/g, '\\$&')
-const hasRule = (css: string, name: string) => css.includes(`.${escapeClass(name)} {`)
+// A rule of its own, or the first of a selector list (`.text-muted-foreground, .text-muted-foreground\/70 {`:
+// the kit's `trace` uses the role with an opacity, and the two share their fallback declaration).
+const hasRule = (css: string, name: string) => [' {', ', '].some((end) => css.includes(`.${escapeClass(name)}${end}`))
 /** The declarations of the first rule for a class. */
 const ruleOf = (css: string, name: string) => {
   const start = css.indexOf(`.${escapeClass(name)} {`)

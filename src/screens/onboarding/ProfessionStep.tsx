@@ -6,7 +6,8 @@ import { ChatComposer, ChatMessageList, type ChatMessage } from '@/components/ch
 import { Inline, Page, Stack } from '@/components/layout'
 import { interview, interviewMessages, longInterview } from '@/fixtures'
 import { useLocale, useT, type Locale } from '@/i18n'
-import { SIMULATED_DELAY, useRuntimeState, type Message } from '@/runtime'
+import { prefersReducedMotion } from '@/lib/reduced-motion'
+import { REPLY_PACE, useRuntimeState, type Message } from '@/runtime'
 
 import { onboardingPaths, settingsPaths, useOnboarding, useReentry } from './paths'
 
@@ -31,7 +32,9 @@ function shown(messages: Message[], said: Record<number, string>, locale: Locale
 /**
  * `onboarding.profession` — step 1 (D-30): the AI asks four things in turn,
  * her scripted answer types itself into the composer and she sends it
- * (D-48), and the AI closes with a summary; then 继续. The states follow 状态预览 from the address: 加载中 is a
+ * (D-48), and the AI closes with a summary; then 继续. Each question arrives
+ * as a reply does everywhere (D-45): a thinking state, then its text written
+ * out. The states follow 状态预览 from the address: 加载中 is a
  * reply still arriving, 出错 a reply that failed (retry in the list), 超长内容
  * the 40-message interview. Empty is how the step opens: the first question
  * is already there.
@@ -43,26 +46,33 @@ export function ProfessionStep() {
   const { reentry, to } = useReentry()
   const preview = useRuntimeState((state) => state.preview)
   const { answered, setAnswered, said, setSaid } = useOnboarding()
-  const [reply, setReply] = useState<'idle' | 'streaming' | 'failed'>('idle')
+  // After she sends: the AI thinks for a beat, then its next question is written out.
+  const [reply, setReply] = useState<'idle' | 'thinking' | 'writing' | 'failed'>('idle')
   const [draft, setDraft] = useState('')
   const noteId = useId()
 
   const long = preview === 'long'
   const done = long || answered >= total
   // A forced preview shows its state at once: as if she had just answered.
-  const forced = preview === 'loading' ? 'streaming' : preview === 'error' ? 'failed' : 'idle'
+  const forced = preview === 'loading' ? 'writing' : preview === 'error' ? 'failed' : 'idle'
   const pending = done ? 'idle' : reply === 'idle' ? forced : reply
+  const arriving = pending === 'thinking' || pending === 'writing'
 
   useEffect(() => {
+    if (reply !== 'thinking' && reply !== 'writing') return
     // 加载中 leaves the reply arriving for as long as the preview lasts.
-    if (reply !== 'streaming' || preview === 'loading') return
-    const timer = setTimeout(() => {
-      if (preview === 'error') setReply('failed')
-      else {
-        setAnswered(answered + 1)
-        setReply('idle')
-      }
-    }, SIMULATED_DELAY)
+    if (reply === 'writing' && preview === 'loading') return
+    const timer = setTimeout(
+      () => {
+        if (reply === 'thinking') setReply(preview === 'error' ? 'failed' : 'writing')
+        else {
+          setAnswered(answered + 1)
+          setReply('idle')
+        }
+      },
+      // The list writes the question out over `write`; with reduced motion it is there at once.
+      reply === 'thinking' ? REPLY_PACE.beat : prefersReducedMotion() ? 0 : REPLY_PACE.write,
+    )
     return () => clearTimeout(timer)
   }, [reply, preview, answered, setAnswered])
 
@@ -84,7 +94,7 @@ export function ProfessionStep() {
   useEffect(() => {
     if (scripted === null) return
     const characters = Array.from(scripted)
-    const still = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const still = prefersReducedMotion()
     let shown = 0
     const type = () => {
       shown = still ? characters.length : shown + 1
@@ -96,26 +106,28 @@ export function ProfessionStep() {
   }, [scripted])
 
   function send(text: string) {
-    if (done || pending === 'streaming') return
+    if (done || arriving) return
     cancelAnimationFrame(frame.current)
     setSaid({ ...said, [answered]: text })
     setDraft('')
-    setReply('streaming')
+    setReply('thinking')
   }
 
   const messages = long ? shown(longInterview(), {}, locale) : shown(interviewMessages(answered), said, locale)
   if (pending !== 'idle') {
-    const question = interview.questions[answered]
+    const asked = interview.questions[answered]
     const next = answered + 1 < total ? interview.questions[answered + 1].question : interview.summary
-    const arriving = next[locale]
+    const question = next[locale]
     messages.push(
-      { id: answerId(answered), author: 'user', text: said[answered] ?? question.answer[locale] },
+      { id: answerId(answered), author: 'user', text: said[answered] ?? asked.answer[locale] },
       {
         id: 'interview-reply',
         author: 'ai',
-        // The part of the reply that has arrived so far.
-        text: pending === 'streaming' ? arriving.slice(0, Math.ceil(arriving.length / 2)) : '',
-        status: pending,
+        // The part of the reply that has arrived so far: nothing while it thinks, then the question —
+        // half of it for as long as 加载中 is forced.
+        text: pending !== 'writing' ? '' : reply === 'writing' ? question : question.slice(0, Math.ceil(question.length / 2)),
+        status: arriving ? 'streaming' : 'failed',
+        phase: arriving ? pending : undefined,
       },
     )
   }
@@ -134,7 +146,7 @@ export function ProfessionStep() {
       }
     >
       {/* The page scrolls here, not the list: its own following is off, the step brings the end into view (above). */}
-      <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('streaming')} />
+      <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('thinking')} />
       {/* The composer stays at the end of the window while the interview scrolls above it. */}
       <div className="sticky bottom-0 bg-background py-4">
         <Stack gap="md">
@@ -146,7 +158,7 @@ export function ProfessionStep() {
               setDraft(text)
             }}
             onSend={send}
-            sending={pending === 'streaming'}
+            sending={arriving}
             disabled={done}
           />
           <Inline gap="sm">

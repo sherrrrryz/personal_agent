@@ -1,0 +1,26 @@
+{
+  "motion": {
+    "$type": "duration",
+    "simulated": {
+      "delay": {
+        "$value": "{duration.120}",
+        "$description": "How long a faked read and a faked run take (the runtime's SIMULATED_DELAY): long enough to see a loading state."
+      }
+    },
+    "reply": {
+      "$description": "The replay of an AI reply as a process (D-45): the scripted runtime and the onboarding interview wait these long, ChatMessageList writes a text out over `write`.",
+      "beat": {
+        "$value": "{duration.500}",
+        "$description": "One beat of the AI's work: the thinking state before anything shows, and each step it takes."
+      },
+      "write": {
+        "$value": "{duration.1200}",
+        "$description": "How long a piece of reply text takes to be written out, whatever its length."
+      },
+      "settle": {
+        "$value": "{duration.300}",
+        "$description": "The pause between a whole text and each thing it carries: the table, then the proposal."
+      }
+    }
+  }
+}

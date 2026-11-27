@@ -1,5 +1,6 @@
 import type { ProposalPartState } from '@/blocks/types'
 import { scene } from '@/fixtures/scenes'
+import { prefersReducedMotion } from '@/lib/reduced-motion'
 import type { BehaviourMode } from '@/lib/vocab'
 
 import { answerOf, type AnswerOf, type ResourceKind, type ResourceRef } from './facade'
@@ -16,6 +17,8 @@ import {
   type Snapshot,
   type TaskKind,
 } from './model'
+import { motion } from '@/tokens/generated/motion'
+
 import * as reduce from './reduce'
 import type { SendMessageInput } from './reduce'
 import type { Text } from './text'
@@ -29,10 +32,21 @@ import type { Text } from './text'
 export const storageKeys = { scene: 'pa.scene', onboarded: 'pa.onboarded', pins: 'pa.pins' } as const
 
 /**
- * How long a read, a reply and a run take, in milliseconds — simulated, fixed.
- * Short enough for the matrix, long enough to see a loading state.
+ * How long a read and a run take, in milliseconds — simulated, fixed, from the
+ * token source (`motion.simulated.delay`). Short enough for the matrix, long
+ * enough to see a loading state.
  */
-export const SIMULATED_DELAY = 120
+export const SIMULATED_DELAY = motion.simulated.delay
+
+/**
+ * The pace of a reply's replay, in milliseconds (D-45): `beat` — the thinking
+ * state and each step; `write` — the text being written out; `settle` — the
+ * pause before each thing the text carries.
+ */
+export type ReplyPace = { beat: number; write: number; settle: number }
+
+/** The pace from the token source (`motion.reply.*`). */
+export const REPLY_PACE: ReplyPace = motion.reply
 
 /** A scene as the URL and the 时间推进 menu name it: `s1`, or `s3-resolved` for a resolved half. */
 export type SceneRef = SceneId | `${(typeof scenesWithHalves)[number]}-resolved`
@@ -57,8 +71,16 @@ export function parsePreview(value: string | null | undefined): PreviewId | null
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
 export type RuntimeOptions = {
-  /** Milliseconds a read, a reply and a run take. Default `SIMULATED_DELAY`. */
+  /** Milliseconds a read and a run take. Default `SIMULATED_DELAY`. */
   delay?: number
+  /**
+   * The pace of a reply's replay. Default `REPLY_PACE` — or, when `delay` is
+   * given, every wait of a reply takes `delay` (a test's `{ delay: 0 }` makes
+   * the whole runtime immediate).
+   */
+  pace?: ReplyPace
+  /** Whether she asked for reduced motion: the text is then not written out but there at once. Default: the media query. */
+  reducedMotion?: () => boolean
   /** Where the scene, the onboarding flag and the pins are kept; `null` keeps nothing. Default `localStorage`. */
   storage?: StorageLike | null
   /** The query string to start from (`?scene=s1&preview=long`). Default: the page's. */
@@ -71,7 +93,8 @@ export type RuntimeOptions = {
 export type RuntimeActions = {
   /**
    * Sends her message. The script decides at once where the answer appears
-   * (`surface`); the reply then streams into the conversation and `done`
+   * (`surface`); the reply is then replayed as a process (D-45) — thinking, the
+   * script's steps one at a time, the text, the table, the proposal — and `done`
    * settles when it is complete, has failed (出错), or keeps streaming (加载中).
    * `null`: a retry with nothing to retry.
    */
@@ -157,6 +180,8 @@ function readPins(storage: StorageLike | null): RuntimeState['pins'] {
 
 export function createRuntime(options: RuntimeOptions = {}): Runtime {
   const delay = options.delay ?? SIMULATED_DELAY
+  const pace = options.pace ?? (options.delay === undefined ? REPLY_PACE : { beat: options.delay, write: options.delay, settle: options.delay })
+  const still = options.reducedMotion ?? prefersReducedMotion
   const storage = options.storage === undefined ? browserStorage() : options.storage
   const search = options.search ?? (typeof window === 'undefined' ? '' : window.location.search)
   const query = new URLSearchParams(search)
@@ -216,15 +241,41 @@ export function createRuntime(options: RuntimeOptions = {}): Runtime {
       const begun = change((draft) => reduce.beginMessage(draft, input))
       if (!begun) return null
       const { conversationId } = begun
+      // The replay belongs to the scene it began in: after a jump nothing more of it happens.
+      const epoch = state.epoch
+      const alive = () => state.epoch === epoch
       const done = (async () => {
-        await later(delay / 2, () => change((draft) => reduce.streamReply(draft, conversationId, 0.5)))
-        await later(delay / 2, () => {
-          // 状态预览 reaches the reply too: 出错 fails it, 加载中 leaves it streaming.
-          if (state.preview === 'loading') return
-          change((draft) =>
-            state.preview === 'error' ? reduce.failReply(draft, conversationId) : reduce.finishReply(draft, conversationId, input.context),
-          )
-        })
+        // Thinking: nothing to show yet.
+        await wait(pace.beat)
+        if (!alive()) return
+        // 状态预览 reaches the reply too: 出错 fails it, 加载中 leaves it streaming.
+        if (state.preview === 'error') {
+          change((draft) => reduce.failReply(draft, conversationId))
+          return
+        }
+        // Working: the script's steps, each running for a beat.
+        while (change((draft) => reduce.stepReply(draft, conversationId))) {
+          await wait(pace.beat)
+          if (!alive()) return
+        }
+        if (state.preview === 'loading') {
+          change((draft) => reduce.streamReply(draft, conversationId, 0.5))
+          return
+        }
+        // Writing: the text has arrived; the list writes it out (at once with reduced motion).
+        change((draft) => reduce.streamReply(draft, conversationId, 1))
+        if (!still()) {
+          await wait(pace.write)
+          if (!alive()) return
+        }
+        // What the text carries comes after it is whole, one thing at a time: the table, then the proposal.
+        await wait(pace.settle)
+        if (!alive()) return
+        if (change((draft) => reduce.attachReply(draft, conversationId))) {
+          await wait(pace.settle)
+          if (!alive()) return
+        }
+        change((draft) => reduce.finishReply(draft, conversationId, input.context))
       })()
       return { ...begun, done }
     },

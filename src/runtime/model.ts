@@ -278,6 +278,14 @@ export type MessageAttachment =
   | { kind: 'proposal'; proposalId: string }
   | { kind: 'table'; name: Text; titleColumn: string; columns: MemoryColumn[]; rows: MemoryRow[] }
 
+/**
+ * A reply arrives as a process, not at once (D-45): `thinking` — nothing to
+ * show yet; `working` — the steps the script names, one at a time; `writing` —
+ * the text has arrived and is being written out; `attaching` — the text is
+ * whole and what it carries (a table, then a proposal) is on its way.
+ */
+export type ReplyPhase = 'thinking' | 'working' | 'writing' | 'attaching'
+
 export type Message = {
   id: string
   author: 'user' | 'ai'
@@ -285,6 +293,13 @@ export type Message = {
   at: string
   /** `streaming`: `text` is the part that has arrived. `failed`: the reply did not come; retry. */
   status: 'done' | 'streaming' | 'failed'
+  /** While `streaming`: where the reply is in its replay (D-45). Absent once it is `done` or `failed`. */
+  phase?: ReplyPhase
+  /**
+   * What the AI did before answering, in order — the script's steps that have
+   * begun. While `phase` is `working` the last one is still running.
+   */
+  steps?: Text[]
   attachments?: MessageAttachment[]
   /** The script that answers — kept so a failed reply can be retried. `null`: the canned reply. */
   script?: string | null
@@ -414,6 +429,12 @@ export type ChatScript = {
   template?: string
   /** Narrows where it applies — the workflow editor of one module, say. */
   where?: (state: Snapshot, context: ChatContext) => boolean
+  /**
+   * What the AI does before it answers, in order — shown one at a time while
+   * the reply is replayed, kept with the answer afterwards. Only what the
+   * story already says it does (`IA-MAP.md` § Prototype flows).
+   */
+  steps?: Text[]
   reply: Text
   attachments?: (state: Snapshot) => MessageAttachment[]
   proposal?: (state: Snapshot, context: ChatContext) => ProposalSeed | null

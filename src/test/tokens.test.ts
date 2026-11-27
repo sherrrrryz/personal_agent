@@ -33,7 +33,7 @@ describe('tiers', () => {
   })
 
   it('every semantic token of every type is an alias of a primitive of the same type', () => {
-    expect(new Set(semantic.map((token) => token.type))).toEqual(new Set(['color', 'string', 'dimension', 'fontFamily']))
+    expect(new Set(semantic.map((token) => token.type))).toEqual(new Set(['color', 'string', 'dimension', 'fontFamily', 'duration']))
     for (const token of semantic) {
       const target = aliasTarget(token.value)
       expect(target, `${token.path} (${token.mode}) holds a raw value`).not.toBeNull()
@@ -173,6 +173,7 @@ describe('build', () => {
     const rendered = await renderTokens()
     expect(Object.keys(rendered).sort()).toEqual([
       'src/tokens/generated/breakpoints.ts',
+      'src/tokens/generated/motion.ts',
       'src/tokens/generated/tokens.css',
     ])
     for (const [file, output] of Object.entries(rendered))

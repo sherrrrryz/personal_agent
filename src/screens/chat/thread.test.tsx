@@ -128,12 +128,12 @@ describe('chat.thread (R-19)', () => {
     expect(pathOf(router)).toBe('/chat/conv-1')
   })
 
-  it('状态预览 empty: a chat that has just begun — her opening message and 正在回答', async () => {
+  it('状态预览 empty: a chat that has just begun — her opening message and 正在思考', async () => {
     open('/chat/conv-1', { preview: 'empty' })
     await title()
     const log = await main().findByRole('log')
     expect(await within(log).findByText('明天有哪些预约？帮我给顾客发确认。')).toBeInTheDocument()
-    expect(within(log).getByText('正在回答…')).toBeInTheDocument()
+    expect(within(log).getByText('正在思考…')).toBeInTheDocument()
     expect(log.querySelectorAll('[data-author]')).toHaveLength(2)
     expect(within(log).queryByText(/明天的预约见下表/)).not.toBeInTheDocument()
   })

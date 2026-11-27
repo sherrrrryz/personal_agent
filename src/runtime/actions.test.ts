@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { accountId, basis, chatScripts, column, firstVisitParam, memoryBlock, moduleId, nodeId, scene, scriptId, tableId, cannedReply } from '@/fixtures'
 import { behaviourModes, type BehaviourMode } from '@/lib/vocab'
@@ -13,6 +13,7 @@ import {
   latestRun,
   numberCell,
   parseSceneRef,
+  REPLY_PACE,
   resolveModule,
   rowOf,
   runtimeActionNames,
@@ -34,6 +35,76 @@ import { memoryStorage, runtimeIn } from './test-support'
 
 const prompt = (id: string) => chatScripts.find((script) => script.id === id)!.prompt['zh-CN']
 const onAppointments = { moduleId: moduleId.appointments, view: 'page' } as const
+
+describe('a reply is replayed as a process (D-45)', () => {
+  /** What the AI's turn holds after every change of the state, as one line each. */
+  async function replayOf(runtime: Runtime, text: string) {
+    const seen: string[] = []
+    const off = runtime.subscribe(() => {
+      const turn = runtime.getState().conversations.at(-1)?.messages.at(-1)
+      if (turn?.author !== 'ai') return
+      const kinds = (turn.attachments ?? []).map((attachment) => attachment.kind).join('+') || '-'
+      const line = `${turn.phase ?? turn.status} steps=${turn.steps?.length ?? 0} text=${turn.text['zh-CN'] === '' ? 'none' : 'whole'} carries=${kinds}`
+      if (seen.at(-1) !== line) seen.push(line)
+    })
+    await runtime.actions.sendMessage({ text, context: onAppointments })!.done
+    off()
+    return seen
+  }
+
+  it('the hero answer: thinking, its steps one at a time, the text, then the table, then the proposal', async () => {
+    expect(await replayOf(runtimeIn('s0'), prompt(scriptId.hero))).toEqual([
+      'thinking steps=0 text=none carries=-',
+      'working steps=1 text=none carries=-',
+      'working steps=2 text=none carries=-',
+      'writing steps=2 text=whole carries=-',
+      'attaching steps=2 text=whole carries=table',
+      'done steps=2 text=whole carries=table+proposal',
+    ])
+  })
+
+  it('an unscripted message: thinking, then the canned text — no steps, nothing carried', async () => {
+    expect(await replayOf(runtimeIn('s0'), '今天天气怎么样')).toEqual([
+      'thinking steps=0 text=none carries=-',
+      'writing steps=0 text=whole carries=-',
+      'attaching steps=0 text=whole carries=-',
+      'done steps=0 text=whole carries=-',
+    ])
+  })
+
+  it('every scripted answer names steps in both languages, and a scene built from scripts holds no unfinished turn', () => {
+    for (const script of chatScripts) {
+      expect(script.steps?.length, script.id).toBeGreaterThan(0)
+      for (const step of script.steps ?? []) expect(step['zh-CN'] !== '' && step.en !== '', script.id).toBe(true)
+    }
+    for (const ref of sceneRefs) {
+      const turns = runtimeIn(ref).getState().conversations.flatMap((conversation) => conversation.messages)
+      expect(turns.filter((turn) => turn.status !== 'done' || turn.phase !== undefined), ref).toEqual([])
+    }
+  })
+
+  it('the pace comes from the token source, and reduced motion skips the writing-out', async () => {
+    vi.useFakeTimers()
+    try {
+      const pace = { beat: 100, write: 1000, settle: 10 }
+      for (const [reducedMotion, total] of [
+        [false, 100 + 2 * 100 + 1000 + 10 + 10],
+        [true, 100 + 2 * 100 + 0 + 10 + 10],
+      ] as const) {
+        const runtime = createRuntime({ storage: null, search: '?scene=s0', pace, reducedMotion: () => reducedMotion })
+        let settled = false
+        void runtime.actions.sendMessage({ text: prompt(scriptId.hero), context: onAppointments })!.done.then(() => (settled = true))
+        await vi.advanceTimersByTimeAsync(total - 1)
+        expect(settled, String(reducedMotion)).toBe(false)
+        await vi.advanceTimersByTimeAsync(1)
+        expect(settled, String(reducedMotion)).toBe(true)
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+    expect(REPLY_PACE).toEqual({ beat: 500, write: 1200, settle: 300 })
+  })
+})
 
 /** Sends a scripted prompt and waits for the whole reply. */
 async function ask(runtime: Runtime, script: string, context: { moduleId?: string; view?: 'page' | 'workflow' } = onAppointments) {

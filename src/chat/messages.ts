@@ -10,6 +10,8 @@ export function messagesOf(conversation: Conversation, locale: Locale): ChatMess
     text: message.text[locale],
     at: message.at,
     status: message.status,
+    phase: message.phase,
+    steps: message.steps?.map((step) => step[locale]),
     attachments: message.attachments,
   }))
 }

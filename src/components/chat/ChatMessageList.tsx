@@ -1,5 +1,5 @@
-import { CircleAlert, MessagesSquare } from 'lucide-react'
-import { useRef, type ReactNode } from 'react'
+import { Check, CircleAlert, ListChecks, MessagesSquare } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/actions'
 import { DataState, type DataStateValue } from '@/components/feedback'
@@ -16,10 +16,28 @@ import {
 } from '@/components/ui/message-scroller'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
+import {
+  Trace,
+  TraceCollapsible,
+  TraceCollapsibleContent,
+  TraceCollapsibleTrigger,
+  TraceIcon,
+  TraceLine,
+  TraceTitle,
+} from '@/components/ui/trace'
 import { useFormat, useT } from '@/i18n'
+import { prefersReducedMotion } from '@/lib/reduced-motion'
+import { motion } from '@/tokens/generated/motion'
 
 export type ChatMessageAuthor = 'user' | 'ai'
 export type ChatMessageStatus = 'done' | 'streaming' | 'failed'
+/**
+ * Where an answer that is still arriving is (D-45): `thinking` — nothing to
+ * show yet; `working` — its steps, the last one running; `writing` — its text
+ * is being written out; `attaching` — the text is whole, what it carries is
+ * on its way.
+ */
+export type ChatMessagePhase = 'thinking' | 'working' | 'writing' | 'attaching'
 
 /**
  * One message as the list shows it. The runtime's `Message` fits once its
@@ -35,6 +53,14 @@ export type ChatMessage<Attachment = unknown> = {
   at?: string
   /** `streaming`: the answer is arriving. `failed`: it did not come and can be asked for again. Default `done`. */
   status?: ChatMessageStatus
+  /** While `streaming`: where the answer is. Default: `writing` once there is text, `thinking` before. */
+  phase?: ChatMessagePhase
+  /**
+   * What the AI did before answering, in order. While `working` the last one
+   * is still running and the steps are open; afterwards they fold away under
+   * a line that counts them, and she can open them again.
+   */
+  steps?: ReadonlyArray<string>
   attachments?: ReadonlyArray<Attachment>
 }
 
@@ -78,6 +104,10 @@ export type ChatMessageListProps<Attachment = unknown> = {
 
 const statusClass =
   'flex min-w-0 items-center gap-2 rounded-lg text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
+
+// The kit's `TraceTitle` cuts a long line with an ellipsis (`truncate`); ours wrap instead (hard rule 11:
+// no clipped text). `text-clip` is what makes the kit's class merge drop `truncate`.
+const traceTitleClass = 'text-clip wrap-anywhere'
 
 // Message text: her line breaks kept, a long word or address broken rather than pushed past the edge.
 const textClass = 'min-w-0 whitespace-pre-wrap wrap-anywhere'
@@ -155,6 +185,8 @@ export function ChatMessageList<Attachment = unknown>({
                 {messages.map((message) => {
                   const status = message.status ?? 'done'
                   const mine = message.author === 'user'
+                  const phase = status === 'streaming' ? (message.phase ?? (message.text === '' ? 'thinking' : 'writing')) : null
+                  const steps = mine ? [] : (message.steps ?? [])
                   const sent = message.at ? new Date(message.at) : null
                   return (
                     <MessageScrollerItem
@@ -166,6 +198,7 @@ export function ChatMessageList<Attachment = unknown>({
                       scrollAnchor={mine && follow}
                       data-author={message.author}
                       data-status={status}
+                      data-phase={phase ?? undefined}
                     >
                       <Message align={mine ? 'end' : 'start'}>
                         <MessageContent>
@@ -178,26 +211,29 @@ export function ChatMessageList<Attachment = unknown>({
                               </time>
                             )}
                           </MessageHeader>
-                          {message.text !== '' && (
-                            <Bubble align={mine ? 'end' : 'start'} variant={mine ? 'muted' : 'ghost'}>
-                              {status === 'streaming' ? (
-                                // Each arriving piece would be read out one by one: the partial text is kept
-                                // out of the announcements, and the finished text — a new element, by its
-                                // key — is said once, whole.
-                                <BubbleContent key="partial" render={<p />} aria-live="off" className={textClass}>
-                                  {message.text}
-                                </BubbleContent>
-                              ) : (
-                                <BubbleContent key="whole" render={<p />} className={textClass}>
-                                  {message.text}
-                                </BubbleContent>
-                              )}
-                            </Bubble>
+                          {steps.length > 0 && (
+                            <MessageSteps
+                              steps={steps}
+                              running={phase === 'working'}
+                              runningTitle={t('list.steps.running')}
+                              doneTitle={t('list.steps.done', { count: steps.length })}
+                            />
                           )}
-                          {status !== 'done' && (
+                          {mine ? (
+                            message.text !== '' && (
+                              <Bubble align="end" variant="muted">
+                                <BubbleContent render={<p />} className={textClass}>
+                                  {message.text}
+                                </BubbleContent>
+                              </Bubble>
+                            )
+                          ) : (
+                            <AnswerText text={message.text} streaming={status === 'streaming'} />
+                          )}
+                          {(status === 'failed' || phase === 'thinking' || phase === 'writing' || phase === 'attaching') && (
                             <MessageStatus
                               failed={status === 'failed'}
-                              streamingText={t('list.streaming')}
+                              streamingText={phase === 'thinking' ? t('list.thinking') : t('list.streaming')}
                               failedText={t('list.failed')}
                               retryLabel={!readOnly && onRetry ? common('action.retry') : null}
                               onRetry={(element) => retry(message, element)}
@@ -246,11 +282,19 @@ function MessageStatus({ failed, streamingText, failedText, retryLabel, onRetry 
     <div className="flex min-w-0 flex-wrap items-center gap-2">
       <p ref={line} tabIndex={-1} data-slot="chat-message-status" className={statusClass}>
         {failed ? (
-          <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+          <>
+            <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+            <span className="min-w-0 wrap-anywhere">{failedText}</span>
+          </>
         ) : (
-          <Spinner role={undefined} aria-hidden="true" className="shrink-0" />
+          // The kit's running line: a spinner, and the words shimmer (not with reduced motion).
+          <TraceLine status="running">
+            <TraceIcon>
+              <Spinner role={undefined} aria-hidden="true" />
+            </TraceIcon>
+            <TraceTitle className={traceTitleClass}>{streamingText}</TraceTitle>
+          </TraceLine>
         )}
-        <span className="min-w-0 wrap-anywhere">{failed ? failedText : streamingText}</span>
       </p>
       {failed && retryLabel && (
         <Button variant="secondary" size="sm" onClick={() => onRetry(line.current)}>
@@ -258,6 +302,109 @@ function MessageStatus({ failed, streamingText, failedText, retryLabel, onRetry 
         </Button>
       )}
     </div>
+  )
+}
+
+type AnswerTextProps = {
+  /** While `streaming`: the part that has arrived. */
+  text: string
+  streaming: boolean
+}
+
+/**
+ * The AI's text. While the answer is arriving, what newly arrives is written
+ * out — a few characters a frame, the whole piece within `motion.reply.write`
+ * — instead of standing there at once; with reduced motion it is there at
+ * once. Text that was already there when the message was first shown is not
+ * written again: a conversation opened later, or a record, is complete.
+ */
+function AnswerText({ text, streaming }: AnswerTextProps) {
+  const characters = Array.from(text)
+  const total = characters.length
+  const still = prefersReducedMotion()
+  // How many characters are shown. It starts at what the message held when it was first drawn.
+  const [shown, setShown] = useState(total)
+  const reached = useRef(total)
+
+  useEffect(() => {
+    if (!streaming || still) {
+      reached.current = total
+      return
+    }
+    const start = Math.min(reached.current, total)
+    if (start === total) return
+    let began: number | null = null
+    let frame = requestAnimationFrame(function write(now: number) {
+      began ??= now
+      const part = Math.min(1, (now - began) / motion.reply.write)
+      const next = start + Math.ceil((total - start) * part)
+      reached.current = next
+      setShown(next)
+      if (next < total) frame = requestAnimationFrame(write)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [streaming, still, total])
+
+  if (text === '') return null
+  return (
+    <Bubble align="start" variant="ghost">
+      {streaming ? (
+        // Each arriving piece would be read out one by one: the partial text is kept
+        // out of the announcements, and the finished text — a new element, by its
+        // key — is said once, whole.
+        <BubbleContent key="partial" render={<p />} aria-live="off" className={textClass}>
+          {!still && shown < total ? characters.slice(0, shown).join('') : text}
+        </BubbleContent>
+      ) : (
+        <BubbleContent key="whole" render={<p />} className={textClass}>
+          {text}
+        </BubbleContent>
+      )}
+    </Bubble>
+  )
+}
+
+type MessageStepsProps = {
+  steps: ReadonlyArray<string>
+  /** The last step is still running. */
+  running: boolean
+  runningTitle: string
+  doneTitle: string
+}
+
+/**
+ * What the AI did before answering — the kit's `Trace` (D-45). While it works
+ * the steps are open, the last one running; afterwards they fold away under a
+ * line that counts them. She can open and close them herself at any time, and
+ * her choice then stands.
+ */
+function MessageSteps({ steps, running, runningTitle, doneTitle }: MessageStepsProps) {
+  const [chosen, setChosen] = useState<boolean | null>(null)
+  return (
+    <Trace data-slot="chat-message-steps">
+      <TraceCollapsible open={chosen ?? running} onOpenChange={(open) => setChosen(open)}>
+        <TraceCollapsibleTrigger>
+          <TraceLine status={running ? 'running' : undefined}>
+            <TraceIcon>{running ? <Spinner role={undefined} aria-hidden="true" /> : <ListChecks />}</TraceIcon>
+            <TraceTitle className={traceTitleClass}>{running ? runningTitle : doneTitle}</TraceTitle>
+          </TraceLine>
+        </TraceCollapsibleTrigger>
+        <TraceCollapsibleContent>
+          <Trace>
+            {steps.map((step, index) => {
+              const active = running && index === steps.length - 1
+              return (
+                // The steps have no identity but their order, which is fixed.
+                <TraceLine key={index} status={active ? 'running' : undefined}>
+                  <TraceIcon>{active ? <Spinner role={undefined} aria-hidden="true" /> : <Check />}</TraceIcon>
+                  <TraceTitle className={traceTitleClass}>{step}</TraceTitle>
+                </TraceLine>
+              )
+            })}
+          </Trace>
+        </TraceCollapsibleContent>
+      </TraceCollapsible>
+    </Trace>
   )
 }
 

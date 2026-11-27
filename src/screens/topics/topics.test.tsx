@@ -113,8 +113,12 @@ describe('topics.<topic> (B-04)', () => {
     expect(within(records).getByText('就地回答')).toBeInTheDocument()
     const log = within(records).getByRole('log', { name: '记录 1：按品种和毛长估时间' })
     expect(log).toHaveTextContent('以后帮我按狗的品种和毛长估时间')
-    // Read-only: nothing in the record acts — no retry, no 接受 / 拒绝.
-    expect(within(log).queryByRole('button')).toBeNull()
+    // Read-only: nothing in the record acts — no retry, no 接受 / 拒绝. The one button is the
+    // disclosure of what the AI did before answering (D-45): folded away, complete, not replayed.
+    const buttons = within(log).getAllByRole('button')
+    expect(buttons.map((button) => button.textContent)).toEqual(['已完成 2 步'])
+    expect(buttons[0]).toHaveAttribute('aria-expanded', 'false')
+    expect(log.querySelector('[data-status="streaming"]')).toBeNull()
     expect(await axe(document.body)).toHaveNoViolations()
   })
 

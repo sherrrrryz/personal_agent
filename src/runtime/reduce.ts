@@ -615,8 +615,8 @@ export type SendMessageInput = {
 }
 
 /**
- * Her message arrives and the AI starts answering (正在回答): the reply is
- * there as a `streaming` message with no text yet. The script decides the
+ * Her message arrives and the AI starts answering: the reply is there as a
+ * `streaming` message with no text yet, `thinking`. The script decides the
  * surface of a new conversation. Returns `null` for a retry with nothing to
  * retry.
  */
@@ -663,6 +663,7 @@ export function beginMessage(
     text: tx('', ''),
     at: draft.storyTime,
     status: 'streaming',
+    phase: 'thinking',
     script: script?.id ?? null,
   })
   const topic = draft.topics.find((each) => each.id === conversation.topicId)
@@ -678,12 +679,45 @@ function pendingReply(draft: Snapshot, conversationId: string) {
   return { conversation, message, script, reply: script?.reply ?? cannedReply }
 }
 
-/** Part of the reply has arrived: the first `fraction` of it is the message's text. */
+/**
+ * The AI takes its next step: the script's next step line joins the message
+ * and is the one still running. `false`: there is no further step — the reply
+ * goes on to its text.
+ */
+export function stepReply(draft: Snapshot, conversationId: string): boolean {
+  const pending = pendingReply(draft, conversationId)
+  const begun = pending?.message.steps?.length ?? 0
+  const next = pending?.script?.steps?.[begun]
+  if (!pending || !next) return false
+  pending.message.steps = [...(pending.message.steps ?? []), next]
+  pending.message.phase = 'working'
+  return true
+}
+
+/** Part of the reply has arrived: the first `fraction` of it is the message's text, and every step is finished. */
 export function streamReply(draft: Snapshot, conversationId: string, fraction: number): void {
   const pending = pendingReply(draft, conversationId)
   if (!pending) return
   const part = (text: string) => text.slice(0, Math.ceil(text.length * fraction))
   pending.message.text = tx(part(pending.reply['zh-CN']), part(pending.reply.en))
+  pending.message.phase = 'writing'
+}
+
+/**
+ * The text is whole and what it carries starts to arrive: the tables first.
+ * `true`: there is a table and it is now under the text — the proposal, and
+ * the end of the reply, come with `finishReply`.
+ */
+export function attachReply(draft: Snapshot, conversationId: string): boolean {
+  const pending = pendingReply(draft, conversationId)
+  if (!pending) return false
+  const { message, script, reply } = pending
+  message.text = reply
+  message.phase = 'attaching'
+  const tables = script?.attachments?.(draft) ?? []
+  if (tables.length === 0) return false
+  message.attachments = tables
+  return true
 }
 
 /** The reply is complete, with what it carries: tables, and a proposal that now waits in the state. */
@@ -693,6 +727,9 @@ export function finishReply(draft: Snapshot, conversationId: string, context: Ch
   const { conversation, message, script, reply } = pending
   message.text = reply
   message.status = 'done'
+  delete message.phase
+  // The steps stay with the answer: a record shows what was done, folded away.
+  if (script?.steps?.length) message.steps = [...script.steps]
   const attachments = [...(script?.attachments?.(draft) ?? [])]
   const seed = script?.proposal?.(draft, { moduleId: conversation.moduleId, ...context })
   if (seed) {
@@ -701,6 +738,7 @@ export function finishReply(draft: Snapshot, conversationId: string, context: Ch
     attachments.push({ kind: 'proposal', proposalId: proposal.id })
   }
   if (attachments.length > 0) message.attachments = attachments
+  else delete message.attachments
   const topic = draft.topics.find((each) => each.id === conversation.topicId)
   if (topic && script) {
     topic.summary = script.topic.summary
@@ -714,6 +752,9 @@ export function failReply(draft: Snapshot, conversationId: string): void {
   if (!pending) return
   pending.message.text = tx('', '')
   pending.message.status = 'failed'
+  delete pending.message.phase
+  delete pending.message.steps
+  delete pending.message.attachments
 }
 
 /** A whole scripted exchange at once — how a scene is built from the one before. */

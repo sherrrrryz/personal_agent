@@ -8,6 +8,8 @@ import { breedTypes } from './vocabulary'
 
 // The scripted chat (spec part 2 § Fake workflow runtime, "Scripted chat").
 // Anything she types that is not one of these prompts gets the canned reply.
+// A reply is replayed as a process (D-45): `steps` are what the AI does before
+// it answers — only what the story already says it does.
 
 /** 原型只演示脚本中的对话 — the one honest reply to anything unscripted. */
 export const cannedReply = tx('原型只演示脚本中的对话。', 'This prototype only plays the scripted conversations.')
@@ -84,6 +86,10 @@ export const chatScripts: readonly ChatScript[] = [
     },
     title: tx('明天的预约确认', 'Tomorrow’s confirmations'),
     template: 'confirmations',
+    steps: [
+      tx('查看明天的预约', 'Looking up tomorrow’s bookings'),
+      tx('给每位顾客发确认消息', 'Sending each customer a confirmation'),
+    ],
     reply: tx(
       '明天的预约见下表。我已经给每位顾客发了一条确认消息。如果你想每天晚上都这样做，可以把这次对话设为长期。',
       'Tomorrow’s bookings are in the table below. I have sent each customer a confirmation. If you want this done every evening, keep this conversation as a module.',
@@ -101,6 +107,10 @@ export const chatScripts: readonly ChatScript[] = [
     topic: durationTopic,
     title: tx('按品种和毛长估时间', 'Estimate time by breed and coat'),
     template: 'duration',
+    steps: [
+      tx('读取顾客与宠物档案（品种、毛长、体型）', 'Reading the customer and pet files (breed, coat, size)'),
+      tx('把你的经验整理成时长表', 'Putting your rule of thumb into a table'),
+    ],
     reply: tx(
       '明白了。我把你的经验整理成下面这张表：长毛大型 4 小时，短毛小型 2 小时，其他 3 小时。同一个品种的狗差别也可能很大，所以我还会按名字记录每只狗的实际耗时。这听起来是一条长期规则——要不要把它设为长期，以后预约和排班都按它来？',
       'Understood. I have put your rule of thumb into the table below: long-haired large dogs 4 hours, short-haired small dogs 2 hours, others 3 hours. Dogs of one breed can differ a lot, so I will also record each dog’s actual time by name. This sounds like a standing rule — shall I keep it as a module, so bookings and shifts follow it from now on?',
@@ -138,6 +148,7 @@ export const chatScripts: readonly ChatScript[] = [
       moduleIds: [],
     },
     title: tx('店庆活动怎么做', 'Planning the shop anniversary'),
+    steps: [tx('整理可以展开的方向', 'Drafting directions to start from')],
     reply: tx(
       '可以从三个方向想：一、老顾客回馈——来过三次以上的狗狗当月洗护九折；二、新客体验价——第一次来的小型犬洗澡 68 元；三、店庆当天设一个拍照角，照片发给主人。你想先把哪一个展开？',
       'Three directions to start from: first, rewards for regulars — dogs with three or more visits get 10% off grooming that month; second, a trial price for new customers — a first bath for a small dog at ¥68; third, a photo corner on the day, with the pictures sent to the owners. Which one shall we work out first?',
@@ -158,6 +169,10 @@ export const chatScripts: readonly ChatScript[] = [
           workflow.moduleId === context.moduleId &&
           workflow.versions.some((version) => version.n === workflow.current && version.nodes.some((node) => node.id === nodeId.review)),
       ),
+    steps: [
+      tx('读取这个工作流的当前版本', 'Reading the current version of this workflow'),
+      tx('找到触发器「每周一复盘」', 'Finding the trigger “Review every Monday”'),
+    ],
     reply: tx(
       '可以。这会把「每周一复盘」的时间从 18:00 改为 09:00，其他步骤不变。你确认后，工作流会保存为一个新版本。',
       'Yes. This moves “Review every Monday” from 18:00 to 09:00 and leaves every other step as it is. Once you confirm, the workflow is saved as a new version.',

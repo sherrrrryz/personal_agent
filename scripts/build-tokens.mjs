@@ -9,6 +9,7 @@
  *                                        .dark (the roles that have a mode),
  *                                        @theme (breakpoints, as literals)
  *   src/tokens/generated/breakpoints.ts  the same breakpoints as constants
+ *   src/tokens/generated/motion.ts       the motion tokens as milliseconds, for timers
  *
  * Tiers are folders: tokens/primitive/ holds raw values, tokens/semantic/
  * holds aliases of primitives only. Modes exist on the semantic tier only:
@@ -38,11 +39,13 @@ export const SOURCES = {
     'tokens/primitive/color.json',
     'tokens/primitive/dimension.json',
     'tokens/primitive/font.json',
+    'tokens/primitive/motion.json',
   ],
   semantic: [
     'tokens/semantic/color.json',
     'tokens/semantic/dimension.json',
     'tokens/semantic/font.json',
+    'tokens/semantic/motion.json',
   ],
   dark: ['tokens/semantic/color.dark.json'],
 }
@@ -98,6 +101,11 @@ function rawCss(token) {
       if (typeof value?.value !== 'number' || !['px', 'rem'].includes(value.unit))
         throw new Error(`${pathKey(token)}: a dimension is { value, unit: "px" | "rem" }`)
       return `${value.value}${value.unit}`
+    }
+    case 'duration': {
+      if (typeof value?.value !== 'number' || value.unit !== 'ms')
+        throw new Error(`${pathKey(token)}: a duration is { value, unit: "ms" }`)
+      return `${value.value}ms`
     }
     case 'fontFamily':
       return [value]
@@ -203,6 +211,39 @@ function formatBreakpoints({ dictionary }) {
   ].join('\n')
 }
 
+/** The semantic `motion.*` tokens as nested constants: `motion.reply.beat` → `motion.reply.beat`, in milliseconds. */
+function formatMotion({ dictionary }) {
+  const tree = {}
+  for (const token of dictionary.allTokens) {
+    if (tierOf(token) !== 'semantic' || token.path[0] !== 'motion') continue
+    const target = dictionary.allTokens.find(
+      (each) => tierOf(each) === 'primitive' && pathKey(each) === aliasTarget(token),
+    )
+    const value = target?.original.$value
+    if (typeof value?.value !== 'number' || value.unit !== 'ms')
+      throw new Error(`${pathKey(token)}: a motion token points at a duration in ms`)
+    const keys = token.path.slice(1)
+    let node = tree
+    for (const key of keys.slice(0, -1)) node = node[key] ??= {}
+    node[keys.at(-1)] = value.value
+  }
+  const lines = (node, indent) =>
+    Object.entries(node).flatMap(([key, value]) =>
+      typeof value === 'number'
+        ? [`${indent}${key}: ${value},`]
+        : [`${indent}${key}: {`, ...lines(value, `${indent}  `), `${indent}},`],
+    )
+  return [
+    `// ${HEADER}`,
+    '',
+    '/** The motion tokens, in milliseconds — for timers; CSS reads the custom properties. */',
+    'export const motion = {',
+    ...lines(tree, '  '),
+    '} as const',
+    '',
+  ].join('\n')
+}
+
 const absolute = (files) => files.map((file) => join(ROOT, file))
 const LOG = { verbosity: 'silent', warnings: 'error' }
 /** Style Dictionary's own collision check runs on these names, so two tokens can never share one. */
@@ -232,7 +273,7 @@ async function createBuild() {
     source: absolute([...SOURCES.primitive, ...SOURCES.semantic]),
     hooks: {
       transforms: TRANSFORMS,
-      formats: { 'pa/css': formatCss, 'pa/breakpoints-ts': formatBreakpoints },
+      formats: { 'pa/css': formatCss, 'pa/breakpoints-ts': formatBreakpoints, 'pa/motion-ts': formatMotion },
     },
     platforms: {
       web: {
@@ -241,6 +282,7 @@ async function createBuild() {
         files: [
           { destination: 'tokens.css', format: 'pa/css', options: { darkTokens } },
           { destination: 'breakpoints.ts', format: 'pa/breakpoints-ts' },
+          { destination: 'motion.ts', format: 'pa/motion-ts' },
         ],
       },
     },

@@ -228,13 +228,18 @@ describe('the chat bar and its in-place panel (R-17)', () => {
     expect(panel('关于：服务时长 · 工作流')).toBeInTheDocument()
   })
 
-  it('streaming: the panel is never blank — her message and 正在回答 at once, then the part that has arrived', async () => {
-    const { runtime } = open(`/m/${appointments}`, { preview: 'loading' })
+  it('streaming: the panel is never blank — her message and 正在思考 at once, then the steps and the part that has arrived', async () => {
+    // Reduced motion: the part that has arrived stands at once instead of being written out.
+    act(() => setMediaQuery('(prefers-reduced-motion: reduce)', true))
+    const { runtime } = open(`/m/${appointments}`, { preview: 'loading', runtime: { pace: { beat: 50, write: 0, settle: 0 } } })
     await screen.findByRole('heading', { level: 1, name: '预约' })
     await userEvent.click(within(bar()).getByRole('button', { name: confirmPrompt }))
     const log = within(panel()).getByRole('log')
     expect(within(log).getByText(confirmPrompt)).toBeInTheDocument()
-    expect(within(log).getByText('正在回答…')).toBeInTheDocument()
+    expect(within(log).getByText('正在思考…')).toBeInTheDocument()
+    // Then what it does, one step at a time (D-45).
+    expect(await within(log).findByText('查看明天的预约')).toBeInTheDocument()
+    expect(await within(log).findByText('给每位顾客发确认消息')).toBeInTheDocument()
     // Under 加载中 the answer keeps streaming: half of it has arrived and the status stays.
     await waitFor(() => expect(runtime.getState().conversations[0]?.messages.at(-1)?.text['zh-CN']).not.toBe(''))
     const partial = runtime.getState().conversations[0]?.messages.at(-1)?.text['zh-CN'] ?? ''
