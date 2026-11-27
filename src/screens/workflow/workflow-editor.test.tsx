@@ -57,12 +57,21 @@ async function laidOut() {
   await waitFor(() => expect(nodeElements()[0]).toBeVisible())
   return region
 }
-/** Focus a node and press Enter: the inspector, by its name. */
+/**
+ * Focus a node and press Enter: the inspector, by its name.
+ * An inspector that was just saved is waited out first: the sheet leaves, and
+ * one frame later the editor gives the focus back to the node it was opened
+ * from. Under load that frame used to land after this helper's own focus, so
+ * Enter opened the previous node's inspector again.
+ */
 async function inspect(id: string, name: string) {
   const user = userEvent.setup()
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument(), { timeout: 5000 })
+  await act(() => new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve())))
   act(() => node(id).focus())
+  await waitFor(() => expect(node(id)).toHaveFocus())
   await user.keyboard('{Enter}')
-  return { user, sheet: await screen.findByRole('dialog', { name }) }
+  return { user, sheet: await screen.findByRole('dialog', { name }, { timeout: 5000 }) }
 }
 const save = (sheet: HTMLElement) => within(sheet).getByRole('button', { name: '保存' })
 
