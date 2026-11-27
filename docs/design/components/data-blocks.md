@@ -32,7 +32,7 @@ Status: `lofi` · `styled` · `deprecated → <replacement>` (`../COMPONENTS.md`
 | `block.summary` | `new` | — (props `items: [{ id, label, value, delta? }]`) | `lofi` | A wrapping row of key figures (`lofi-prototype-shell.md` § Blocks). A description list: each figure is a term with its value and, when given, a line saying how it moved. A figure keeps a readable width (`min-w-32`) and the row wraps before one narrows further. Values arrive as text, already formatted by the page builder. Nothing in it is interactive |
 | `block.list` | `new` | — (props `items: [{ id, title, meta, badges, actions?, href? }]`) | `lofi` | Items with a title, a line of meta, badges and actions. An `ItemGroup` of `Item`s (`outline`, `sm`): an item with `href` and no action is one link; with actions the row is plain, its title is the link and the actions are `Button`s (`sm`; `primary` → the primary button) in a row of their own under the text until the block's own width reaches the `@md` container step (28rem), beside it from there. A badge with `mode` is `BehaviourModeBadge`; the others are the kit's `Badge` (`secondary`), wrapping. § Conventions |
 | `block.table` | `new` | — (props `caption`, `columns: [{ id, label, align? }]`, `rows: [{ id, cells }]`) | `lofi` | Columns × rows in `Table` (data-display): the table scrolls sideways inside its own scroller, never the page. `align: end` for a column of numbers. The first column is the row's header and carries a changed row's marker. A cell is text, or `{ text, href?, note? }`: a link and a fainter note under the text (a cell with a note keeps `min-w-48`, twice a plain column, so sentences stay readable). A row with no value for a column gets an empty cell. Cells arrive as text, already formatted |
-| `block.schedule` | `new` | — (props `range: { kind: day · week, start, days }`, `resources: [{ id, label }]`, `slots: [{ id, resourceId, start, end, title, meta, badges?, actions?, href? }]`) | `lofi` | Time slots by resource (`lofi-prototype-shell.md` § Blocks). The range in words, then the resources as columns inside one scroller; a column lists its slots in order of time — per day when the range has several, and a day with nothing says so. A slot is the entry of `block.list` with its time above the title. **Container steps:** one resource below `@md` (28rem), two up to `@2xl` (42rem), all from `@2xl`, scrolling inside if they do not fit; below the step that shows them all a labelled `Select` (当前显示 / Showing) chooses the resource drawn first, and its neighbour is the second. A slot outside the range or of an unknown resource is not drawn. § Pitfalls |
+| `block.schedule` | `new` | — (props `range: { kind: day · week, start, days }`, `resources: [{ id, label }]`, `slots: [{ id, resourceId, start, end, title, meta, badges?, actions?, href? }]`) | `lofi` | Time slots by resource (`lofi-prototype-shell.md` § Blocks). The range in words, then the resources as columns inside one scroller; a column lists its slots in order of time — per day when the range has several, and a day with nothing says so. **A day is one row across the resources (D-46):** the names share the first row and each day the next, a resource's cell of a day starts at the same height as every other resource's, and a row is as high as its highest cell — one grid whose rows the columns take over (`subgrid`), no fixed height. A slot is the entry of `block.list` with its time above the title. **Container steps:** one resource below `@md` (28rem), two up to `@2xl` (42rem), all from `@2xl`, scrolling inside if they do not fit; below the step that shows them all a labelled `Select` (当前显示 / Showing) chooses the resource drawn first, and its neighbour is the second. A slot outside the range or of an unknown resource is not drawn. § Pitfalls |
 
 ## Accessibility contract
 
@@ -46,7 +46,7 @@ target-size and no contrast requirement; the "Min target" column binds nothing.
 | `block.summary` | A description list (`dl`) of `term` / `definition` groups, inside `DataState` | Each figure: its label (the term) | Not focusable | — | — | Loading, empty, error and "loaded" through `DataState`'s status region. A change marker is words beside the label, never colour alone |
 | `block.list` | A `list` of `listitem`s; a link row is a `link`; actions are `button`s | A link row: its title, marker, badges and meta. A title link: the title. An action: its label, then the item's title (`Send: …`), so equal actions in different rows are told apart | One tab stop per link row; in a plain row the title link, then each action; a disabled action leaves the tab order | The kit's ring on the row, the title link and the buttons | A link row: the row's width × at least 44 CSS px. Title link and buttons: 44 × 44 CSS px | Loading, empty, error and "loaded" through `DataState`'s status region. An action's effect is the screen's to announce |
 | `block.table` | A `region` (the scroller) holding a `table`; `columnheader`s; the first cell of each row is its `rowheader` | The region and the table: the caption. A cell link: the cell's text | The scroller is one tab stop, also when nothing is cut off; Left and Right arrows scroll it. Then each cell link, in reading order | The kit's ring on the scroller and on a cell link | The scroller: as large as the table's visible part. A cell link: 44 × 44 CSS px | Loading, empty, error and "loaded" through `DataState`'s status region. A changed row: the marker's word is part of its row header, so it is read with every cell of the row |
-| `block.schedule` | A `group` (the scroller) holding one `group` per resource, each with a `list` of slots; the picker is a `combobox` | The scroller: the range in words (日程 / Schedule). A resource: its label. A list: the resource, and the day in a week. Slots and actions: as `block.list` | The picker (when shown), then the scroller — one tab stop, Left and Right arrows scroll it — then each drawn slot's link and actions in reading order. A resource that is not drawn is not in the tab order | The kit's ring on the picker, the scroller, links and buttons | Picker, links and buttons: 44 × 44 CSS px | Loading, empty, error and "loaded" through `DataState`'s status region. Choosing a resource changes what is drawn; the `Select` announces its value |
+| `block.schedule` | A `group` (the scroller) holding one `group` per resource, each with a `list` of slots per day (the rows are layout only: the order read and tabbed is a resource, then its days); the picker is a `combobox` | The scroller: the range in words (日程 / Schedule). A resource: its label. A list: the resource, and the day in a week. Slots and actions: as `block.list` | The picker (when shown), then the scroller — one tab stop, Left and Right arrows scroll it — then each drawn slot's link and actions in reading order. A resource that is not drawn is not in the tab order | The kit's ring on the picker, the scroller, links and buttons | Picker, links and buttons: 44 × 44 CSS px | Loading, empty, error and "loaded" through `DataState`'s status region. Choosing a resource changes what is drawn; the `Select` announces its value |
 
 ## Conventions
 
@@ -68,6 +68,30 @@ the accessibility tree agree, and the `Select` above the scroller brings any
 of them back. jsdom lays out no container query: the unit tests check the
 classes that carry the steps, the widths were counted in a browser (the
 demo's three containers), and the matrix walks them.
+
+### A schedule's days are rows of one grid
+
+**Rule:** a day of `block.schedule` is a row of one grid that every resource's column takes over with `subgrid`; the size container is the day's cell, never the column.
+
+Columns that each stack their own days put the same day at a different
+height per person as soon as one cell is higher than its neighbour (a slot
+beside 没有安排) — the owner saw it on 排班 (D-46). The grid has a row for the
+names and one per day (`grid-template-rows` from the range, an inline style
+because it is a count), the columns fill it in the order of the resources
+(`grid-flow-col`), and each column spans every row and has
+`grid-template-rows: subgrid`. Two things break it silently:
+
+- **A size container is not a subgrid.** `container-type` makes the column
+  an independent formatting context and the browser drops `subgrid` without
+  a warning: the days stagger again. The `@container` the entries' actions
+  answer to is therefore on the cell of a day.
+- **`auto-cols-fr` is `minmax(0, 1fr)`.** A column with a minimum width
+  (`@md:min-w-48`) would overflow its track and lie over its neighbour when
+  the columns do not fit. The columns are `1fr` — one share, never under the
+  column's own minimum — so the grid outgrows the scroller and scrolls inside.
+
+Guarded by the unit test of the structure (child n of every column is the
+same day) and by `flow schedule-rows`, which measures the tops at 1440 and 1024.
 
 ### A block's scroller is a group, a table's is a region
 
