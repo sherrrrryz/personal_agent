@@ -195,7 +195,7 @@ describe('onboarding, the first run (B-14)', () => {
     expect(await screen.findByText('暂时读不到账号状态')).toBeInTheDocument()
     const wechat = failed.container.querySelector('[data-account="wechat"]') as HTMLElement
     expect(wechat).toHaveTextContent('授权失败')
-    expect(within(wechat).getByRole('button', { name: '重新连接「微信」' })).toHaveTextContent('重试')
+    expect(within(wechat).getByRole('button', { name: '重试「微信」' })).toHaveTextContent('重试')
     failed.unmount()
 
     const empty = open('/onboarding/accounts', { search: '?preview=empty' })

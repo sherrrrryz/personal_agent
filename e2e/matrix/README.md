@@ -103,6 +103,13 @@ turns it off for a run whose subject is the not-found screen itself.
 - **Overlays** are found by `aria-haspopup`, `aria-expanded="false"` and
   `summary`; one opened another way is not exercised by `--reduced-motion`.
   Tooltips are reached only through focus.
+- **A route that opens on a modal** (the appointment sheet, `?history=open`):
+  the keyboard walk is about the dialog only — the page behind it is hidden
+  from assistive technology and Tab stays inside by design. The walk starts
+  on the dialog itself and waits for the kit's focus guard to hand the focus
+  back (it does so a frame later; a second Tab inside that frame would leave
+  the dialog, which no person can press). The covered page of such a route is
+  walked through the same screen's route without the modal.
 - **Target size** is not measured: the requirement is withdrawn by D-43
   (the `small-target` failure and the `target` waiver are gone).
 - **Focus visible** means a change of outline, box-shadow, border, background

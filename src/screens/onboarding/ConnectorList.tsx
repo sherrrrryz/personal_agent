@@ -135,7 +135,7 @@ function Connectors({ variant, onRetry }: { variant: Variant; onRetry: () => voi
             </Button>
           )}
           {status === 'expired' && (
-            <Button variant="secondary" size="sm" aria-label={t('connectors.reconnect.name', { name })} onClick={() => setConnecting(account)}>
+            <Button variant="secondary" size="sm" aria-label={t(`connectors.reconnect.name.${variant}`, { name })} onClick={() => setConnecting(account)}>
               {t(`connectors.reconnect.${variant}`)}
             </Button>
           )}

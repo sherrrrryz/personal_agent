@@ -244,9 +244,28 @@
 
   const FOCUSABLE = 'a[href], button, input, select, textarea, summary, iframe, [tabindex], [contenteditable=""], [contenteditable="true"]'
 
-  function tabbables() {
+  /**
+   * The dialog that holds the focus while the page behind it is hidden from
+   * assistive technology (`aria-hidden` or `inert`): a route that opens on a
+   * modal sheet. Tab stays inside it by design, so the walk is about the
+   * dialog — the covered page is neither expected nor a trap.
+   */
+  function modalWithFocus() {
+    const active = document.activeElement
+    const dialog = active ? active.closest('[role="dialog"], [role="alertdialog"]') : null
+    if (!dialog) return null
+    if (dialog.getAttribute('aria-modal') === 'true') return dialog
+    for (const hidden of document.querySelectorAll('[aria-hidden="true"], [inert]')) {
+      if (hidden.contains(dialog) || dialog.contains(hidden)) continue
+      if (hidden.matches(FOCUSABLE) || hidden.querySelector(FOCUSABLE)) return dialog
+    }
+    return null
+  }
+
+  function tabbables(scope) {
     const list = []
     for (const element of document.querySelectorAll(FOCUSABLE)) {
+      if (scope && !scope.contains(element)) continue
       if (element.tabIndex < 0 || disabled(element) || !rendered(element, false)) continue
       if (element.matches('input[type="hidden"]')) continue
       if (element.matches('input[type="radio"]') && element.name) {
@@ -294,9 +313,15 @@
   const atRest = new WeakMap()
 
   function keyboardStart() {
-    if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur()
-    const list = tabbables()
-    for (const element of list) atRest.set(element, signatures(element))
+    // An open modal keeps its focus: blurring it would let Tab start on the page it covers.
+    const modal = modalWithFocus()
+    if (modal) {
+      // Focus goes to the dialog itself, so every stop inside is measured at rest and the walk starts at its first.
+      if (modal.hasAttribute('tabindex')) modal.focus({ preventScroll: true })
+    } else if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur()
+    const list = tabbables(modal)
+    // A stop that still holds the focus has no rest state to compare with: its indicator is not judged.
+    for (const element of list) if (element !== document.activeElement) atRest.set(element, signatures(element))
     return list.map((element) => ({ id: idOf(element), element: describe(element), path: pathOf(element) }))
   }
 
@@ -308,7 +333,14 @@
     return new Promise((resolve) => requestAnimationFrame(() => resolve()))
   }
 
+  // The kit's focus trap: a guard takes the focus and hands it back into the dialog a frame later.
+  const FOCUS_GUARD = '[data-base-ui-focus-guard]'
+
   async function keyboardStep() {
+    for (let attempt = 0; attempt < 10 && document.activeElement && document.activeElement.matches(FOCUS_GUARD); attempt++) {
+      await frame()
+      await pause(10)
+    }
     const element = document.activeElement
     if (!element || element === document.body || element === document.documentElement) return { id: null }
     const rest = atRest.get(element)
