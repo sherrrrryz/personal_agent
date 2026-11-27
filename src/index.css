@@ -7,7 +7,7 @@
  * docs/design/TOKENS.md § Changing a colour. This file maps the variables
  * onto Tailwind's theme keys and holds the two global accessibility rules
  * and the two classes of ours that are a look: `surface-frosted` (D-47) and
- * `surface-backdrop` (D-52).
+ * `surface-backdrop` (D-54).
  */
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
@@ -153,7 +153,7 @@
 }
 
 /*
- * Backdrop (D-52) — the one place where the onboarding page's background is
+ * Backdrop (D-54) — the one place where the onboarding page's background is
  * written: a light gradient (tokens/semantic: color.backdrop-from, -via, -to;
  * dark in color.dark.json). On the element that scrolls, the backdrop stays
  * put while the page moves over it. `bg-background` beside the class is the

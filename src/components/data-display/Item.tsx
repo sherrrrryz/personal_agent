@@ -31,7 +31,7 @@ type KitItemProps = Bare<ComponentProps<typeof KitItem>>
 
 export type ItemProps = Omit<KitItemProps, 'variant'> & {
   /**
-   * The kit's three, and `card` (D-52): the kit's `outline` row filled with
+   * The kit's three, and `card` (D-54): the kit's `outline` row filled with
    * the card surface — white in light mode — so it reads as a card on a
    * backdrop that shows through a transparent row (the onboarding gradient).
    */

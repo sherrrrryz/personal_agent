@@ -105,7 +105,7 @@ title rather than shrinking them.
 
 ### The onboarding page
 
-**The onboarding page (D-52)** is outside the shell (a bare route), so its
+**The onboarding page (D-54)** is outside the shell (a bare route), so its
 layout, `src/screens/onboarding/OnboardingLayout.tsx`, brings its own chrome
 in the same pattern as the shell's bars. Its root is the element that scrolls
 (`[data-onboarding]`, `h-svh`), drawn with the gradient

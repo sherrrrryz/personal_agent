@@ -10,7 +10,7 @@ import { OnboardingBarContext, OnboardingContext, onboardingSteps, type Onboardi
 import { useOnboardingBars } from './use-onboarding-bars'
 
 /**
- * What surrounds the three steps (D-52). Onboarding is outside the shell, so
+ * What surrounds the three steps (D-54). Onboarding is outside the shell, so
  * this is all the chrome there is, laid over a page of its own that scrolls:
  *
  * - the backdrop — a light gradient (`surface-backdrop`), dark in
@@ -70,7 +70,7 @@ export function OnboardingLayout() {
           </header>
           <div className="flex flex-col pt-(--onboarding-header-size) pb-(--onboarding-bar-size)">
             {/*
-              The AI's portrait (D-52): a square of the spacing scale, centred, empty until the
+              The AI's portrait (D-54): a square of the spacing scale, centred, empty until the
               avatar (`src/components/agent-avatar/`) is set into it. Decorative.
             */}
             <div aria-hidden="true" className="mx-auto mt-6 size-44 shrink-0" data-agent-avatar-slot="" />

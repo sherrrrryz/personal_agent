@@ -110,7 +110,7 @@ const STOCK: Record<string, { light: Stock; dark: Stock }> = {
 /** Colour roles of ours beside shadcn/ui's: the frosted surface and its small shadow (D-47) … */
 const FROSTED = ['surface-frosted', 'surface-frosted-shadow']
 /** … the canvas the floating sidebar and the cards stand on (D-50) … */
-/** … and the three stops of the onboarding backdrop gradient (D-52). */
+/** … and the three stops of the onboarding backdrop gradient (D-54). */
 const BACKDROP = ['backdrop-from', 'backdrop-via', 'backdrop-to']
 const OURS = [...FROSTED, 'canvas', ...BACKDROP]
 
@@ -127,7 +127,7 @@ describe('stock theme (D-43)', () => {
     expect(roles('dark').sort()).toEqual(roles('light').sort())
   })
 
-  it('has every shadcn/ui role, and beside them only ours: the frosted surface (D-47), the canvas (D-50), the backdrop (D-52)', () => {
+  it('has every shadcn/ui role, and beside them only ours: the frosted surface (D-47), the canvas (D-50), the backdrop (D-54)', () => {
     expect(roles('light').sort()).toEqual([...Object.keys(STOCK), ...OURS].map((role) => `color.${role}`).sort())
   })
 
@@ -158,11 +158,11 @@ describe('stock theme (D-43)', () => {
     )
   })
 
-  it('the backdrop (D-52) is opaque in both modes, has no grain, and the class in src/index.css reads all three', () => {
+  it('the backdrop (D-54) is opaque in both modes, has no grain, and the class in src/index.css reads all three', () => {
     for (const role of BACKDROP)
       for (const mode of ['light', 'dark'] as const)
         expect(resolveRawColor(`color.${role}`, mode, tokens).alpha, `color.${role} (${mode}) is opaque`).toBe(1)
-    // The grain was removed on the owner's word (D-52 amendment).
+    // The grain was removed on the owner's word (D-54 amendment).
     expect(tokens.filter((token) => token.path.startsWith('texture.') || token.path.startsWith('surface.backdrop'))).toEqual([])
     const backdrop = indexCss.slice(indexCss.indexOf('.surface-backdrop {'))
     for (const name of ['--backdrop-from)', '--backdrop-via)', '--backdrop-to)'])

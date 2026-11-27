@@ -20,7 +20,7 @@ function answerId(index: number): string {
   return `interview-${interview.questions[index].id}-answer`
 }
 
-/** What a message of the interview carries: the AI's closing summary carries 下一步 (D-52). */
+/** What a message of the interview carries: the AI's closing summary carries 下一步 (D-54). */
 type InterviewAttachment = 'next'
 
 const summaryId = 'interview-summary'
@@ -40,7 +40,7 @@ function shown(messages: Message[], said: Record<number, string>, locale: Locale
 /**
  * `onboarding.profession` — step 1 (D-30): the AI asks four things in turn,
  * her scripted answer types itself into the composer and she sends it
- * (D-48), and the AI closes with a summary that carries 下一步 (D-52). Each question arrives
+ * (D-48), and the AI closes with a summary that carries 下一步 (D-54). Each question arrives
  * as a reply does everywhere (D-45): a thinking state, then its text written
  * out. The states follow 状态预览 from the address: 加载中 is a
  * reply still arriving, 出错 a reply that failed (retry in the list), 超长内容
@@ -84,7 +84,7 @@ export function ProfessionStep() {
     return () => clearTimeout(timer)
   }, [reply, preview, answered, setAnswered])
 
-  // The composer floats over the end of the page (D-52), so the newest message would arrive
+  // The composer floats over the end of the page (D-54), so the newest message would arrive
   // underneath it: after each exchange the end of the page is brought into view — the page keeps the
   // composer's room as scroll padding. Not when the step opens — a long interview is read from its start.
   const end = useRef<HTMLDivElement>(null)
@@ -177,7 +177,7 @@ export function ProfessionStep() {
         follow={false}
         userBubble="outline"
         onRetry={() => setReply('thinking')}
-        // The AI's closing summary carries 下一步 (D-52): it is there once the summary is whole.
+        // The AI's closing summary carries 下一步 (D-54): it is there once the summary is whole.
         renderAttachment={(attachment) =>
           attachment === 'next' ? (
             <div className="flex">
@@ -186,7 +186,7 @@ export function ProfessionStep() {
           ) : null
         }
       />
-      {/* The composer floats in the layout's bottom bar (D-52) while the interview scrolls beneath it. */}
+      {/* The composer floats in the layout's bottom bar (D-54) while the interview scrolls beneath it. */}
       {bar ? createPortal(composer, bar) : composer}
       <div ref={end} />
     </Page>

@@ -98,7 +98,7 @@ export function ModuleSet({
 }: {
   modules: Module[]
   confirmRemoval?: boolean
-  /** `card`: each row filled with the card surface, on the onboarding gradient (D-52). */
+  /** `card`: each row filled with the card surface, on the onboarding gradient (D-54). */
   rows?: 'outline' | 'card'
 }) {
   const t = useT('onboarding')

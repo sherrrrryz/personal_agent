@@ -188,10 +188,10 @@ describe('/m/<ia-id> (R-16)', () => {
     expect(frame()).toHaveAttribute('data-view', 'workflow')
     expect(h1()).toHaveTextContent('流程编辑')
     expect(within(main()).getByText('流程视图的内容')).toBeInTheDocument()
-    // The views are in 功能设置, in the header (D-50); the open one is current there.
+    // 功能设置 is in the header (D-50); its 流程 part links to this view, which is current (D-52).
     await userEvent.click(screen.getByRole('button', { name: '功能设置' }))
     const settings = await screen.findByRole('dialog', { name: '功能设置' })
-    expect(within(settings).getByRole('link', { name: '流程' })).toHaveAttribute('aria-current', 'page')
+    expect(within(settings).getByRole('link', { name: '整页打开「流程」' })).toHaveAttribute('aria-current', 'page')
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     // The bar is a row of the layout after `main`, never inside or over it.
@@ -341,16 +341,13 @@ describe('/dev/frame (R-15)', () => {
     openDemo(path)
     expect(frame()).toHaveAttribute('data-view', view)
     expect(h1()).toHaveTextContent(title)
-    // The frame's controls stand in the shell header (D-50); the views are in 功能设置.
+    // The frame's controls stand in the shell header (D-50); 流程 and 资料 are in 功能设置 (D-52).
     const slot = document.querySelector<HTMLElement>('[data-shell-slot]')!
     await userEvent.click(within(slot).getByRole('button', { name: '功能设置' }))
     const settings = await screen.findByRole('dialog', { name: '功能设置' })
     expect(settings).toHaveTextContent('框架演示')
-    expect(within(settings).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
-      '/dev/frame',
-      '/dev/frame/workflow',
-      '/dev/frame/memory',
-    ])
+    const full = ['流程', '资料'].map((part) => within(settings).getByRole('link', { name: `整页打开「${part}」` }).getAttribute('href'))
+    expect(full).toEqual(['/dev/frame/workflow', '/dev/frame/memory'])
   })
 
   it('lists the demo for the matrix, usual scene first, with every forced state', () => {

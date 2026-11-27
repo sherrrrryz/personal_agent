@@ -6,7 +6,7 @@ const barSize = '--onboarding-bar-size'
 
 /**
  * The onboarding top bar and its bottom bar (the interview's composer) float
- * over the page (D-52), so the page keeps their room at its two ends: this
+ * over the page (D-54), so the page keeps their room at its two ends: this
  * writes the block size of each onto the onboarding root as a custom
  * property, and follows them as they change — the composer grows with what is
  * typed, the bottom bar is empty on the steps that have none. Measured sizes

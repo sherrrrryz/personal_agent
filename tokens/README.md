@@ -9,7 +9,7 @@
 page, D-47): the four `surface-frosted` tokens — `docs/design/TOKENS.md`
 § Frosted surface.
 
-**To change the onboarding backdrop** (the light gradient, D-52): the
+**To change the onboarding backdrop** (the light gradient, D-54): the
 three `color.backdrop-*` roles —
 `docs/design/TOKENS.md` § Backdrop.
 
@@ -19,12 +19,12 @@ Design tokens in the W3C DTCG JSON format (2025.10). Rules:
 ```text
 tokens/
   primitive/   raw values, named for what they are; no alias, no mode
-    color.json       color.warm.0 … 950 · color.peach.50, .950 · color.lilac.50, .950 (D-52) · color.white-alpha.10, .15 · color.warm-alpha.0-70, .900-70 · color.black-alpha.10, .40 · color.red.400, .600 · color.blue.700 · color.system.highlight
+    color.json       color.warm.0 … 950 · color.peach.50, .950 · color.lilac.50, .950 (D-54) · color.white-alpha.10, .15 · color.warm-alpha.0-70, .900-70 · color.black-alpha.10, .40 · color.red.400, .600 · color.blue.700 · color.system.highlight
     dimension.json   border.width.2 · blur.sm, .md · radius.lg · breakpoint.md, .lg
     font.json        font.stack.sans
     motion.json      duration.120, .300, .500, .1200 (ms)
   semantic/    aliases of primitives, named for their purpose; never a raw value
-    color.json       shadcn/ui's colour roles, light (default), stock values (D-43) · color.surface-frosted, color.surface-frosted-shadow (D-47) · color.canvas (D-50) · color.backdrop-from, -via, -to (D-52) · color.focus.forced
+    color.json       shadcn/ui's colour roles, light (default), stock values (D-43) · color.surface-frosted, color.surface-frosted-shadow (D-47) · color.canvas (D-50) · color.backdrop-from, -via, -to (D-54) · color.focus.forced
     color.dark.json  the same roles, dark — one entry for every role
     dimension.json   border.width.focus · surface.frosted.blur, surface.frosted.shadow.blur (D-47) · radius.base, radius.step.*
     font.json        font.family.sans

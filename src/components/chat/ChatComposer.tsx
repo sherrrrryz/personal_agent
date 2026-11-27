@@ -13,7 +13,7 @@ export type ChatComposerProps = {
    * Where it stands. `bar`: the shell's chat bar — as low as it gets, the key
    * hint kept for assistive technology only. `thread`: a dedicated chat.
    * `onboarding`: the interview — room for a longer answer, the key hint kept
-   * for assistive technology only and no focus border around the field (D-52).
+   * for assistive technology only and no focus border around the field (D-54).
    */
   placement?: ChatComposerPlacement
   /**
@@ -47,7 +47,7 @@ const sixLines = '[&_textarea]:max-h-40 md:[&_textarea]:max-h-34'
 // In the bar the label is not drawn (D-49): it stays the control's name, out of
 // sight. Reached through the wrapper because `Field` always draws its label.
 // In the onboarding interview the field draws no focus border or ring when its text has focus
-// (D-52, owner: "聊天框选中后的边框不好看，不要"): the caret says where she types. Reached through
+// (D-54, owner: "聊天框选中后的边框不好看，不要"): the caret says where she types. Reached through
 // the wrapper because `InputGroup` takes no class; more specific than the kit's own `has-[…]` rule.
 const noFocusBorder =
   '[&_[data-slot=input-group]:has([data-slot=input-group-control]:focus-visible)]:border-input [&_[data-slot=input-group]:has([data-slot=input-group-control]:focus-visible)]:ring-0'
@@ -58,7 +58,7 @@ const sizeClass: Record<ChatComposerPlacement, string> = {
 }
 
 // Where the key hint (Enter sends, Shift+Enter a new line) is drawn under the field. Elsewhere it is
-// kept for assistive technology only: in the bar for room, in the interview on the owner's word (D-52).
+// kept for assistive technology only: in the bar for room, in the interview on the owner's word (D-54).
 const visibleHint: Record<ChatComposerPlacement, boolean> = { bar: false, thread: true, onboarding: false }
 
 // The send button with nothing to send: faded like the kit's disabled button

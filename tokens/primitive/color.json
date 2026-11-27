@@ -18,13 +18,13 @@
     },
     "peach": {
       "$type": "color",
-      "$description": "A light and a deep peach (D-52): the start of the onboarding backdrop gradient, light (50) and dark (950). Step names follow the lightness of the warm ramp.",
+      "$description": "A light and a deep peach (D-54): the start of the onboarding backdrop gradient, light (50) and dark (950). Step names follow the lightness of the warm ramp.",
       "50": { "$value": { "colorSpace": "oklch", "components": [0.972,  0.024,  62] } },
       "950": { "$value": { "colorSpace": "oklch", "components": [0.215,  0.024,  52] } }
     },
     "lilac": {
       "$type": "color",
-      "$description": "A light and a deep lilac (D-52): the end of the onboarding backdrop gradient, light (50) and dark (950).",
+      "$description": "A light and a deep lilac (D-54): the end of the onboarding backdrop gradient, light (50) and dark (950).",
       "50": { "$value": { "colorSpace": "oklch", "components": [0.962,  0.02,  300] } },
       "950": { "$value": { "colorSpace": "oklch", "components": [0.2,  0.028,  295] } }
     },

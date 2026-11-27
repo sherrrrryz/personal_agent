@@ -54,7 +54,7 @@ export function useOnboarding(): OnboardingProgress {
 }
 
 /**
- * The onboarding page's bottom bar (D-52): a floating row the layout holds at
+ * The onboarding page's bottom bar (D-54): a floating row the layout holds at
  * the end of the window, which the interview fills with its composer through
  * a portal. `null` before the layout has mounted — the step then draws its
  * composer in place.

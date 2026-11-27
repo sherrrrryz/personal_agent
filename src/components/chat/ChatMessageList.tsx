@@ -88,7 +88,7 @@ export type ChatMessageListProps<Attachment = unknown> = {
   aiName?: string
   /**
    * Her bubbles: `muted` (default), the kit's grey; `outline`, the kit's
-   * bubble on the page's own background — white in light mode (D-52: the
+   * bubble on the page's own background — white in light mode (D-54: the
    * onboarding interview, over its gradient).
    */
   userBubble?: 'muted' | 'outline'

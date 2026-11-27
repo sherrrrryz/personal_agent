@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { BlockAnchor } from '@/block-renderer/block-link'
 import { ChangeMarker, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/data-display'
 import { DataState, Empty, EmptyDescription, EmptyHeader, EmptyTitle, Skeleton } from '@/components/feedback'
-import { Section, Stack } from '@/components/layout'
+import { Section, Stack, type SectionLevel } from '@/components/layout'
 import { Tabs } from '@/components/navigation'
 import { useLocale, useT } from '@/i18n'
-import { ModuleFrame, useRouteModule } from '@/module'
+import { ModuleFrame, useRouteModule, type SettingsPanelProps } from '@/module'
 import { resolveModule, useResource, useRuntimeState, type MemoryTable, type Module, type Snapshot } from '@/runtime'
 import { modulePath } from '@/shell'
 
@@ -21,16 +21,30 @@ import { memoryTableView, type MemoryTableView } from './table-view'
 export function MemoryView() {
   const { module } = useRouteModule()
   const t = useT('memory')
-  const [attempt, setAttempt] = useState(0)
   return (
     <ModuleFrame module={module} view="memory" title={t('title')}>
-      {/* Another module, or another try after a failure, reads afresh. */}
-      <Memory key={`${module.id}:${attempt}`} module={module} onRetry={() => setAttempt((count) => count + 1)} />
+      <MemoryPanel key={module.id} module={module} />
     </ModuleFrame>
   )
 }
 
-function Memory({ module, onRetry }: { module: Module; onRetry: () => void }) {
+/**
+ * The memory without its frame: the tables, then who reads them. The `memory`
+ * view puts it in `main`; 功能设置 puts it in its 资料 part (D-52,
+ * `./settings-panel.tsx`), a level deeper in the outline.
+ */
+export function MemoryPanel({ module, level = 2 }: { module: Module; level?: SectionLevel }) {
+  const [attempt, setAttempt] = useState(0)
+  // Another module, or another try after a failure, reads afresh.
+  return <Memory key={`${module.id}:${attempt}`} module={module} level={level} onRetry={() => setAttempt((count) => count + 1)} />
+}
+
+/** 功能设置's 资料 part (D-52): its own sections sit under the part's `h3`. */
+export function MemorySettingsPanel({ module }: SettingsPanelProps) {
+  return <MemoryPanel module={module} level={4} />
+}
+
+function Memory({ module, level, onRetry }: { module: Module; level: SectionLevel; onRetry: () => void }) {
   const t = useT('memory')
   const { locale } = useLocale()
   const state = useRuntimeState()
@@ -66,7 +80,7 @@ function Memory({ module, onRetry }: { module: Module; onRetry: () => void }) {
             content: <MemoryTableBody table={memoryTableView(table, { view, state, locale })} />,
           }))}
         />
-        <Readers tables={tables} state={state} />
+        <Readers tables={tables} state={state} level={level} />
       </Stack>
     </DataState>
   )
@@ -109,7 +123,7 @@ function MemoryTableBody({ table }: { table: MemoryTableView }) {
 }
 
 /** 谁在读这份记忆: every module that reads one of these tables, as a link, with the tables it reads. */
-function Readers({ tables, state }: { tables: readonly MemoryTable[]; state: Snapshot }) {
+function Readers({ tables, state, level }: { tables: readonly MemoryTable[]; state: Snapshot; level: SectionLevel }) {
   const t = useT('memory')
   const { locale } = useLocale()
   const ids = [...new Set(tables.flatMap((table) => table.readers))]
@@ -120,7 +134,7 @@ function Readers({ tables, state }: { tables: readonly MemoryTable[]; state: Sna
   })
 
   return (
-    <Section title={t('readers.title')}>
+    <Section level={level} title={t('readers.title')}>
       <p>{t('readers.shared')}</p>
       {readers.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('readers.none')}</p>

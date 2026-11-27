@@ -124,8 +124,8 @@ history of this file.
 | Semantic | `font.family.sans` → `font.stack.sans` | All text, both locales |
 | Semantic | `color.surface-frosted`, `color.surface-frosted-shadow` (light and dark) · `surface.frosted.blur`, `surface.frosted.shadow.blur` | The frosted surface (D-47): ours, not shadcn/ui's — § Frosted surface |
 | Semantic | `color.canvas` → `color.warm.100` (light) · `color.warm.950` (dark) | The app's backdrop (D-50): the floating sidebar and the cards stand on it; a step darker than `card` in light, the page colour in dark (raised surfaces get lighter). Ours, not shadcn/ui's. Used once, by `SidebarProvider` (`bg-canvas`) |
-| Primitive | `color.peach.50`, `.950` · `color.lilac.50`, `.950` (D-52) | The two ends of the onboarding backdrop gradient, light and dark (§ Backdrop) |
-| Semantic | `color.backdrop-from`, `color.backdrop-via`, `color.backdrop-to` (light and dark) | The onboarding backdrop (D-52): ours, not shadcn/ui's — § Backdrop |
+| Primitive | `color.peach.50`, `.950` · `color.lilac.50`, `.950` (D-54) | The two ends of the onboarding backdrop gradient, light and dark (§ Backdrop) |
+| Semantic | `color.backdrop-from`, `color.backdrop-via`, `color.backdrop-to` (light and dark) | The onboarding backdrop (D-54): ours, not shadcn/ui's — § Backdrop |
 | Primitive | `duration.120` · `.300` · `.500` · `.1200` (ms) | Lengths of time, `$type: duration`, `{ value, unit: "ms" }`; named by their value. Added by package K1 (D-45) — the first motion values of our own |
 | Semantic | `motion.simulated.delay` → `duration.120` | How long a faked read and a faked run take (`SIMULATED_DELAY` in `src/runtime/store.ts`) |
 | Semantic | `motion.reply.beat` → `duration.500` · `motion.reply.write` → `duration.1200` · `motion.reply.settle` → `duration.300` | The replay of an AI reply (`components/chat.md` § The replay of a reply): the thinking state and each step · a text being written out · the pause before each thing the text carries. Read by the runtime, `ChatMessageList` and the onboarding interview from `motion.ts`; no mode |
@@ -191,7 +191,7 @@ holds any of it.
 
 ## Backdrop
 
-The onboarding page stands on a light gradient (D-52) — dark in dark mode.
+The onboarding page stands on a light gradient (D-54) — dark in dark mode.
 The grain it first had was removed on the owner's word ("去掉背景的颗粒效果"). **One set of tokens, one class**, as for the frosted surface: to
 change the look, change a value here and run `npm run tokens:build`.
 
@@ -227,7 +227,7 @@ again.
 Roles of ours that shadcn/ui does not have are not rows here — they have no
 stock value: the frosted surface (§ Frosted surface, D-47), `color.canvas`
 (D-50) and the onboarding backdrop's `color.backdrop-from`, `-via`, `-to`
-(§ Backdrop, D-52). No stock role changed with D-52.
+(§ Backdrop, D-54). No stock role changed with D-54.
 
 **D-50 — warm whites and greys** (owner: “让界面的白/灰都偏暖”). Every role
 that pointed at a step of the stock `neutral` ramp now points at the step of
@@ -296,7 +296,7 @@ pairs" binds nothing in this project.
 - **A blended grain disappears on a light background.** `soft-light` and
   `overlay` leave a colour near white almost untouched, so a grey noise tile
   blended that way shows on a dark backdrop and not on a light one. If a
-  grain comes back (D-52 had one at first), draw it with the normal blend, as
+  grain comes back (D-54 had one at first), draw it with the normal blend, as
   grey specks whose opacity follows the noise.
 - **A primitive named like a Tailwind theme key collides with it.** Tailwind
   emits `--radius-sm`, `--breakpoint-md` and the rest of its theme as custom

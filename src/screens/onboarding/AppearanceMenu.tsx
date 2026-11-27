@@ -6,7 +6,7 @@ import { localeNames, locales, useLocale, useT, type Locale } from '@/i18n'
 import { themeChoices, useTheme, type ThemeChoice } from '@/theme'
 
 /**
- * Language and appearance during onboarding (D-52): a floating round button
+ * Language and appearance during onboarding (D-54): a floating round button
  * (⋯) at the bottom end corner of the page, frosted like the bars (D-47),
  * that opens a menu of two choices — the language, each in its own words and
  * marked with its own `lang`, and the appearance. The same choices as
