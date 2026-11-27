@@ -246,8 +246,8 @@ describe('Item', () => {
     const { container } = render(
       <Item>
         <ItemContent>
-          <ItemTitle>你的职业与模块</ItemTitle>
-          <ItemDescription>4 个模块</ItemDescription>
+          <ItemTitle>你的职业与功能</ItemTitle>
+          <ItemDescription>4 个功能</ItemDescription>
         </ItemContent>
         <ItemActions>
           <Button>重命名</Button>

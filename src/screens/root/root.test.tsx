@@ -35,7 +35,7 @@ function open(path: string, options: { search?: string; extra?: RouteObject[]; l
 describe('the start page', () => {
   const built: RouteObject[] = [
     { path: '/onboarding/profession', element: <h1>职业访谈</h1> },
-    { path: '/m/:id', element: <h1>模块</h1> },
+    { path: '/m/:id', element: <h1>功能</h1> },
     { path: '/dev/components', element: <h1>组件库</h1> },
   ]
 
@@ -49,10 +49,10 @@ describe('the start page', () => {
 
   it('goes to 通知, inside the shell, once onboarding is done', async () => {
     const { router } = open('/', { extra: built, search: '?scene=s1' })
-    expect(await screen.findByRole('heading', { name: '模块' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '功能' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe(startPaths.home)
     expect(startPaths.home).toBe('/m/notifications')
-    expect(screen.getByRole('navigation', { name: '模块导航' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: '功能导航' })).toBeInTheDocument()
   })
 
   it('opens the gallery while the screen it should open is not registered', async () => {
@@ -70,7 +70,7 @@ describe('/dev/shell', () => {
   it('shows the shell around the demo, with the chat in both slots, and no violation', async () => {
     const { container } = open('/dev/shell', { search: '?scene=s2' })
     expect(await screen.findByRole('heading', { level: 1, name: '外壳演示' })).toBeInTheDocument()
-    const nav = screen.getByRole('navigation', { name: '模块导航' })
+    const nav = screen.getByRole('navigation', { name: '功能导航' })
     expect(within(nav).getByRole('link', { name: '服务时长' })).toBeInTheDocument()
     expect(within(nav).getByRole('button', { name: '最近对话' })).toHaveAttribute('aria-expanded', 'false')
     const row = container.querySelector('[data-shell-bar]') as HTMLElement
@@ -85,14 +85,14 @@ describe('/dev/shell', () => {
   it('its buttons change the modules through the runtime and the sidebar follows at once', async () => {
     open('/dev/shell', { search: '?scene=s2' })
     await screen.findByRole('heading', { level: 1, name: '外壳演示' })
-    const nav = screen.getByRole('navigation', { name: '模块导航' })
+    const nav = screen.getByRole('navigation', { name: '功能导航' })
     await userEvent.click(screen.getByRole('button', { name: '重命名「预约」' }))
     expect(within(nav).getByRole('link', { name: '预约与到店（已重命名）' })).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: '添加一个模块' }))
+    await userEvent.click(screen.getByRole('button', { name: '添加一个功能' }))
     expect(within(nav).getByRole('link', { name: '会员' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '移除「排班」' }))
     expect(within(nav).queryByRole('link', { name: '排班' })).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: '在「预约」下添加子模块' }))
+    await userEvent.click(screen.getByRole('button', { name: '在「预约」下添加子功能' }))
     const parent = within(nav).getByRole('link', { name: '预约与到店（已重命名）' }).closest('li') as HTMLElement
     expect(within(parent).getByRole('link', { name: '老顾客的生日提醒' })).toBeInTheDocument()
   })
@@ -100,7 +100,7 @@ describe('/dev/shell', () => {
   it('en: the demo and the shell around it are in English', async () => {
     open('/dev/shell', { search: '?scene=s2', locale: 'en' })
     expect(await screen.findByRole('heading', { level: 1, name: 'Shell demo' })).toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Module navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Feature navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Chat with the AI' })).toBeInTheDocument()
   })

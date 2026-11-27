@@ -13,7 +13,7 @@ for (const width of widths) {
     const { context, page } = await open(browser, width, '/m/notifications?scene=s2')
     try {
       await nav(page, '服务时长')
-      await view(page, '工作流')
+      await view(page, '流程')
       await expect(main(page).getByText('版本 1（当前）')).toBeVisible()
       const review = page.locator('.react-flow__node[data-id="review"]')
       await expect(review).toContainText('每周一 18:00')

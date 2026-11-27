@@ -70,7 +70,7 @@ describe('each built-in name is a prop', () => {
     setMediaQuery(compactQuery, true)
     render(
       <SidebarProvider>
-        <Sidebar mobileTitle="导航" mobileDescription="应用的全部模块">
+        <Sidebar mobileTitle="导航" mobileDescription="应用的全部功能">
           <SidebarRail label="收起或展开侧边栏" />
         </Sidebar>
         <SidebarTrigger label="切换侧边栏" />
@@ -78,7 +78,7 @@ describe('each built-in name is a prop', () => {
     )
     await userEvent.click(screen.getByRole('button', { name: '切换侧边栏' }))
     const sheet = await screen.findByRole('dialog', { name: '导航' })
-    expect(sheet).toHaveAccessibleDescription('应用的全部模块')
+    expect(sheet).toHaveAccessibleDescription('应用的全部功能')
     const rail = sheet.querySelector('[data-slot="sidebar-rail"]')
     expect(rail).toHaveAttribute('aria-label', '收起或展开侧边栏')
     expect(rail).toHaveAttribute('title', '收起或展开侧边栏')

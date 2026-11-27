@@ -8,7 +8,7 @@ import { test } from '@playwright/test'
 import { jump, open, stage0, stage1, stage2, stage3, stage4, stage5, widths } from './support.ts'
 
 for (const width of widths) {
-  test(`owner-route — w${width}: 今天 → 变成工作流 → 第 1–2 周 → 第 3 周 → 第 2 个月 → 回看, by clicks`, async ({ browser }) => {
+  test(`owner-route — w${width}: 今天 → 变成流程 → 第 1–2 周 → 第 3 周 → 第 2 个月 → 回看, by clicks`, async ({ browser }) => {
     test.setTimeout(300_000)
     const { context, page } = await open(browser, width, '/m/notifications?scene=e1')
     const flow = 'owner-route'

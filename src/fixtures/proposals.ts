@@ -123,12 +123,12 @@ export function firstVisitProposal(duration: string, workflowId: string): StoryP
     moduleId: duration,
     nodeId: 'propose-rule',
     mode: 'deferred',
-    title: tx('每周复盘：建议修改工作流', 'Weekly review: a change to the workflow'),
+    title: tx('每周复盘：建议修改流程', 'Weekly review: a change to the process'),
     summary: tx(
       '布丁和年糕第一次来时都比后来多用了约 30 分钟。这和品种无关，每只狗自己的记录也预测不了，所以要写成一条规则。',
       'Buding and Niangao each took about 30 minutes longer on their first visit than later. It does not depend on the breed and no dog’s own record can predict it, so it has to be a rule.',
     ),
-    parts: [{ id: 'add', text: tx('在工作流里新增条件「第一次来的狗 +30 分钟」？', 'Add the condition “First visit: +30 minutes” to the workflow?'), state: 'pending' }],
+    parts: [{ id: 'add', text: tx('在流程里新增条件「第一次来的狗 +30 分钟」？', 'Add the condition “First visit: +30 minutes” to the process?'), state: 'pending' }],
     onAccept: { action: 'approveWorkflowChange', input: { workflowId } },
   }
 }
@@ -139,7 +139,7 @@ export function promoteProposal(duration: string): StoryProposal {
     id: proposalId.promote,
     moduleId: duration,
     mode: 'assisted',
-    title: tx('把「服务时长」升级为顶层模块', 'Promote “Service duration” to a top-level module'),
+    title: tx('把「服务时长」升级为顶层功能', 'Promote “Service duration” to a top-level feature'),
     summary: tx(
       '「服务时长」现在同时被「预约」「排班」「顾客与宠物」读取，已经不只是「预约」的一部分。',
       '“Service duration” is now read by Appointments, Shifts and Clients and pets; it is more than a part of Appointments.',

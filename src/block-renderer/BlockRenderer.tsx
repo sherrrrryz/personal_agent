@@ -12,6 +12,7 @@ import type {
 } from '@/blocks/types'
 import { noChanges } from '@/blocks/types'
 import { Toggle } from '@/components/actions'
+import { Card, CardContent, Tooltip, TooltipContent, TooltipTrigger } from '@/components/containers'
 import { ChangeMarker } from '@/components/data-display'
 import { Alert, AlertDescription, AlertTitle, DataState, Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/feedback'
 import { Section, type SectionLevel } from '@/components/layout'
@@ -19,6 +20,9 @@ import { useT } from '@/i18n'
 
 import { arrangeBlocks, countPageChanges, pairSpans, type Pins } from './arrange'
 import { blockRegistry, type BlockRegistry } from './registry'
+
+/** Blocks drawn on one row with their title and pin (D-50): short and not clickable, so they take little room. */
+const inlineBlocks = new Set<string>(['block.summary'])
 
 export type BlockRendererProps = {
   /** What the workflow emitted. The order is the workflow's; pins may move blocks out of it. */
@@ -149,43 +153,58 @@ export function BlockRenderer({
                   data-span={spans[index]}
                   data-pinned={pinned || undefined}
                 >
-                  <Section
-                    level={level}
-                    title={
-                      marked ? (
-                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="min-w-0 wrap-break-word">{block.title}</span>{' '}
-                          <ChangeMarker kind="updated" />
-                        </span>
-                      ) : (
-                        block.title
-                      )
-                    }
-                    actions={
-                      onTogglePin && (
-                        <Toggle
-                          size="sm"
-                          pressed={pinned}
-                          onPressedChange={() => togglePin(block, index, pinned)}
-                          aria-label={t('pin.label', { title: block.title })}
-                        >
-                          <Pin aria-hidden="true" />
-                          {t('pin.short')}
-                        </Toggle>
-                      )
-                    }
-                  >
-                    {Component ? (
-                      <Component
-                        props={block.props}
-                        changes={marked ?? unmarked}
-                        state={blockStates?.[block.key] ?? 'ready'}
-                        onAction={onAction && ((actionId, itemId) => onAction({ blockKey: block.key, actionId, itemId }))}
-                      />
-                    ) : (
-                      <UnknownBlock id={block.block} />
-                    )}
-                  </Section>
+                  {/* Every block is a card standing on the canvas: its background, ring and small shadow (D-50). */}
+                  <Card size={inlineBlocks.has(block.block) ? 'sm' : 'default'} className="h-full shadow-sm">
+                    <CardContent>
+                      <Section
+                        level={level}
+                        inline={inlineBlocks.has(block.block)}
+                        title={
+                          marked ? (
+                            <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <span className="min-w-0 wrap-break-word">{block.title}</span>{' '}
+                              <ChangeMarker kind="updated" />
+                            </span>
+                          ) : (
+                            block.title
+                          )
+                        }
+                        actions={
+                          onTogglePin && (
+                            // Icon only (D-50): named by `aria-label`, explained on hover and focus by the
+                            // tooltip; pinned, the pin is filled, so the state is a shape and not colour alone.
+                            <Tooltip>
+                              <TooltipTrigger
+                                render={
+                                  <Toggle
+                                    size="sm"
+                                    variant="ghost"
+                                    pressed={pinned}
+                                    onPressedChange={() => togglePin(block, index, pinned)}
+                                    aria-label={t('pin.label', { title: block.title })}
+                                  >
+                                    <Pin aria-hidden="true" className={pinned ? 'fill-current' : undefined} />
+                                  </Toggle>
+                                }
+                              />
+                              <TooltipContent>{t(pinned ? 'pin.hint.off' : 'pin.hint.on')}</TooltipContent>
+                            </Tooltip>
+                          )
+                        }
+                      >
+                        {Component ? (
+                          <Component
+                            props={block.props}
+                            changes={marked ?? unmarked}
+                            state={blockStates?.[block.key] ?? 'ready'}
+                            onAction={onAction && ((actionId, itemId) => onAction({ blockKey: block.key, actionId, itemId }))}
+                          />
+                        ) : (
+                          <UnknownBlock id={block.block} />
+                        )}
+                      </Section>
+                    </CardContent>
+                  </Card>
                 </div>
               )
             })}

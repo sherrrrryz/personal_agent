@@ -1,35 +1,32 @@
 {
   "color": {
-    "neutral": {
+    "warm": {
       "$type": "color",
-      "$description": "The neutral ramp of shadcn/ui's stock `neutral` theme (D-43): OKLCH, chroma 0. Step names follow Tailwind's neutral scale; 0 is white.",
-      "0": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0] } },
-      "50": { "$value": { "colorSpace": "oklch", "components": [0.985, 0, 0] } },
-      "100": { "$value": { "colorSpace": "oklch", "components": [0.97, 0, 0] } },
-      "200": { "$value": { "colorSpace": "oklch", "components": [0.922, 0, 0] } },
-      "300": { "$value": { "colorSpace": "oklch", "components": [0.87, 0, 0] } },
-      "400": { "$value": { "colorSpace": "oklch", "components": [0.708, 0, 0] } },
-      "500": { "$value": { "colorSpace": "oklch", "components": [0.556, 0, 0] } },
-      "600": { "$value": { "colorSpace": "oklch", "components": [0.439, 0, 0] } },
-      "700": { "$value": { "colorSpace": "oklch", "components": [0.371, 0, 0] } },
-      "800": { "$value": { "colorSpace": "oklch", "components": [0.269, 0, 0] } },
-      "900": { "$value": { "colorSpace": "oklch", "components": [0.205, 0, 0] } },
-      "950": { "$value": { "colorSpace": "oklch", "components": [0.145, 0, 0] } }
+      "$description": "The warm neutral ramp (D-50, owner: “让界面的白/灰都偏暖”): the stock neutral ramp's lightness, given a little chroma toward amber (hue 85 → 50 from light to dark). Every role that was a neutral step points at the warm step of the same name.",
+      "0": { "$value": { "colorSpace": "oklch", "components": [0.995,  0.004,  85] } },
+      "50": { "$value": { "colorSpace": "oklch", "components": [0.985,  0.006,  80] } },
+      "100": { "$value": { "colorSpace": "oklch", "components": [0.968,  0.009,  78] } },
+      "200": { "$value": { "colorSpace": "oklch", "components": [0.922,  0.011,  75] } },
+      "300": { "$value": { "colorSpace": "oklch", "components": [0.87,  0.013,  72] } },
+      "400": { "$value": { "colorSpace": "oklch", "components": [0.708,  0.016,  70] } },
+      "500": { "$value": { "colorSpace": "oklch", "components": [0.556,  0.016,  66] } },
+      "600": { "$value": { "colorSpace": "oklch", "components": [0.439,  0.014,  62] } },
+      "700": { "$value": { "colorSpace": "oklch", "components": [0.371,  0.012,  58] } },
+      "800": { "$value": { "colorSpace": "oklch", "components": [0.269,  0.01,  55] } },
+      "900": { "$value": { "colorSpace": "oklch", "components": [0.205,  0.008,  52] } },
+      "950": { "$value": { "colorSpace": "oklch", "components": [0.145,  0.006,  50] } }
     },
     "white-alpha": {
       "$type": "color",
       "$description": "White at an opacity: the stock dark theme draws its borders this way. The step is the opacity in percent.",
       "10": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.1 } },
-      "15": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15 } },
-      "70": {
-        "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.7 },
-        "$description": "White at 70%: the frosted surface in light mode (D-47)."
-      }
+      "15": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15 } }
     },
-    "neutral-900-alpha": {
+    "warm-alpha": {
       "$type": "color",
-      "$description": "Neutral 900 at an opacity: the frosted surface in dark mode (D-47) — the stock dark raised surface (card, popover), let through. The step is the opacity in percent.",
-      "70": { "$value": { "colorSpace": "oklch", "components": [0.205, 0, 0], "alpha": 0.7 } }
+      "$description": "Warm steps at an opacity (D-50): the frosted surface over the warm canvas. Named by the warm step and the opacity in percent.",
+      "0-70": { "$value": { "colorSpace": "oklch", "components": [0.995, 0.004, 85], "alpha": 0.7 } },
+      "900-70": { "$value": { "colorSpace": "oklch", "components": [0.205, 0.008, 52], "alpha": 0.7 } }
     },
     "black-alpha": {
       "$type": "color",

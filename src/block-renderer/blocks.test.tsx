@@ -136,7 +136,7 @@ describe('block.empty', () => {
     expect(screen.getByText('今天没有待办')).toBeInTheDocument()
     const action = screen.getByRole('link', { name: '去看今天的预约' })
     expect(action).toHaveAttribute('href', '/m/appointments')
-    expect(action).toHaveClass('min-h-8')
+    expect(action).toHaveClass('min-h-9')
     expect(screen.getByText('新')).toBeInTheDocument()
   })
 
@@ -257,7 +257,7 @@ describe('the block demos', () => {
       await user.click(screen.getByRole('button', { name }))
       expect(container.querySelector('[data-slot="data-state"]')).toHaveAttribute('data-state', state)
     }
-    await user.click(screen.getByRole('button', { name: '标出上次运行的变化' }))
+    await user.click(screen.getByRole('button', { name: '标出上次更新的变化' }))
     expect(container.querySelector('[data-change]')).toBeNull()
     expect(await axe(container)).toHaveNoViolations()
   })

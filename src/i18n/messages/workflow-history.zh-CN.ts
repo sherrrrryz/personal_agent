@@ -4,7 +4,7 @@ import type en from './workflow-history.en'
 const messages: Translation<typeof en> = {
   'history.open': '历史',
   'history.title': '版本历史',
-  'history.description': '这个工作流的每个版本，最新的在最上面，写明是谁改的、为什么改。',
+  'history.description': '这个流程的每个版本，最新的在最上面，写明是谁改的、为什么改。',
   'history.version': '版本 {n}',
   'history.current': '当前',
   'history.author.ai': 'AI',
@@ -39,7 +39,7 @@ const messages: Translation<typeof en> = {
   'proposal.approve': '批准',
   'proposal.reject': '拒绝',
   'proposal.approved': '已批准。版本 {n} 现在生效。',
-  'proposal.rejected': '已拒绝。工作流仍是版本 {n}。',
+  'proposal.rejected': '已拒绝。流程仍是版本 {n}。',
 }
 
 export default messages

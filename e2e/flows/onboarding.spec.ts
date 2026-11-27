@@ -44,18 +44,18 @@ test('onboarding — w1440-100: the first run, from / to 通知, shown once', as
       await expect(page.getByRole('textbox', { name: '你的回答' })).toHaveValue(answer)
       await page.getByRole('button', { name: '发送', exact: true }).click()
     }
-    await expect(page.getByText('我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
+    await expect(page.getByText('我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
     await shot(page, '1-profession')
     await page.getByRole('button', { name: '继续' }).click()
 
     // Step 2: the four proposed modules; rename, remove and undo, add.
-    await expect(page.getByRole('heading', { level: 1, name: '你的模块' })).toBeFocused()
-    const rows = page.getByRole('list', { name: '职业模块' }).getByRole('listitem')
+    await expect(page.getByRole('heading', { level: 1, name: '你的功能' })).toBeFocused()
+    const rows = page.getByRole('list', { name: '职业功能' }).getByRole('listitem')
     await expect(rows).toHaveCount(4)
     for (const [index, name] of proposed.entries()) await expect(rows.nth(index)).toContainText(name)
 
     await page.getByRole('button', { name: '重命名「排班」' }).click()
-    const rename = page.getByRole('dialog', { name: '重命名模块' })
+    const rename = page.getByRole('dialog', { name: '重命名功能' })
     await rename.getByRole('textbox', { name: '名称' }).fill('员工排班')
     await rename.getByRole('button', { name: '保存' }).click()
     await expect(rows.nth(3)).toContainText('员工排班')
@@ -65,8 +65,8 @@ test('onboarding — w1440-100: the first run, from / to 通知, shown once', as
     await page.getByRole('button', { name: '撤销' }).click()
     await expect(rows).toHaveCount(4)
 
-    await page.getByRole('button', { name: '添加模块' }).click()
-    const add = page.getByRole('dialog', { name: '添加模块' })
+    await page.getByRole('button', { name: '添加功能' }).click()
+    const add = page.getByRole('dialog', { name: '添加功能' })
     await add.getByRole('textbox', { name: '名称' }).fill('寄养')
     await add.getByRole('textbox', { name: '它要做什么' }).fill('记录寄养的狗和天数。')
     await add.getByRole('button', { name: '保存' }).click()
@@ -78,11 +78,11 @@ test('onboarding — w1440-100: the first run, from / to 通知, shown once', as
     // Step 3: a simulated connection, said to be one.
     await expect(page.getByRole('heading', { level: 1, name: '连接账号' })).toBeFocused()
     await page.getByRole('button', { name: /更多/ }).click()
-    await page.getByRole('button', { name: '连接「Google」' }).click()
-    const connect = page.getByRole('dialog', { name: '连接「Google」' })
+    await page.getByRole('button', { name: '连接「Figma」' }).click()
+    const connect = page.getByRole('dialog', { name: '连接「Figma」' })
     await expect(connect).toContainText('原型：模拟授权')
     await connect.getByRole('button', { name: '模拟连接' }).click()
-    await expect(page.locator('[data-account="google"]')).toContainText('已连接')
+    await expect(page.locator('[data-account="figma"]')).toContainText('已连接')
     await clean(page, 'step 3')
     await shot(page, '3-accounts')
     await page.getByRole('button', { name: '完成' }).click()

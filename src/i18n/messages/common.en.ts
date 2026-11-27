@@ -22,7 +22,7 @@ const messages = {
   'mode.autonomous.name': 'Autonomous',
   'mode.autonomous.meaning': 'Does it on its own and tells you afterwards.',
   'mode.assisted.name': 'Assisted',
-  'mode.assisted.meaning': 'Prepares it, then runs once you approve.',
+  'mode.assisted.meaning': 'Prepares it, then carries it out once you approve.',
   'mode.deferred.name': 'Deferred',
   'mode.deferred.meaning': 'Waits in your notifications until you decide.',
 

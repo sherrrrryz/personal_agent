@@ -55,7 +55,7 @@ const routes: RouteObject[] = [
     ),
     children: [
       { path: '/m/:id', element: <ModulePage /> },
-      { path: '/m/:id/workflow', element: <ModulePage view="工作流" /> },
+      { path: '/m/:id/workflow', element: <ModulePage view="流程" /> },
       { path: '/topics', element: <Page title="话题" /> },
       { path: '/topics/:id', element: <Page title="一个话题" /> },
       { path: '/chat/:id', element: <ThreadPage /> },
@@ -96,7 +96,7 @@ const bar = () => screen.getByRole('region', { name: '与 AI 对话' })
 const composer = () => within(bar()).getByRole('textbox', { name: '问 AI' })
 const panel = (name: string | RegExp = /^关于：/) => within(bar()).getByRole('group', { name })
 const queryPanel = () => within(bar()).queryByRole('group', { name: /^关于：/ })
-const nav = () => screen.getByRole('navigation', { name: '模块导航' })
+const nav = () => screen.getByRole('navigation', { name: '功能导航' })
 const pathOf = (router: { state: { location: { pathname: string } } }) => decodeURIComponent(router.state.location.pathname)
 
 async function ask(text: string) {
@@ -189,8 +189,8 @@ describe('the chat bar and its in-place panel (R-17)', () => {
     await ask('今天忙吗')
     await within(panel()).findByText(canned)
     await userEvent.click(within(panel()).getByRole('switch', { name: '设为长期' }))
-    const form = within(panel()).getByRole('group', { name: '创建子模块' })
-    await userEvent.click(within(form).getByRole('combobox', { name: '所属模块' }))
+    const form = within(panel()).getByRole('group', { name: '创建子功能' })
+    await userEvent.click(within(form).getByRole('combobox', { name: '所属功能' }))
     await screen.findByRole('listbox')
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument())
@@ -201,8 +201,9 @@ describe('the chat bar and its in-place panel (R-17)', () => {
     const { router, runtime } = open('/m/notifications', { scene: 's0' })
     await screen.findByRole('heading', { level: 1, name: '通知' })
     await userEvent.click(within(bar()).getByRole('button', { name: threadPrompt }))
-    const thread = runtime.getState().conversations.find((conversation) => conversation.surface === 'thread')
-    expect(thread).toBeDefined()
+    // The new chat is the last conversation (s0 already holds dedicated chats of her own).
+    const thread = runtime.getState().conversations.at(-1)
+    expect(thread?.surface).toBe('thread')
     expect(pathOf(router)).toBe(`/chat/${thread?.id}`)
     expect(await screen.findByRole('heading', { level: 1, name: '店庆活动怎么做' })).toBeInTheDocument()
     expect(queryPanel()).not.toBeInTheDocument()
@@ -223,9 +224,9 @@ describe('the chat bar and its in-place panel (R-17)', () => {
 
   it('on a module’s sub-page the heading names the module and the page', async () => {
     open(`/m/${duration}/workflow`, { scene: 's1' })
-    await screen.findByRole('heading', { level: 1, name: '工作流' })
+    await screen.findByRole('heading', { level: 1, name: '流程' })
     await ask('这一步是做什么的')
-    expect(panel('关于：服务时长 · 工作流')).toBeInTheDocument()
+    expect(panel('关于：服务时长 · 流程')).toBeInTheDocument()
   })
 
   it('streaming: the panel is never blank — her message and 正在思考 at once, then the steps and the part that has arrived', async () => {
@@ -317,10 +318,10 @@ describe('one-off ↔ persistent (R-18)', () => {
     expect(findModule(runtime.getState(), confirmations)).toBeUndefined()
 
     await userEvent.click(within(panel()).getByRole('switch', { name: '设为长期' }))
-    const form = within(panel()).getByRole('group', { name: '创建子模块' })
+    const form = within(panel()).getByRole('group', { name: '创建子功能' })
     // Prefilled: the story's name for it, and the module of the screen she is on.
     expect(within(form).getByRole('textbox', { name: '名称' })).toHaveValue('预约确认')
-    expect(within(form).getByRole('combobox', { name: '所属模块' })).toHaveTextContent('预约')
+    expect(within(form).getByRole('combobox', { name: '所属功能' })).toHaveTextContent('预约')
     await userEvent.click(within(form).getByRole('button', { name: '创建' }))
 
     const created = findModule(runtime.getState(), confirmations)
@@ -340,7 +341,7 @@ describe('one-off ↔ persistent (R-18)', () => {
     await ask('每天提醒我看库存')
     await within(panel()).findByText(canned)
     await userEvent.click(within(panel()).getByRole('switch', { name: '设为长期' }))
-    const form = within(panel()).getByRole('group', { name: '创建子模块' })
+    const form = within(panel()).getByRole('group', { name: '创建子功能' })
     const name = within(form).getByRole('textbox', { name: '名称' })
     expect(name).toHaveValue('每天提醒我看库存')
     await userEvent.clear(name)
@@ -392,7 +393,7 @@ describe('one-off ↔ persistent (R-18)', () => {
 
   it('accepting a proposal whose effect is saveNodeParams adds a workflow version and stays on the screen', async () => {
     const { router, runtime } = open(`/m/${duration}/workflow`, { scene: 's1' })
-    await screen.findByRole('heading', { level: 1, name: '工作流' })
+    await screen.findByRole('heading', { level: 1, name: '流程' })
     const before = workflowOf(runtime.getState(), duration)?.versions.length ?? 0
     expect(before).toBeGreaterThan(0)
     await userEvent.click(within(bar()).getByRole('button', { name: reviewPrompt }))
@@ -443,7 +444,11 @@ describe('chat.recent (R-19)', () => {
     await within(rows()).findByRole('link', { name: /^明天的预约确认/ })
     const links = within(rows()).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
+      '圣诞节前的造型预约 · 圣诞造型活动 · 2天前',
       '按品种和毛长估时间 · 服务时长规则 · 16天前 长期',
+      '比较两家香波供应商 · 低敏香波换供应商 · 16天前',
+      '小陈和阿杰的提成怎么算 · 美容师提成 · 16天前',
+      '写一条冬季护毛提醒 · 冬季护毛提醒 · 17天前',
       '明天的预约确认 · 预约确认 · 18天前 长期',
       '全部话题',
     ])
@@ -520,7 +525,7 @@ describe('chat.recent (R-19)', () => {
   it('en: the group and its rows are in English', async () => {
     window.localStorage.setItem(RECENT_STORAGE_KEY, 'open')
     open('/m/notifications', { scene: 's2', locale: 'en' })
-    const list = await within(screen.getByRole('navigation', { name: 'Module navigation' })).findByRole('list', { name: 'Recent chats' })
+    const list = await within(screen.getByRole('navigation', { name: 'Feature navigation' })).findByRole('list', { name: 'Recent chats' })
     expect(await within(list).findByRole('link', { name: /^Estimate time by breed and coat · .+ · 16 days ago/ })).toBeInTheDocument()
     expect(within(list).getByRole('link', { name: 'All topics' })).toBeInTheDocument()
   })

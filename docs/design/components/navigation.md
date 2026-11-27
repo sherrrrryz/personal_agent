@@ -31,6 +31,7 @@ default size unless noted.
 
 | Component | What is added | Why — the matrix cell that fails without it |
 | --- | --- | --- |
+| `Sidebar` | In the viewport, the kit's own `floating` variant — a panel with the `sidebar` background, a ring and `shadow-sm`, inset from the window edge — on the `canvas` colour, which `SidebarProvider` sets (`bg-canvas`) | Not a matrix failure: the owner's polish (D-50); the variant is the kit's, nothing is restyled. `inline` placement (galleries) and the compact sheet are unchanged |
 | `SidebarItem`, `SidebarSubItem` | The kit's height as a minimum with height `auto`, and a label that wraps (`whitespace-normal!`, `overflow-visible!`) | Clipped text in 22 cells: the kit cuts a label to one line with nowhere to read the rest |
 | `SidebarFooter` | `gap-0 p-0` | Not a matrix failure: our footer holds `SidebarGroup`s, which bring the kit's padding themselves — the footer's own would double it |
 | `SidebarContent` | Scrolls in the rail too | A short window: the kit stops the rail from scrolling |

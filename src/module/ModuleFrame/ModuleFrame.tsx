@@ -1,12 +1,16 @@
-import { PlayIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { PlayIcon, Settings2Icon } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router'
 
 import { Button } from '@/components/actions'
+import { Sheet } from '@/components/containers'
+import { Section } from '@/components/layout'
+import { useIsMobile } from '@/hooks/use-mobile'
 import type { PageWidth } from '@/components/layout'
 import { useLocale, useT } from '@/i18n'
 import { useActions, useRunState, type Module } from '@/runtime'
-import { moduleIconComponents, modulePath } from '@/shell'
+import { modulePath, useShellHeaderSlot } from '@/shell'
 
 import { ApprovalsSheet } from './ApprovalsSheet'
 import { HistorySheet } from './HistorySheet'
@@ -45,10 +49,16 @@ export type ModuleFrameProps =
 
 /**
  * What every screen of a module sits in (D-12; spec part 2 § Module frame).
- * The first row is the same in all four views: the module's name and the
- * three view links 页面 · 工作流 · 记忆. The breadcrumb above it is the
- * shell header's — the frame draws none. The `h1` is the module's name on the
- * `page` view and the view's own title on the others.
+ *
+ * D-50: the frame draws no visible title — the shell's floating header names
+ * the screen in its breadcrumb. The `h1` stays, out of sight, for assistive
+ * technology and for the breadcrumb's last level and the window title, which
+ * read it: the module's name on the `page` view, the view's own title on the
+ * others. The module's controls stand in the header, in its slot
+ * (`useShellHeaderSlot`): 模块设置 — a sheet with the three views
+ * 页面 · 工作流 · 记忆, the run state, 待你确认 and 运行记录 — and, on the
+ * `page` view, 立即运行. Outside the shell they stand at the top of the frame.
+ * A failed run stays on the page, where it cannot be missed.
  *
  * It stands where `Page` stands — directly in `main` — and so brings the
  * page padding itself. It reads the runtime: the run state, the proposals
@@ -56,66 +66,100 @@ export type ModuleFrameProps =
  */
 export function ModuleFrame(props: ModuleFrameProps) {
   const { module, view, width = 'wide', basePath, children } = props
-  const t = useT('module')
   const { locale } = useLocale()
   const name = module.name[locale]
-  const Icon = moduleIconComponents[module.icon]
   const base = basePath ?? modulePath(module.id)
   const href = { page: base, workflow: `${base}/workflow`, memory: `${base}/memory` }
-  const nameClass = 'min-w-0 text-2xl font-semibold wrap-break-word'
+  const slot = useShellHeaderSlot()
+  const run = useRunState(module.id)
+  const { runModule } = useActions()
+  const start = () => void runModule(module.id)
+  const controls = <ModuleControls module={module} name={name} view={view} href={href} />
 
   return (
     <div className="px-4 py-6 md:px-6 md:py-8 lg:px-8" data-module-frame={module.id} data-view={view}>
       <div className={`mx-auto flex w-full min-w-0 flex-col gap-6 ${widthClass[width]}`}>
-        <header className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2" data-slot="module-frame-row">
-            <div className="flex min-w-0 items-center gap-2">
-              <Icon aria-hidden="true" className="size-5 shrink-0" />
-              {view === 'page' ? <h1 className={nameClass}>{name}</h1> : <p className={nameClass}>{name}</p>}
-            </div>
-            <nav aria-label={t('views.label')}>
-              <ul className="flex flex-wrap gap-2">
-                {viewLinks.map((each) => (
-                  <li key={each}>
-                    <Link to={href[each]} className={viewLinkClass} aria-current={each === view ? 'page' : undefined}>
-                      {t(`view.${each}`)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+        <h1 className="sr-only">{view === 'page' ? name : props.title}</h1>
+        {slot ? (
+          createPortal(controls, slot)
+        ) : (
+          <div className="flex flex-wrap items-center justify-end gap-2" data-slot="module-frame-row">
+            {controls}
           </div>
-          {props.view === 'page' ? (
-            <PageControls module={module} name={name} />
-          ) : (
-            <h1 className="min-w-0 text-xl font-semibold wrap-break-word">{props.title}</h1>
-          )}
-        </header>
+        )}
+        {view === 'page' && <RunStatus run={run} onRetry={start} quiet />}
         {children}
       </div>
     </div>
   )
 }
 
-/** The second row of the `page` view: the run state, then the frame's three actions. */
-function PageControls({ module, name }: { module: Module; name: string }) {
+type ControlsProps = {
+  module: Module
+  name: string
+  view: ModuleFrameProps['view']
+  href: Record<(typeof viewLinks)[number], string>
+}
+
+/** The module's controls in the shell header (D-50): 模块设置, and 立即运行 on the `page` view. */
+function ModuleControls({ module, name, view, href }: ControlsProps) {
   const t = useT('module')
+  const compact = useIsMobile()
   const run = useRunState(module.id)
   const { runModule } = useActions()
   const start = () => void runModule(module.id)
+  const [open, setOpen] = useState(false)
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
-      <RunStatus run={run} onRetry={start} />
-      <div className="flex flex-wrap items-center gap-2">
-        <ApprovalsSheet module={module} name={name} />
-        <HistorySheet module={module} name={name} />
-        <Button loading={run.status === 'running'} onClick={start}>
+    <>
+      <Sheet
+        open={open}
+        onOpenChange={setOpen}
+        side={compact ? 'bottom' : 'end'}
+        title={t('settings.title')}
+        description={t('settings.description', { module: name })}
+        trigger={
+          <Button variant="secondary" size="sm">
+            <Settings2Icon aria-hidden="true" />
+            {t('settings.open')}
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-6 pb-4" data-slot="module-settings">
+          <Section level={3} title={t('settings.views')}>
+            <nav aria-label={t('views.label')}>
+              <ul className="flex flex-wrap gap-2">
+                {viewLinks.map((each) => (
+                  <li key={each}>
+                    <Link
+                      to={href[each]}
+                      className={viewLinkClass}
+                      aria-current={each === view ? 'page' : undefined}
+                      onClick={() => setOpen(false)}
+                    >
+                      {t(`view.${each}`)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </Section>
+          <Section level={3} title={t('settings.run')}>
+            <RunStatus run={run} onRetry={start} announce={false} />
+            <div className="flex flex-wrap items-center gap-2">
+              <ApprovalsSheet module={module} name={name} />
+              <HistorySheet module={module} name={name} />
+            </div>
+          </Section>
+        </div>
+      </Sheet>
+      {view === 'page' && (
+        <Button size="sm" loading={run.status === 'running'} onClick={start}>
           {/* While it runs the button's own spinner stands where the icon was. */}
           {run.status !== 'running' && <PlayIcon aria-hidden="true" />}
           {t('run.now')}
         </Button>
-      </div>
-    </div>
+      )}
+    </>
   )
 }

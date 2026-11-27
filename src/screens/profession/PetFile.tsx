@@ -1,11 +1,12 @@
 import { BlockRenderer } from '@/block-renderer'
+import { BlockAvatar } from '@/blocks/list/parts'
 import { noChanges, type PageBlock, type PageDescription } from '@/blocks/types'
 import { blockKey, column, tableId } from '@/fixtures/keys'
 import { useLocale, useT, type Locale } from '@/i18n'
 import { ModuleFrame } from '@/module'
 import { numberCell, rowOf, stringCell, tableOf, useActions, useResource, useRunState, useRuntimeState, type Module, type Snapshot } from '@/runtime'
 
-import { appliedFor, pageTools } from './page-tools'
+import { appliedFor, pageTools, petAvatar } from './page-tools'
 
 const d = column.dogs
 const v = column.visits
@@ -113,6 +114,11 @@ export function PetFile({ module, dogId }: { module: Module; dogId: string }) {
 
   return (
     <ModuleFrame module={module} view="child" title={name}>
+      {/* The frame's title is out of sight (D-50); the dog's portrait and name lead the page. */}
+      <div className="flex min-w-0 items-center gap-3" data-slot="pet-profile">
+        <BlockAvatar src={petAvatar(dogId)} size="lg" />
+        <p className="min-w-0 text-lg font-semibold wrap-break-word">{name}</p>
+      </div>
       <BlockRenderer
         page={view ? petFilePage(view, state, dogId, locale) : { blocks: [] }}
         state={answer.state === 'loading' ? 'loading' : answer.state === 'error' && !view ? 'error' : 'ready'}

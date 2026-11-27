@@ -63,7 +63,7 @@ for (const width of widths) {
       await goTo(page, '通知')
       await expect(main(page).locator('[data-slot="block-proposal"]')).toHaveCount(2)
 
-      // 今天 → 变成工作流: the sentence, 接受, the canvas; a node opens its inspector.
+      // 今天 → 变成流程: the sentence, 接受, the canvas; a node opens its inspector.
       await jump(page, '今天')
       await goTo(page, '预约')
       await press(page, chip(page, heroPrompt), 'the hero suggestion')
@@ -80,8 +80,8 @@ for (const width of widths) {
       // 第 1–2 周: the memory view and its second table.
       await jump(page, '第 1–2 周')
       await goTo(page, '服务时长')
-      await press(page, main(page).getByRole('link', { name: '记忆', exact: true }), 'the view 记忆')
-      await expect(h1(page, '记忆')).toBeVisible()
+      await press(page, main(page).getByRole('link', { name: '资料', exact: true }), 'the view 资料')
+      await expect(h1(page, '资料')).toBeVisible()
       await tabTo(page, main(page).getByRole('tab', { name: '品种大致时长' }), 'the tab 品种大致时长')
       // The arrow moves to the next tab; Enter shows its table.
       await page.keyboard.press('ArrowRight')
@@ -104,7 +104,7 @@ for (const width of widths) {
       // 第 2 个月: from the proposal to the diff, 批准, the history.
       await jump(page, '第 2 个月')
       await goTo(page, '通知')
-      await press(page, block(page, '每周复盘：建议修改工作流').getByRole('link', { name: '服务时长' }), 'the proposal’s link')
+      await press(page, block(page, '每周复盘：建议修改流程').getByRole('link', { name: '服务时长' }), 'the proposal’s link')
       await expect(main(page).locator('[data-mode="diff"]')).toBeVisible()
       await press(page, main(page).locator('[data-slot="workflow-proposal"]').getByRole('button', { name: '批准' }), '批准')
       await expect(main(page).getByText('版本 2（当前）')).toBeVisible()

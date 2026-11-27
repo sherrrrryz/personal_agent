@@ -5,7 +5,7 @@
 // with 原型控制 → 重新开始. Run by `npm run matrix -- --flows ia-walk`, at 1440 and 1024.
 //
 // Nodes per scene: the base modules, 话题 and every topic, the profession modules and their
-// sub-modules — each with 页面 · 工作流 · 记忆 — one appointment and one pet file, the recent
+// sub-modules — each with 页面 · 流程 · 资料 — one appointment and one pet file, the recent
 // conversations, 设置 and its three pages. Not pages, so not walked: `root`, `profession`
 // (a navigation heading), `chat.bar` and `chat.recent` (they are on every screen walked).
 import { test, type Page } from '@playwright/test'
@@ -80,7 +80,7 @@ for (const width of widths) {
 
           if (href.startsWith('/m/')) {
             // The frame's other two views.
-            for (const name of ['工作流', '记忆']) {
+            for (const name of ['流程', '资料']) {
               await main(page).getByRole('link', { name, exact: true }).click()
               await expect(page.getByRole('heading', { level: 1, name, exact: true })).toBeVisible()
               await visit(`${href} › ${name}`)
@@ -127,9 +127,9 @@ for (const width of widths) {
         await expect(page.getByRole('textbox', { name: '你的回答' })).toHaveValue(answer)
         await page.getByRole('button', { name: '发送', exact: true }).click()
       }
-      await expect(page.getByText('我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
+      await expect(page.getByText('我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
       await page.getByRole('button', { name: '继续' }).click()
-      await expect(page.getByRole('heading', { level: 1, name: '你的模块' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1, name: '你的功能' })).toBeVisible()
       await check(page, 'onboarding.modules', problems)
       await page.getByRole('button', { name: '确认并生成' }).click()
       await expect(page.getByRole('heading', { level: 1, name: '连接账号' })).toBeVisible()

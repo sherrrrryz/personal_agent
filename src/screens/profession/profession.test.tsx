@@ -53,7 +53,7 @@ async function walkStates(path: string, scene: string, emptyWords: string, onErr
   await waitFor(() => expect(main().querySelector('[aria-busy="true"]')).not.toBeNull())
   act(() => runtime.actions.setPreview('error'))
   if (onError === 'kept') await waitFor(() => expect(main().querySelector('[data-page-kept]')).not.toBeNull())
-  else await waitFor(() => expect(within(main()).getAllByRole('button', { name: /重试|再运行/ }).length).toBeGreaterThan(0))
+  else await waitFor(() => expect(within(main()).getAllByRole('button', { name: /重试|再更新/ }).length).toBeGreaterThan(0))
   act(() => runtime.actions.setPreview('long'))
   await waitFor(() => expect(blocks().length).toBeGreaterThan(0))
 }
@@ -242,7 +242,7 @@ describe('the sub-module homes (B-08)', () => {
     expect(created).toBe('profession.appointments.sub.confirmations')
     await act(() => router.navigate(confirmations))
     expect(h1()).toHaveTextContent('预约确认')
-    await waitFor(() => expect(main()).toHaveTextContent('今晚 19:00 第一次运行'))
+    await waitFor(() => expect(main()).toHaveTextContent('今晚 19:00 第一次更新'))
     expect(blocks()).toEqual(['block.empty'])
   })
 
@@ -255,6 +255,6 @@ describe('the sub-module homes (B-08)', () => {
   it('walk their states', async () => {
     await walkStates(duration, 's2', '暂无记录', 'kept')
     cleanup()
-    await walkStates(confirmations, 'e2', '尚未运行', 'failed')
+    await walkStates(confirmations, 'e2', '尚未更新', 'failed')
   })
 })

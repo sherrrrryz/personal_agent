@@ -169,7 +169,7 @@ describe('AlertDialog', () => {
     expect(dialog).not.toHaveClass('border')
     const cancel = within(dialog).getByRole('button', { name: '取消' })
     const confirm = within(dialog).getByRole('button', { name: '断开' })
-    for (const button of [cancel, confirm]) expect(button).toHaveClass('min-h-8')
+    for (const button of [cancel, confirm]) expect(button).toHaveClass('min-h-9')
     await waitFor(() => expect(cancel).toHaveFocus())
     expect(await axe(document.body)).toHaveNoViolations()
     await expectFocusContained(dialog, 2)
@@ -200,9 +200,9 @@ describe('Sheet', () => {
     <App>
       <Sheet
         side={side}
-        trigger={<Button variant="secondary">运行记录</Button>}
-        title="运行记录"
-        description="每运行一次多一行。"
+        trigger={<Button variant="secondary">更新记录</Button>}
+        title="更新记录"
+        description="每更新一次多一行。"
         footer={<Button variant="secondary">完成</Button>}
       >
         <a href="#run-1">今天 09:00</a>
@@ -215,10 +215,10 @@ describe('Sheet', () => {
     ['bottom', 'bottom'],
   ] as const)('side %s: a named dialog on that edge with the kit’s close button, named; never taller than the window', async (side, kitSide) => {
     render(example(side))
-    await userEvent.click(screen.getByRole('button', { name: '运行记录' }))
-    const sheet = await screen.findByRole('dialog', { name: '运行记录' })
+    await userEvent.click(screen.getByRole('button', { name: '更新记录' }))
+    const sheet = await screen.findByRole('dialog', { name: '更新记录' })
     expect(sheet).toHaveAttribute('data-side', kitSide)
-    expect(sheet).toHaveAccessibleDescription('每运行一次多一行。')
+    expect(sheet).toHaveAccessibleDescription('每更新一次多一行。')
     expect(sheet).toHaveClass('max-h-full', 'overflow-y-auto')
     expect(within(sheet).getByRole('button', { name: '关闭' })).toHaveAttribute('data-slot', 'sheet-close')
     expect(await axe(document.body)).toHaveNoViolations()
@@ -226,7 +226,7 @@ describe('Sheet', () => {
 
   it('the default side is the inline end; focus moves in, is contained, and Escape returns it to the trigger', async () => {
     render(example())
-    const trigger = screen.getByRole('button', { name: '运行记录' })
+    const trigger = screen.getByRole('button', { name: '更新记录' })
     await userEvent.tab()
     await userEvent.keyboard('{Enter}')
     const sheet = await screen.findByRole('dialog')
@@ -294,7 +294,7 @@ describe('Tooltip (kit)', () => {
       </Tooltip>,
     )
     const trigger = screen.getByRole('button', { name: '添加预约' })
-    expect(trigger).toHaveClass('size-8')
+    expect(trigger).toHaveClass('size-9')
     expect(screen.queryByText('新建一条今天的空白预约')).not.toBeInTheDocument()
     await userEvent.tab()
     expect(trigger).toHaveFocus()

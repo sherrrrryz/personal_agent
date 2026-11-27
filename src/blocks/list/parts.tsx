@@ -1,10 +1,13 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, PawPrint } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import { Button } from '@/components/actions'
 import { focusRing } from '@/components/actions/focus-ring'
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   BehaviourModeBadge,
   ChangeMarker,
   Item,
@@ -90,9 +93,28 @@ export type BlockEntryProps = {
   badges?: BlockBadge[]
   actions?: BlockAction[]
   href?: string
+  /** A picture of what the item is — a pet's portrait (D-50). Decorative: the title names the item. */
+  avatar?: string
   /** What the last run did to this item. */
   change?: ChangeKind
   onAction?: (actionId: string, itemId: string) => void
+}
+
+/**
+ * An item's picture, as the kit's `Avatar` draws it. Decorative: the image has
+ * no text, and what is shown until it loads (or when it fails) is an icon, not
+ * a letter — a heading that holds the avatar is read as text (the shell's
+ * page title), and a letter there would be read with it.
+ */
+export function BlockAvatar({ src, size }: { src: string; size?: 'default' | 'lg' }) {
+  return (
+    <Avatar size={size}>
+      <AvatarImage src={src} alt="" />
+      <AvatarFallback>
+        <PawPrint aria-hidden="true" />
+      </AvatarFallback>
+    </Avatar>
+  )
 }
 
 /**
@@ -101,10 +123,15 @@ export type BlockEntryProps = {
  * the link; with actions the row is plain, its title is the link and the
  * actions are buttons, under the text while the container is narrow.
  */
-export function BlockEntry({ id, title, lead, meta, badges = [], actions = [], href, change, onAction }: BlockEntryProps) {
+export function BlockEntry({ id, title, lead, meta, badges = [], actions = [], href, avatar, change, onAction }: BlockEntryProps) {
   const rowIsLink = href !== undefined && actions.length === 0
   return (
     <Item variant="outline" size="sm" render={rowIsLink ? <Link to={href} /> : undefined} data-item={id}>
+      {avatar !== undefined && (
+        <ItemMedia>
+          <BlockAvatar src={avatar} size="lg" />
+        </ItemMedia>
+      )}
       <ItemContent>
         {lead !== undefined && <p className="text-sm text-muted-foreground">{lead}</p>}
         <ItemTitle>

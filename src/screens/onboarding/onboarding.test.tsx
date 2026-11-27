@@ -48,7 +48,7 @@ function open(path: string, options: { search?: string; storage?: ReturnType<typ
 }
 
 const heading = (name: string) => screen.findByRole('heading', { level: 1, name })
-const rows = () => within(screen.getByRole('list', { name: '职业模块' })).getAllByRole('listitem')
+const rows = () => within(screen.getByRole('list', { name: '职业功能' })).getAllByRole('listitem')
 
 /** Her scripted answer types itself into the composer (D-48); she sends it. Reduced motion puts it there at once. */
 async function sendScripted(answer: string) {
@@ -82,11 +82,11 @@ describe('onboarding, the first run (B-14)', () => {
 
     // Her four scripted answers; the AI closes naming the four modules.
     await interview()
-    expect(await screen.findByText(/我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。/)).toBeInTheDocument()
+    expect(await screen.findByText(/我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。/)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '继续' }))
 
     // Step 2: the four proposed modules, one line each.
-    await heading('你的模块')
+    await heading('你的功能')
     expect(screen.getByText('第 2 步，共 3 步')).toBeInTheDocument()
     await waitFor(() => expect(rows()).toHaveLength(4))
     const set = runtime.getState().modules.filter((module) => module.kind === 'profession')
@@ -98,7 +98,7 @@ describe('onboarding, the first run (B-14)', () => {
 
     // Rename.
     await userEvent.click(screen.getByRole('button', { name: '重命名「排班」' }))
-    const name = within(await screen.findByRole('dialog', { name: '重命名模块' })).getByRole('textbox', { name: '名称' })
+    const name = within(await screen.findByRole('dialog', { name: '重命名功能' })).getByRole('textbox', { name: '名称' })
     await userEvent.clear(name)
     await userEvent.type(name, '员工排班{Enter}')
     await waitFor(() => expect(rows()[3]).toHaveTextContent('员工排班'))
@@ -111,8 +111,8 @@ describe('onboarding, the first run (B-14)', () => {
     expect(rows()[2]).toHaveTextContent('商品与库存')
 
     // Add.
-    await userEvent.click(screen.getByRole('button', { name: '添加模块' }))
-    const add = within(await screen.findByRole('dialog', { name: '添加模块' }))
+    await userEvent.click(screen.getByRole('button', { name: '添加功能' }))
+    const add = within(await screen.findByRole('dialog', { name: '添加功能' }))
     await userEvent.type(add.getByRole('textbox', { name: '名称' }), '寄养')
     await userEvent.type(add.getByRole('textbox', { name: '它要做什么' }), '记录寄养的狗和天数。')
     await userEvent.click(add.getByRole('button', { name: '保存' }))
@@ -127,12 +127,12 @@ describe('onboarding, the first run (B-14)', () => {
     await heading('连接账号')
     expect(screen.getByText('第 3 步，共 3 步')).toBeInTheDocument()
     await userEvent.click(await screen.findByRole('button', { name: /更多/ }))
-    await userEvent.click(await screen.findByRole('button', { name: '连接「Google」' }))
-    const dialog = await screen.findByRole('dialog', { name: '连接「Google」' })
+    await userEvent.click(await screen.findByRole('button', { name: '连接「Figma」' }))
+    const dialog = await screen.findByRole('dialog', { name: '连接「Figma」' })
     expect(dialog).toHaveTextContent('原型：模拟授权')
     await userEvent.click(within(dialog).getByRole('button', { name: '模拟连接' }))
-    await waitFor(() => expect(runtime.getState().accounts.find((account) => account.id === 'google')?.status).toBe('connected'))
-    expect(container.querySelector('[data-account="google"]')).toHaveTextContent('已连接')
+    await waitFor(() => expect(runtime.getState().accounts.find((account) => account.id === 'figma')?.status).toBe('connected'))
+    expect(container.querySelector('[data-account="figma"]')).toHaveTextContent('已连接')
     expect(await axe(container)).toHaveNoViolations()
 
     // 完成 lands on 通知.
@@ -170,8 +170,8 @@ describe('onboarding, the first run (B-14)', () => {
 
   it('step 2 in its states: generating, failed with 重试 and 上一步, empty with the reason, twelve modules', async () => {
     const loading = open('/onboarding/modules', { search: '?preview=loading' })
-    await heading('你的模块')
-    expect(screen.getByText('正在生成模块建议…')).toBeInTheDocument()
+    await heading('你的功能')
+    expect(screen.getByText('正在生成功能建议…')).toBeInTheDocument()
     loading.unmount()
 
     const failed = open('/onboarding/modules', { search: '?preview=error' })
@@ -182,9 +182,9 @@ describe('onboarding, the first run (B-14)', () => {
     failed.unmount()
 
     const empty = open('/onboarding/modules', { search: '?preview=empty' })
-    expect(await screen.findByText('还没有模块')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '添加模块' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '确认并生成' })).toHaveAccessibleDescription('至少添加一个模块才能继续。')
+    expect(await screen.findByText('还没有功能')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '添加功能' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '确认并生成' })).toHaveAccessibleDescription('至少添加一个功能才能继续。')
     empty.unmount()
 
     open('/onboarding/modules', { search: '?preview=long' })
@@ -233,11 +233,11 @@ describe('onboarding, re-entry from settings (B-15)', () => {
     const { router, runtime } = open(reentryPath, { search: '?scene=s2' })
     await interview()
     await userEvent.click(await screen.findByRole('button', { name: '继续' }))
-    await heading('你的模块')
+    await heading('你的功能')
     expect(router.state.location.search).toBe('?from=settings')
 
-    await userEvent.click(await screen.findByRole('button', { name: '添加模块' }))
-    const add = within(await screen.findByRole('dialog', { name: '添加模块' }))
+    await userEvent.click(await screen.findByRole('button', { name: '添加功能' }))
+    const add = within(await screen.findByRole('dialog', { name: '添加功能' }))
     await userEvent.type(add.getByRole('textbox', { name: '名称' }), '寄养{Enter}')
     await waitFor(() => expect(rows()).toHaveLength(5))
 
@@ -250,7 +250,7 @@ describe('onboarding, re-entry from settings (B-15)', () => {
     // The module she added has no page builder: the stub pattern, in the frame.
     await act(() => router.navigate(`/m/${added?.id}`))
     await heading('寄养')
-    expect(await screen.findByText('这个模块还没有输出')).toBeInTheDocument()
+    expect(await screen.findByText('这个功能还没有内容')).toBeInTheDocument()
   })
 
   it('the language select in the onboarding header switches the step in place', async () => {

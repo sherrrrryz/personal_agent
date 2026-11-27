@@ -158,10 +158,10 @@ describe('Progress', () => {
   it('without a value it is indeterminate and still named', () => {
     render(
       <Progress value={null}>
-        <ProgressLabel>正在准备工作流</ProgressLabel>
+        <ProgressLabel>正在准备流程</ProgressLabel>
       </Progress>,
     )
-    expect(screen.getByRole('progressbar', { name: '正在准备工作流' })).not.toHaveAttribute('aria-valuenow')
+    expect(screen.getByRole('progressbar', { name: '正在准备流程' })).not.toHaveAttribute('aria-valuenow')
   })
 })
 

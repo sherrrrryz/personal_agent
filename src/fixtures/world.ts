@@ -4,6 +4,7 @@ import { tx, type Text } from '@/runtime/text'
 import { addDays } from '@/runtime/time'
 
 import { chain, col, row, table, wf } from './build'
+import { agendaRows, deskTables } from './everyday'
 import { accountId, appointmentStatus, basis, column, defaultEstimate, moduleId, tableId } from './keys'
 import { stubWorkflow } from './templates'
 import {
@@ -48,17 +49,17 @@ const moduleSeeds: ModuleSeed[] = [
     id: m.notifications,
     kind: 'base',
     name: tx('通知', 'Notifications'),
-    description: tx('读取每个模块的输出，挑出最需要你看的事。', 'Reads every module’s output and surfaces what most needs you.'),
+    description: tx('读取每个功能的内容，挑出最需要你看的事。', 'Reads every feature’s content and surfaces what most needs you.'),
     icon: 'bell',
     tables: [tableId.notices],
     workflow: {
       nodes: [
-        wf.trigger('any-module', tx('任一模块更新', 'Any module updates'), 'module'),
-        wf.source('outputs', tx('所有模块的输出', 'Every module’s output')),
+        wf.trigger('any-module', tx('任一功能更新', 'Any feature updates'), 'module'),
+        wf.source('outputs', tx('所有功能的内容', 'Every feature’s content')),
         wf.step('rank', tx('挑出最重要的', 'Pick what matters most'), {
           detail: tx('待你确认的排最前，其次是今天要处理的。', 'What waits for your decision comes first, then what is due today.'),
         }),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.notices]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.notices]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-proposals', 'block.proposal', 'proposals', tx('待你确认', 'Waiting for you')),
         out('out-list', 'block.list', 'important', tx('重要的事', 'Important')),
@@ -70,16 +71,16 @@ const moduleSeeds: ModuleSeed[] = [
     id: m.messages,
     kind: 'base',
     name: tx('消息', 'Messages'),
-    description: tx('汇总各渠道的顾客消息，并分到相关的模块。', 'Gathers customer messages from every channel and files each under the module it concerns.'),
+    description: tx('汇总各渠道的顾客消息，并分到相关的功能。', 'Gathers customer messages from every channel and files each under the feature it concerns.'),
     icon: 'message-square',
     tables: [tableId.messages],
     workflow: {
       nodes: [
         wf.trigger('incoming', tx('微信收到消息', 'A WeChat message arrives'), 'event', {}, { account: accountId.wechat }),
         wf.source('wechat', tx('微信', 'WeChat'), { account: accountId.wechat }),
-        wf.step('triage', tx('分到相关模块', 'File under the module it concerns')),
+        wf.step('triage', tx('分到相关功能', 'File under the feature it concerns')),
         wf.action('file', tx('整理归档', 'File it'), 'autonomous', 'organise'),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.messages]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.messages]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-list', 'block.list', 'messages', tx('顾客消息', 'Customer messages')),
       ],
@@ -100,16 +101,78 @@ const moduleSeeds: ModuleSeed[] = [
         wf.source('calendar-account', tx('日历账号', 'Calendar account'), { account: accountId.calendar }),
         wf.source('bookings', tx('「预约」写入的预约', 'Bookings written by Appointments'), { targetModuleId: m.appointments, tables: [tableId.appointments] }),
         wf.step('merge', tx('合并成一张日程', 'Merge into one calendar')),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.events]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.events]),
         out('out-schedule', 'block.schedule', 'week', tx('本周', 'This week')),
         out('out-today', 'block.list', 'today', tx('今天', 'Today')),
       ],
       edges: [...chain('morning', 'calendar-account', 'merge', 'out-schedule'), ...chain('bookings', 'merge'), ...chain('merge', 'out-today'), ...chain('merge', 'memory')],
     },
   },
-  { id: m.todo, kind: 'base', name: tx('待办', 'To-do'), description: tx('连接任务工具后，这里会汇总你的待办。', 'Once a task tool is connected, your to-dos are gathered here.'), icon: 'list-todo' },
-  { id: m.mail, kind: 'base', name: tx('邮件', 'Mail'), description: tx('连接邮箱后，这里会整理需要你回复的邮件。', 'Once a mailbox is connected, the mail that needs your reply is sorted here.'), icon: 'mail' },
-  { id: m.files, kind: 'base', name: tx('文件', 'Files'), description: tx('连接网盘后，这里会列出最近用到的文件。', 'Once a drive is connected, the files you used lately are listed here.'), icon: 'folder' },
+  {
+    id: m.todo,
+    kind: 'base',
+    name: tx('待办', 'To-do'),
+    description: tx('汇总 Slack 里交给你的事和各功能里要你做的事，按截止时间排好。', 'Gathers what Slack hands you and what each feature needs you to do, sorted by when it is due.'),
+    icon: 'list-todo',
+    tables: [tableId.tasks],
+    runsAt: '07:00',
+    workflow: {
+      nodes: [
+        wf.trigger('morning', tx('每天 07:00', 'Every day at 07:00'), 'schedule', { time: '07:00' }),
+        wf.source('slack', tx('Slack 里交给你的事', 'What Slack hands you'), { account: accountId.slack }),
+        wf.source('features', tx('各功能里要你做的事', 'What each feature needs you to do')),
+        wf.step('sort', tx('按截止时间排好', 'Sort by when it is due'), {
+          detail: tx('逾期的排最前，其次是今天到期的。', 'What is overdue comes first, then what is due today.'),
+        }),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.tasks]),
+        out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
+        out('out-open', 'block.list', 'open', tx('要做的事', 'To do')),
+        out('out-done', 'block.list', 'done', tx('最近完成', 'Recently done')),
+      ],
+      edges: [...chain('morning', 'slack', 'sort', 'out-summary'), ...chain('features', 'sort'), ...chain('sort', 'out-open'), ...chain('sort', 'out-done'), ...chain('sort', 'memory')],
+    },
+  },
+  {
+    id: m.mail,
+    kind: 'base',
+    name: tx('邮件', 'Mail'),
+    description: tx('整理 Google 邮箱里的邮件，挑出需要你回复的。', 'Sorts the mail in your Google mailbox and picks out what needs your reply.'),
+    icon: 'mail',
+    tables: [tableId.emails],
+    workflow: {
+      nodes: [
+        wf.trigger('incoming', tx('收到新邮件', 'A new email arrives'), 'event', {}, { account: accountId.google }),
+        wf.source('mailbox', tx('Google 邮箱', 'Google mailbox'), { account: accountId.google }),
+        wf.step('pick', tx('挑出需要你回复的', 'Pick out what needs your reply'), {
+          detail: tx('供应商、合作伙伴和顾客的来信排在前面。', 'Mail from suppliers, partners and customers comes first.'),
+        }),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.emails]),
+        out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
+        out('out-reply', 'block.list', 'reply', tx('需要回复', 'Needs a reply')),
+        out('out-other', 'block.list', 'other', tx('其他邮件', 'Other mail')),
+      ],
+      edges: [...chain('incoming', 'mailbox', 'pick', 'out-summary'), ...chain('pick', 'out-reply'), ...chain('pick', 'out-other'), ...chain('pick', 'memory')],
+    },
+  },
+  {
+    id: m.files,
+    kind: 'base',
+    name: tx('文件', 'Files'),
+    description: tx('列出 Google 云端硬盘里你最近用到的文件。', 'Lists the files in your Google Drive that you used lately.'),
+    icon: 'folder',
+    tables: [tableId.files],
+    workflow: {
+      nodes: [
+        wf.trigger('changed', tx('网盘里的文件有变动', 'A file in the drive changes'), 'event', {}, { account: accountId.google }),
+        wf.source('drive', tx('Google 云端硬盘', 'Google Drive'), { account: accountId.google }),
+        wf.step('recent', tx('按最近修改排好', 'Sort by the latest change')),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.files]),
+        out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
+        out('out-recent', 'block.table', 'recent', tx('最近的文件', 'Recent files')),
+      ],
+      edges: [...chain('changed', 'drive', 'recent', 'out-summary'), ...chain('recent', 'out-recent'), ...chain('recent', 'memory')],
+    },
+  },
   {
     id: m.appointments,
     kind: 'profession',
@@ -127,7 +190,7 @@ const moduleSeeds: ModuleSeed[] = [
           detail: tx('每个预约的时长：没有规则时默认 2 小时。', 'Each booking’s length: 2 hours by default when no rule applies.'),
         }),
         wf.action('write-calendar', tx('写入日程', 'Write into the calendar'), 'autonomous', 'change-appointments', { targetModuleId: m.calendar }),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.appointments]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.appointments]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-schedule', 'block.schedule', 'schedule', tx('今天的预约', 'Today’s bookings')),
         out('out-unplaced', 'block.list', 'unplaced', tx('待安排', 'To be placed')),
@@ -153,7 +216,7 @@ const moduleSeeds: ModuleSeed[] = [
         wf.trigger('visit-done', tx('一次预约完成', 'A booking is finished'), 'module', {}, { targetModuleId: m.appointments }),
         wf.source('bookings', tx('预约记录', 'Booking records'), { targetModuleId: m.appointments, tables: [tableId.appointments] }),
         wf.step('update-file', tx('更新这只狗的档案', 'Update the dog’s file')),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.dogs, tableId.visits]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.dogs, tableId.visits]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-dogs', 'block.list', 'dogs', tx('狗狗档案', 'Dog files')),
       ],
@@ -175,7 +238,7 @@ const moduleSeeds: ModuleSeed[] = [
         wf.step('count', tx('计算库存', 'Work out the stock')),
         wf.condition('low', tx('低于安全库存', 'Below the safety level')),
         wf.action('restock', tx('建议补货', 'Suggest a restock'), 'assisted', 'order-stock'),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.products]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.products]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-table', 'block.table', 'stock', tx('库存', 'Stock')),
         out('out-restock', 'block.list', 'restock', tx('补货建议', 'Restock suggestions')),
@@ -197,7 +260,7 @@ const moduleSeeds: ModuleSeed[] = [
         wf.source('load', tx('预约负载', 'Booking load'), { targetModuleId: m.appointments, tables: [tableId.appointments] }),
         wf.step('plan', tx('排出下周的班', 'Plan next week’s rota')),
         wf.action('propose', tx('提议排班', 'Propose the rota'), 'assisted', 'adjust-shifts'),
-        wf.memory('memory', tx('记忆', 'Memory'), [tableId.shifts, tableId.swaps]),
+        wf.memory('memory', tx('资料', 'Records'), [tableId.shifts, tableId.swaps]),
         out('out-summary', 'block.summary', 'summary', tx('概况', 'At a glance')),
         out('out-schedule', 'block.schedule', 'rota', tx('本周排班', 'This week’s rota')),
         out('out-proposal', 'block.proposal', 'proposal', tx('排班建议', 'Rota suggestion')),
@@ -361,6 +424,17 @@ export function syncNextDue(snapshot: Pick<Snapshot, 'memory' | 'storyTime'>): v
   }
 }
 
+/** The rest of the first evening's WeChat messages: [id, dog, text, filed under, time, unread]. */
+const seedMessages: Array<[id: string, dog: string, text: Text, module: string, time: string, unread: boolean]> = [
+  ['msg-jiang', 'pidan', tx('皮蛋下午剪完指甲一直舔爪子，正常吗？', 'Pidan keeps licking its paws since the nail clipping this afternoon — is that normal?'), m.clients, '17:50', true],
+  ['msg-feng', 'panghu', tx('胖虎明天 16:30 的预约，我可能会晚到十分钟。', 'For Panghu’s booking at 16:30 tomorrow I may be ten minutes late.'), m.appointments, '18:10', true],
+  ['msg-chen', 'maiya', tx('这周能给麦芽约一次洗剪吹吗？周三周四都可以。', 'Could Maiya have a full groom this week? Wednesday or Thursday both work.'), m.appointments, '14:40', false],
+  ['msg-xu', 'nuomi', tx('糯米今天洗完特别香，那款香波能买一瓶带回家吗？', 'Nuomi smells lovely after today — could I buy a bottle of that shampoo to take home?'), m.inventory, '13:20', false],
+  ['msg-liu', 'lucky', tx('Lucky 下次来想加一个刷牙，可以吗？', 'Could Lucky have teeth brushing added next time?'), m.appointments, '10:05', false],
+  ['msg-wu', 'kele', tx('可乐开始换毛了，你们有没有去浮毛的套餐？', 'Kele has started moulting — do you have a deshedding package?'), m.appointments, '09:40', false],
+  ['msg-lin-thanks', 'doudou', tx('豆豆上次剪得很好看，邻居都问是在哪家店剪的！', 'Doudou’s trim last time looked great — the neighbours all asked where we go!'), m.clients, '09:15', false],
+]
+
 function memory(now: string): MemoryTable[] {
   const today = now.slice(0, 10)
   const tomorrow = addDays(today, 1)
@@ -380,6 +454,12 @@ function memory(now: string): MemoryTable[] {
       [
         row('notice-tomorrow', { text: tx('明天有 4 个预约，都还没发确认。', 'Four bookings tomorrow, none confirmed yet.'), source: m.appointments, at: `${today}T18:00` }),
         row('notice-shampoo', { text: tx('低敏香波只剩 2 瓶，低于安全库存。', 'Hypoallergenic shampoo is down to 2 bottles, below the safety level.'), source: m.inventory, at: `${today}T17:40` }),
+        row('notice-xueqiu', { text: tx('雪球明天 10:00 到店：它怕剪指甲，记得先安抚。', 'Xueqiu comes tomorrow at 10:00: it is afraid of nail clipping, so settle it first.'), source: m.clients, at: `${today}T18:05` }),
+        row('notice-today-done', { text: tx('今天的 2 个预约都已完成：糯米和皮蛋。', 'Both of today’s bookings are done: Nuomi and Pidan.'), source: m.appointments, at: `${today}T16:00` }),
+        row('notice-swap', { text: tx('阿杰申请和小陈对调周六的班，等你批准。', 'A-Jie asks to swap Saturday’s shift with Xiao Chen and waits for your approval.'), source: m.shifts, at: `${today}T16:10` }),
+        row('notice-maiya', { text: tx('陈小姐想给麦芽约这周的洗剪吹，还没排时间。', 'Ms Chen wants a full groom for Maiya this week; no time is set yet.'), source: m.appointments, at: `${today}T14:45` }),
+        row('notice-ear-cleaner', { text: tx('洁耳液剩 3 瓶，刚好在安全库存线上。', 'Ear cleaner is down to 3 bottles, right at the safety level.'), source: m.inventory, at: `${today}T17:40` }),
+        row('notice-mail-vet', { text: tx('安心宠物医院来信，想续签合作协议，等你回复。', 'Anxin Pet Clinic wrote about renewing the partnership and waits for your reply.'), source: m.mail, at: `${today}T11:20` }),
       ],
     ),
     table(
@@ -398,6 +478,7 @@ function memory(now: string): MemoryTable[] {
         row('msg-sun', { from: ownerOf('xueqiu'), channel: 'wechat', text: tx('明天雪球能提前半小时到吗？', 'Could Xueqiu come half an hour early tomorrow?'), module: m.appointments, at: `${today}T17:20`, unread: true }),
         row('msg-he', { from: ownerOf('max'), channel: 'wechat', text: tx('上次那款护毛素还有货吗？', 'Is the conditioner from last time still in stock?'), module: m.inventory, at: `${today}T15:05`, unread: true }),
         row('msg-zheng', { from: ownerOf('tudou'), channel: 'wechat', text: tx('土豆最近掉毛厉害，洗的时候帮忙看看皮肤。', 'Tudou has been shedding a lot; please check the skin while washing.'), module: m.clients, at: `${today}T11:30`, unread: false }),
+        ...seedMessages.map(([id, dog, text, module, time, unread]) => row(id, { from: ownerOf(dog), channel: 'wechat', text, module, at: `${today}T${time}`, unread })),
       ],
     ),
     table(
@@ -405,11 +486,9 @@ function memory(now: string): MemoryTable[] {
       m.calendar,
       tx('我的日程', 'My events'),
       [col('title', 'text', '事项', 'Event'), col('start', 'datetime', '开始', 'Start'), col('end', 'datetime', '结束', 'End')],
-      [
-        row('event-supplier', { title: tx('供应商来访', 'Supplier visit'), start: `${tomorrow}T09:00`, end: `${tomorrow}T09:30` }),
-        row('event-stocktake', { title: tx('月度盘点', 'Monthly stocktake'), start: `${week[4]}T18:30`, end: `${week[4]}T19:30` }),
-      ],
+      agendaRows(now),
     ),
+    ...deskTables(now),
     table(
       tableId.appointments,
       m.appointments,
@@ -512,8 +591,8 @@ const accounts: Account[] = [
   { id: accountId.calendar, name: tx('日历', 'Calendar'), group: 'primary', status: 'connected', feeds: [m.calendar, m.appointments] },
   { id: accountId.wechat, name: tx('微信', 'WeChat'), group: 'primary', status: 'connected', feeds: [m.messages] },
   { id: accountId.payments, name: tx('收款', 'Payments'), group: 'primary', status: 'connected', feeds: [m.inventory] },
-  { id: accountId.google, name: tx('Google', 'Google'), group: 'more', status: 'disconnected', feeds: [m.mail, m.files] },
-  { id: accountId.slack, name: tx('Slack', 'Slack'), group: 'more', status: 'disconnected', feeds: [m.todo] },
+  { id: accountId.google, name: tx('Google', 'Google'), group: 'more', status: 'connected', feeds: [m.mail, m.files] },
+  { id: accountId.slack, name: tx('Slack', 'Slack'), group: 'more', status: 'connected', feeds: [m.todo] },
   { id: accountId.figma, name: tx('Figma', 'Figma'), group: 'more', status: 'disconnected', feeds: [] },
   { id: accountId.github, name: tx('GitHub', 'GitHub'), group: 'more', status: 'disconnected', feeds: [] },
 ]

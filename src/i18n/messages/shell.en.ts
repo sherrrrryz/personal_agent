@@ -6,7 +6,7 @@ import type { Messages } from '../types'
 const messages = {
   skip: 'Skip to main content',
 
-  'nav.label': 'Module navigation',
+  'nav.label': 'Feature navigation',
   'nav.base': 'Base',
   'nav.profession': 'My shop · Pet grooming',
   'nav.topics': 'Topics',
@@ -14,7 +14,6 @@ const messages = {
   'nav.settings': 'Settings',
   'nav.awaiting': { one: '{count} item waiting for you', other: '{count} items waiting for you' },
 
-  'prefs.label': 'Preferences',
 
   'device.label': 'Prototype controls · Time travel: {scene}',
   'device.prev': 'Previous scene',
@@ -39,14 +38,14 @@ const messages = {
   'demo.parts.sidebar': 'The sidebar is open when the window is wide, an icon rail at medium widths, and a sheet off the canvas when it is narrow. The button at the start of the header switches it.',
   'demo.parts.device': 'The prototype controls at the end of the header jump between scenes and force a state on every screen. A forced state shows a line under the header until you go back to normal.',
   'demo.parts.bar': 'The row under this area is where the chat bar goes. It is a row of the layout, so it never covers the page: this area scrolls on its own.',
-  'demo.modules.title': 'Change the modules',
+  'demo.modules.title': 'Change the features',
   'demo.modules.note': 'Each button calls a runtime action. The sidebar shows the change at once.',
   'demo.modules.rename': 'Rename Appointments',
   'demo.modules.renamed': 'Bookings and walk-in visits (renamed)',
-  'demo.modules.add': 'Add a module',
+  'demo.modules.add': 'Add a feature',
   'demo.modules.added': 'Members',
   'demo.modules.remove': 'Remove Shifts',
-  'demo.modules.sub': 'Add a sub-module under Appointments',
+  'demo.modules.sub': 'Add a sub-feature under Appointments',
   'demo.modules.subName': 'Birthday reminders for regular customers',
   'demo.route.title': 'Move between pages',
   'demo.route.note': 'Following a link moves focus to the heading of the page that opens and updates the title of the tab.',

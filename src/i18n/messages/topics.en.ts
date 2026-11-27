@@ -12,7 +12,7 @@ const messages = {
   'list.error.body': 'The platform cannot be reached right now. Your conversations are kept — try again.',
   'card.conversations': { one: '{count} conversation', other: '{count} conversations' },
   'card.lastActivity': 'Last activity: {when}',
-  'card.subModule': 'Became a module',
+  'card.subModule': 'Became a feature',
   'card.summaryPending': 'The summary is being written',
 
   'topic.summary': 'AI summary',
@@ -23,7 +23,7 @@ const messages = {
   'topic.summary.pending.body': 'It appears here once the AI has gone through the conversations below.',
   'topic.summary.error.title': 'The summary could not be written',
   'topic.summary.error.body': 'The conversations below are not affected. Try again to have it written once more.',
-  'topic.modules': 'Related modules',
+  'topic.modules': 'Related features',
   'topic.records': 'Conversations',
   'topic.records.loading': 'Loading the conversations…',
   'topic.record.toggle': '{title} · {date}',

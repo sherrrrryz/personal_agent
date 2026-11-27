@@ -26,7 +26,7 @@ const messages = {
   'button.demo.disabled': 'Not available',
   'button.demo.startLoading': 'Show the busy state',
   'button.demo.stopLoading': 'End the busy state',
-  'button.demo.long': 'A label long enough to wrap onto several lines when the button runs out of room',
+  'button.demo.long': 'A label long enough to wrap onto several lines when the button updates out of room',
   // Field and control demos.
   'field.demo.name': 'Pet name',
   'field.demo.nameHelp': 'As the owner says it; shown on every appointment.',
@@ -70,9 +70,9 @@ const messages = {
   'modePicker.demo.freeHelp': 'The most the assistant may do on its own for this kind of task.',
   'modePicker.demo.unset': 'Not set',
   'modePicker.demo.unsetHelp': 'The assistant decides, and prepares the work for your approval unless it is sure.',
-  'modePicker.demo.capped': 'Moving the appointment when the groomer runs late',
+  'modePicker.demo.capped': 'Moving the appointment when the groomer updates late',
   'modePicker.demo.cappedHelp': 'This step changes an appointment.',
-  'modePicker.demo.lowest': 'Ordering more shampoo when stock runs low',
+  'modePicker.demo.lowest': 'Ordering more shampoo when stock updates low',
   'modePicker.demo.error': 'The choice could not be saved, so the earlier one is shown. Choose again.',
   'modePicker.demo.disabled': 'Archiving finished appointments (set by the shop)',
   // Toggle and ToggleGroup demos.

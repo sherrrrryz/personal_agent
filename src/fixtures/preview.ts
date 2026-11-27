@@ -165,7 +165,7 @@ export function longVariant<State extends Snapshot>(state: State): State {
 
   const profession = () => draft.modules.filter((module) => module.kind === 'profession').length
   while (profession() < longSizes.professionModules) {
-    addModule(draft, { name: longer(tx('自定义模块', 'Custom module')), description: longText() })
+    addModule(draft, { name: longer(tx('自定义功能', 'Custom feature')), description: longText() })
   }
 
   for (const table of draft.memory) {

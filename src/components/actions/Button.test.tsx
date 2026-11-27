@@ -21,7 +21,7 @@ describe('Button', () => {
   it('is the kit’s button: its height is a minimum, and a label that does not fit wraps (D-43)', () => {
     render(<Button>保存</Button>)
     const button = screen.getByRole('button')
-    expect(button).toHaveClass('min-h-8', 'h-auto', 'whitespace-normal', 'max-w-full', 'shrink')
+    expect(button).toHaveClass('min-h-9', 'h-auto', 'whitespace-normal', 'max-w-full', 'shrink')
     // No forced target size: the kit's 32 px is above the 24 px floor of WCAG 2.2 AA.
     expect(button.className).not.toMatch(/-target\b/)
     // The kit's fixed height and single line are gone, not merely outranked.
@@ -63,11 +63,11 @@ describe('Button', () => {
     expect(buttonClass({ variant: 'danger' })).not.toMatch(/focus-visible:ring-ring/)
   })
 
-  it('sizes: sm and md keep the kit’s height as a minimum, icon is the kit’s square; no size binds the target token', () => {
-    expect(buttonClass({ size: 'sm' }).split(' ')).toEqual(expect.arrayContaining(['min-h-7', 'h-auto']))
-    expect(buttonClass({ size: 'md' }).split(' ')).toEqual(expect.arrayContaining(['min-h-8', 'h-auto']))
+  it('sizes: sm and md keep the kit’s next height up as a minimum, icon is the kit’s large square (D-50); no size binds the target token', () => {
+    expect(buttonClass({ size: 'sm' }).split(' ')).toEqual(expect.arrayContaining(['min-h-8', 'h-auto']))
+    expect(buttonClass({ size: 'md' }).split(' ')).toEqual(expect.arrayContaining(['min-h-9', 'h-auto']))
     const icon = buttonClass({ size: 'icon' }).split(' ')
-    expect(icon).toContain('size-8')
+    expect(icon).toContain('size-9')
     expect(icon).not.toContain('h-auto')
     for (const size of buttonSizes) expect(buttonClass({ size })).not.toMatch(/-target\b/)
   })

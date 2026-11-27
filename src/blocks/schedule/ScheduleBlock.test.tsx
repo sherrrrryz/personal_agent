@@ -125,7 +125,12 @@ describe('block.schedule', () => {
     // 3 resources × 7 days = 21 cells, 14 of them hold one slot.
     expect(screen.getAllByText(none)).toHaveLength(7)
     const monday = formatDate(locale, toDate('2026-11-02'), { weekday: 'short', month: 'short', day: 'numeric' })
-    expect(screen.getAllByText(monday)).toHaveLength(3)
+    // Once in the date column on the left, which is out of the accessibility tree (D-50) …
+    const dayColumn = container.querySelector<HTMLElement>('[data-slot="schedule-days"]')!
+    expect(dayColumn).toHaveAttribute('aria-hidden', 'true')
+    expect(within(dayColumn).getAllByText(monday)).toHaveLength(1)
+    // … and, out of sight, in every resource's cell, where it names the cell's list.
+    expect(screen.getAllByText(monday)).toHaveLength(4)
     const firstList = within(container.querySelector<HTMLElement>('[data-resource]')!).getAllByRole('list')[0]
     expect(firstList).toHaveAccessibleName(`${demo.long.resources[0].label} ${monday}`)
   })
@@ -137,7 +142,20 @@ describe('block.schedule', () => {
     // A row for the names and one per day; the columns fill in the order of the resources.
     expect(grid.style.gridTemplateRows).toBe('repeat(8, auto)')
     expect(grid.className).toContain('grid-flow-col')
-    const columns = Array.from(grid.children) as HTMLElement[]
+    // First the date column (D-50), then the resources.
+    const [dates, ...columns] = Array.from(grid.children) as HTMLElement[]
+    expect(dates.dataset.slot).toBe('schedule-days')
+    expect(grid.style.gridTemplateColumns).toBe('max-content')
+    expect(Array.from(dates.children, (cell) => (cell as HTMLElement).dataset.day ?? 'name')).toEqual([
+      'name',
+      '2026-11-02',
+      '2026-11-03',
+      '2026-11-04',
+      '2026-11-05',
+      '2026-11-06',
+      '2026-11-07',
+      '2026-11-08',
+    ])
     expect(columns.map((column) => column.dataset.resource)).toEqual(demo.long.resources.map((resource) => resource.id))
     // Row n of the grid holds child n of every column: the same day for everyone.
     const rows = columns.map((column) => {
@@ -156,6 +174,8 @@ describe('block.schedule', () => {
     const day = renderBlock('en', <ScheduleBlock props={demo.props} changes={{}} state="ready" />)
     const dayGrid = day.container.querySelector<HTMLElement>('[data-slot="schedule-grid"]')!
     expect(dayGrid.style.gridTemplateRows).toBe('repeat(2, auto)')
+    // One day needs no date column.
+    expect(dayGrid.querySelector('[data-slot="schedule-days"]')).toBeNull()
     for (const column of dayGrid.children) {
       expect(Array.from(column.children, (cell) => (cell as HTMLElement).dataset.day ?? 'name')).toEqual(['name', '2026-11-05'])
     }

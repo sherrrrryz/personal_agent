@@ -120,8 +120,8 @@ const messages: Translation<typeof en> = {
   'duration.rule.title': '现在的规则',
   'duration.rule.body':
     '有自己记录并已生效的狗，按它自己的记录排（现在 {own} 只）。其他的狗按品种表里它那个品种的时长排（{breeds} 个品种），表里没有的品种用默认的 {fallback}。适用时长只有在你接受周一复盘的提议后才会变，所以某一次特别的到店不会改动预约。',
-  'duration.rule.workflow': '打开工作流',
-  'duration.rule.memory': '打开记忆',
+  'duration.rule.workflow': '打开流程',
+  'duration.rule.memory': '打开资料',
   'duration.empty.section': '预计与实际',
   'duration.empty.title': '暂无记录——完成第一单后这里会更新',
   'duration.empty.body': '在预约上按「完成」，填上实际用的时间。',
@@ -134,11 +134,11 @@ const messages: Translation<typeof en> = {
   'confirmations.customer.meta': '预约 {booking} · 发送于 {sent}',
   'confirmations.note.title': '说明',
   'confirmations.note.body': '每晚 19:00 给第二天有预约的顾客各发一条确认；两小时内没有回复的，留给你决定。',
-  'confirmations.note.workflow': '打开工作流',
+  'confirmations.note.workflow': '打开流程',
   'confirmations.empty.section': '今晚的确认',
-  'confirmations.empty.title': '今晚 {time} 第一次运行',
-  'confirmations.empty.title.none': '尚未运行',
-  'confirmations.empty.body': '运行之后，第二天有预约的每位顾客和他们的答复会列在这里。',
+  'confirmations.empty.title': '今晚 {time} 第一次更新',
+  'confirmations.empty.title.none': '尚未更新',
+  'confirmations.empty.body': '更新之后，第二天有预约的每位顾客和他们的答复会列在这里。',
 }
 
 export default messages

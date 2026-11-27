@@ -15,13 +15,16 @@ import { modulePath, Shell } from '@/shell'
 import { axe } from '@/test/axe'
 
 import calendar from '../calendar/module'
+import files from '../files/module'
+import mail from '../mail/module'
 import messages from '../messages/module'
+import todo from '../todo/module'
 import notifications from './module'
 
 // B-02 and B-03 of docs/specs/lofi-prototype-screens.md: the pages of 通知,
 // 消息 and 日程 — built from the state in every scene, and their four states
-// under 状态预览 with the partial and the expired failure in words — and the
-// three stubs 待办 · 邮件 · 文件.
+// under 状态预览 with the partial and the expired failure in words — and
+// 待办 · 邮件 · 文件, filled with sample data since D-51.
 
 const duration = 'profession.appointments.sub.duration'
 
@@ -61,10 +64,10 @@ describe('the base modules’ pages (B-02)', () => {
     for (const id of ['notifications', 'messages', 'calendar', 'todo', 'mail', 'files']) expect(moduleDefinitions.get(id)?.id).toBe(id)
   })
 
-  it.each(sceneRefs)('%s: 通知, 消息 and 日程 build from the state, in both locales and under 超长内容', (ref) => {
+  it.each(sceneRefs)('%s: every base page builds from the state, in both locales and under 超长内容', (ref) => {
     for (const preview of ['normal', 'long'] as const) {
       const state = createRuntime({ delay: 0, storage: null, search: `?scene=${ref}&preview=${preview}` }).getState()
-      for (const definition of [notifications, messages, calendar]) {
+      for (const definition of [notifications, messages, calendar, todo, mail, files]) {
         for (const locale of locales) {
           const { blocks } = definition.page(viewOf(state), preview, { locale })
           expect(blocks.length).toBeGreaterThan(0)
@@ -102,7 +105,7 @@ describe('the base modules’ pages (B-02)', () => {
     await waitFor(() => expect(within(proposal).queryByRole('button', { name: /^接受/ })).toBeNull())
     expect(within(proposal).getAllByText('已接受')).toHaveLength(2)
     await waitFor(() => expect(within(important).queryByText('每周复盘：金毛的时长有两条修改建议，等你确认。')).toBeNull())
-    expect(within(important).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(important).getAllByRole('listitem')).toHaveLength(7)
     const review = runtime.getState().proposals.find((each) => each.id === 'proposal-duration-review')
     expect(review?.parts.map((part) => part.state)).toEqual(['accepted', 'accepted'])
     expect(review?.applied).toBe(true)
@@ -110,7 +113,7 @@ describe('the base modules’ pages (B-02)', () => {
 
   it('通知 in s4: the proposal to change the workflow links to the editor, which opens on the change', async () => {
     open('/m/notifications', { scene: 's4' })
-    const proposal = await block('每周复盘：建议修改工作流')
+    const proposal = await block('每周复盘：建议修改流程')
     expect(hrefOf(within(proposal).getByRole('link', { name: /服务时长/ }))).toBe(`${modulePath(duration)}/workflow`)
   })
 
@@ -150,7 +153,8 @@ describe('the base modules’ pages (B-02)', () => {
     const answer = answerOf(state, { kind: 'module', moduleId: 'calendar' })
     const view = 'data' in answer && answer.data ? answer.data.view : state
     const today = calendar.page(view, 'long', { locale: 'zh-CN' }).blocks.find((each) => each.key === 'today')
-    const items = today?.block === 'block.list' ? today.props.items : []
+    // Her own events of the day are listed too; the bookings are the ones that link to 预约.
+    const items = (today?.block === 'block.list' ? today.props.items : []).filter((item) => item.href === modulePath('profession.appointments'))
     expect(items).toHaveLength(14)
     // 10:00 to 11:00: the second to the seventh booking overlap.
     expect(items.filter((item) => /^1[01]:[03]0 – /.test(item.meta)).length).toBeGreaterThanOrEqual(6)
@@ -203,30 +207,74 @@ describe('the base modules’ pages (B-02)', () => {
   })
 })
 
-describe('待办 · 邮件 · 文件 (B-03)', () => {
-  const stubs = [
-    ['todo', '待办', '你的待办会汇总在这里'],
-    ['mail', '邮件', '需要你处理的邮件会整理在这里'],
-    ['files', '文件', '最近用到的文件会列在这里'],
+describe('待办 · 邮件 · 文件 (B-03, D-51)', () => {
+  it('待办: the figures, what is to do — overdue first, each with the feature it comes from — and what was done', async () => {
+    open('/m/todo')
+    expect(await screen.findByRole('heading', { level: 1, name: '待办' })).toBeInTheDocument()
+    const summary = await block('概况')
+    for (const label of ['未完成', '今天到期', '已逾期']) expect(summary).toHaveTextContent(label)
+    const toDo = await block('要做的事')
+    const rows = within(toDo).getAllByRole('listitem')
+    expect(rows.length).toBeGreaterThanOrEqual(6)
+    expect(rows[0]).toHaveTextContent('清洗烘干机的滤网')
+    expect(rows[0]).toHaveTextContent('已逾期')
+    expect(rows[0]).toHaveTextContent('你自己记的')
+    const order = rows.find((each) => each.textContent?.includes('从宠沐供应链订 12 瓶低敏香波'))!
+    expect(order).toHaveTextContent('今天到期')
+    expect(hrefOf(within(order).getByRole('link'))).toBe(modulePath('profession.inventory'))
+    expect(await block('最近完成')).toHaveTextContent('已完成')
+    // It has run: the frame says when, not 尚未更新.
+    expect(main().getAllByText(/上次更新/).length).toBeGreaterThan(0)
+    expect(await axe(document.body)).toHaveNoViolations()
+  })
+
+  it('邮件: the figures, the mail that needs a reply — sender, time and first lines — and the rest', async () => {
+    open('/m/mail')
+    expect(await screen.findByRole('heading', { level: 1, name: '邮件' })).toBeInTheDocument()
+    expect(await block('概况')).toHaveTextContent('需要回复')
+    const reply = await block('需要回复')
+    const first = within(reply).getAllByRole('listitem')[0]
+    expect(first).toHaveTextContent('报价单：低敏香波和护毛素')
+    expect(first).toHaveTextContent('宠沐供应链')
+    expect(first).toHaveTextContent('订 12 瓶以上打九折')
+    expect(first).toHaveTextContent('待回复')
+    expect(within(await block('其他邮件')).getAllByRole('listitem').length).toBeGreaterThanOrEqual(3)
+    expect(await axe(document.body)).toHaveNoViolations()
+  })
+
+  it('文件: the figures and the recent files as a table, the latest change first', async () => {
+    open('/m/files')
+    expect(await screen.findByRole('heading', { level: 1, name: '文件' })).toBeInTheDocument()
+    expect(await block('概况')).toHaveTextContent('7 天内修改')
+    const recent = await block('最近的文件')
+    const table = within(recent).getByRole('table')
+    expect(within(table).getAllByRole('columnheader').map((each) => each.textContent)).toEqual(['名称', '类型', '修改时间', '修改人', '大小'])
+    const rows = within(table).getAllByRole('row').slice(1)
+    expect(rows).toHaveLength(10)
+    expect(rows[0]).toHaveTextContent('本月排班表.xlsx')
+    expect(rows[0]).toHaveTextContent('表格')
+    expect(rows[0]).toHaveTextContent('周岚')
+    expect(await axe(document.body)).toHaveNoViolations()
+  })
+
+  const empties = [
+    ['todo', '待办', '没有要做的事'],
+    ['mail', '邮件', '还没有邮件'],
+    ['files', '文件', '还没有文件'],
   ] as const
 
-  it.each(stubs)('%s: the frame, one `block.empty` with the way to the accounts, and 尚未运行', async (id, name, title) => {
-    const { runtime } = open(`/m/${id}`)
+  it.each(empties)('%s under 空: one `block.empty` with the way to the accounts', async (id, name, title) => {
+    const { runtime } = open(`/m/${id}`, { preview: 'empty' })
     expect(await screen.findByRole('heading', { level: 1, name })).toBeInTheDocument()
     expect(await main().findByText(title)).toBeInTheDocument()
     expect(hrefOf(main().getByRole('link', { name: '去连接账号' }))).toBe(accountsPath)
-    expect(main().getByText('尚未运行')).toBeInTheDocument()
 
     const module = findModule(runtime.getState(), id)!
     const { definition, stub } = definitionOf(module)
     expect(stub).toBe(false)
-    const { blocks } = definition.page(runtime.getState(), 'normal', { locale: 'en' })
-    expect(blocks.map((each) => each.block)).toEqual(['block.empty'])
-  })
-
-  it('待办 has no accessibility violation', async () => {
-    open('/m/todo')
-    await main().findByText('你的待办会汇总在这里')
-    expect(await axe(document.body)).toHaveNoViolations()
+    const state = createRuntime({ delay: 0, storage: null, search: '?scene=s2&preview=empty' }).getState()
+    const answer = answerOf(state, { kind: 'module', moduleId: id })
+    const view = 'data' in answer && answer.data ? answer.data.view : state
+    expect(definition.page(view, 'empty', { locale: 'en' }).blocks.map((each) => each.block)).toEqual(['block.empty'])
   })
 })

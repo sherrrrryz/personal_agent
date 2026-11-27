@@ -84,9 +84,9 @@ edited; content changes per run, with what-changed markers.
 | `notifications` | 通知 | `root` | module | A workflow that reads every other module's output and surfaces the most important items (D-13) |
 | `messages` | 消息 | `root` | module | Messages from connected channels, triaged into the modules they concern. Prototype: built in full (D-37) |
 | `calendar` | 日程 | `root` | module | The user's calendar across connected accounts; profession modules such as `profession.appointments` write into it. Prototype: built in full (D-37) |
-| `todo` | 待办 | `root` | module | Prototype: **stub** — module frame, empty state, placeholder workflow (D-37) |
-| `mail` | 邮件 | `root` | module | Prototype: **stub**, as `todo` (D-37) |
-| `files` | 文件 | `root` | module | Prototype: **stub**, as `todo` (D-37) |
+| `todo` | 待办 | `root` | module | Her to-dos, from Slack and from what the features need her to do. Prototype: filled with sample data (D-51; was a stub, D-37) |
+| `mail` | 邮件 | `root` | module | Her mail, with what needs a reply picked out. Prototype: filled with sample data (D-51; was a stub, D-37) |
+| `files` | 文件 | `root` | module | The files she used lately. Prototype: filled with sample data (D-51; was a stub, D-37) |
 | `topics` | 话题 | `root` | module index | Every conversation with the AI, filed automatically by theme (D-07, D-20) |
 | `topics.<topic>` | One topic | `topics` | topic home | AI-written summary of the important information from the records, then every related conversation; dynamic node; a filing, not a module |
 | `profession` | Profession modules | `root` | module group | A navigation heading for the modules generated for this user's profession at onboarding (D-29); not a page — its modules sit beside the base modules in navigation (see conventions) |

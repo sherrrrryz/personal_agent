@@ -122,8 +122,8 @@ const messages = {
   'duration.rule.title': 'The rule right now',
   'duration.rule.body':
     'A dog with a record of its own in force is booked by that record ({own} now). Every other dog is booked by its breed’s row in the breed table ({breeds} breeds), and a breed that is not in the table gets the default of {fallback}. A time in use changes only when you accept what the Monday review proposes, so one unusual visit never moves a booking.',
-  'duration.rule.workflow': 'Open the workflow',
-  'duration.rule.memory': 'Open the memory',
+  'duration.rule.workflow': 'Open the process',
+  'duration.rule.memory': 'Open the records',
   'duration.empty.section': 'Estimated and actual',
   'duration.empty.title': 'No records yet — this updates when the first booking is finished',
   'duration.empty.body': 'Press Done on a booking and enter the time it took.',
@@ -137,11 +137,11 @@ const messages = {
   'confirmations.note.title': 'Note',
   'confirmations.note.body':
     'Every evening at 19:00 each customer booked for the next day gets a confirmation. A customer who has not answered within two hours is left for you to decide.',
-  'confirmations.note.workflow': 'Open the workflow',
+  'confirmations.note.workflow': 'Open the process',
   'confirmations.empty.section': 'Tonight’s confirmations',
-  'confirmations.empty.title': 'First run tonight at {time}',
-  'confirmations.empty.title.none': 'Not run yet',
-  'confirmations.empty.body': 'After that run, each customer booked for the next day is listed here with their answer.',
+  'confirmations.empty.title': 'First update tonight at {time}',
+  'confirmations.empty.title.none': 'Not updated yet',
+  'confirmations.empty.body': 'After that update, each customer booked for the next day is listed here with their answer.',
 } satisfies Messages
 
 export default messages

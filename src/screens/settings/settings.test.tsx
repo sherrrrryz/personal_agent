@@ -38,7 +38,7 @@ function open(path: string, options: { scene?: string; preview?: string } = {}) 
 
 const heading = (name: string) => screen.findByRole('heading', { level: 1, name })
 const main = () => within(screen.getByRole('main'))
-const sidebar = () => within(screen.getByRole('navigation', { name: '模块导航' }))
+const sidebar = () => within(screen.getByRole('navigation', { name: '功能导航' }))
 const account = (container: HTMLElement, id: string) => container.querySelector(`[data-account="${id}"]`) as HTMLElement
 
 afterEach(() => {
@@ -51,9 +51,9 @@ describe('settings and settings.accounts (B-16)', () => {
     await heading('设置')
     const accounts = await main().findByRole('link', { name: /账号连接/ })
     expect(accounts).toHaveAttribute('href', '/settings/accounts')
-    await waitFor(() => expect(accounts).toHaveTextContent('3 个已连接'))
+    await waitFor(() => expect(accounts).toHaveTextContent('5 个已连接'))
     expect(main().getByRole('link', { name: /AI 行为模式/ })).toHaveTextContent('2 类任务已设置')
-    expect(main().getByRole('link', { name: /职业模块/ })).toHaveTextContent('4 个模块')
+    expect(main().getByRole('link', { name: /职业功能/ })).toHaveTextContent('4 个功能')
     const display = within(screen.getByRole('region', { name: '显示' }))
     expect(display.getByRole('group', { name: '外观' })).toBeInTheDocument()
     expect(display.getByRole('combobox', { name: '语言' })).toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('settings and settings.accounts (B-16)', () => {
 
     // Live: the line follows the state.
     act(() => runtime.actions.disconnectAccount('wechat'))
-    await waitFor(() => expect(accounts).toHaveTextContent('2 个已连接'))
+    await waitFor(() => expect(accounts).toHaveTextContent('4 个已连接'))
   })
 
   it('the home in its states: skeleton lines, lines that cannot be read, a fresh workspace', async () => {
@@ -73,13 +73,13 @@ describe('settings and settings.accounts (B-16)', () => {
 
     const failed = open('/settings', { preview: 'error' })
     await waitFor(() => expect(main().getAllByText('暂时读不到状态')).toHaveLength(3))
-    expect(main().getByRole('link', { name: /职业模块/ })).toHaveAttribute('href', '/settings/profession')
+    expect(main().getByRole('link', { name: /职业功能/ })).toHaveAttribute('href', '/settings/profession')
     failed.unmount()
 
     open('/settings', { preview: 'empty' })
     expect(await main().findByText('尚未连接账号')).toBeInTheDocument()
     expect(main().getByText('尚未设置')).toBeInTheDocument()
-    expect(main().getByText('0 个模块')).toBeInTheDocument()
+    expect(main().getByText('0 个功能')).toBeInTheDocument()
   })
 
   it('accounts: status as text; 断开 names the modules that stop, and their frame then shows the failure with a link back', async () => {
@@ -90,7 +90,7 @@ describe('settings and settings.accounts (B-16)', () => {
 
     await userEvent.click(screen.getByRole('button', { name: '断开「微信」' }))
     const question = await screen.findByRole('alertdialog', { name: '断开「微信」？' })
-    expect(question).toHaveTextContent('这些模块会停止运行：消息')
+    expect(question).toHaveTextContent('这些功能会停止更新：消息')
     await userEvent.click(within(question).getByRole('button', { name: '断开' }))
     await waitFor(() => expect(account(container, 'wechat')).toHaveTextContent('未连接'))
     expect(runtime.getState().accounts.find((each) => each.id === 'wechat')?.status).toBe('disconnected')
@@ -195,20 +195,20 @@ describe('settings.ai-modes (B-17)', () => {
 describe('settings.profession (B-18)', () => {
   it('rename, add and a confirmed removal show in the sidebar; the interview can be redone', async () => {
     const { container, runtime } = open('/settings/profession', { scene: 's4' })
-    await heading('职业模块')
-    await main().findByRole('list', { name: '职业模块' })
+    await heading('职业功能')
+    await main().findByRole('list', { name: '职业功能' })
     expect(main().getByRole('link', { name: '重新进行职业访谈' })).toHaveAttribute('href', reentryPath)
     expect(await axe(container)).toHaveNoViolations()
 
     await userEvent.click(main().getByRole('button', { name: '重命名「排班」' }))
-    const name = within(await screen.findByRole('dialog', { name: '重命名模块' })).getByRole('textbox', { name: '名称' })
+    const name = within(await screen.findByRole('dialog', { name: '重命名功能' })).getByRole('textbox', { name: '名称' })
     await userEvent.clear(name)
     await userEvent.type(name, '员工排班{Enter}')
     // The dialog closes first: while it is open the page behind it is inert.
     await waitFor(() => expect(sidebar().getByRole('link', { name: '员工排班' })).toBeInTheDocument())
 
-    await userEvent.click(main().getByRole('button', { name: '添加模块' }))
-    await userEvent.type(within(await screen.findByRole('dialog', { name: '添加模块' })).getByRole('textbox', { name: '名称' }), '寄养{Enter}')
+    await userEvent.click(main().getByRole('button', { name: '添加功能' }))
+    await userEvent.type(within(await screen.findByRole('dialog', { name: '添加功能' })).getByRole('textbox', { name: '名称' }), '寄养{Enter}')
     await waitFor(() => expect(sidebar().getByRole('link', { name: '寄养' })).toBeInTheDocument())
 
     await userEvent.click(main().getByRole('button', { name: '移除「商品与库存」' }))
@@ -222,7 +222,7 @@ describe('settings.profession (B-18)', () => {
   it('at s4, accepting the promotion makes 服务时长 a top-level module and its old address redirects', async () => {
     const { router, runtime } = open('/settings/profession', { scene: 's4' })
     const suggestions = within(await screen.findByRole('region', { name: '升级建议' }))
-    expect(await suggestions.findByRole('heading', { name: '把「服务时长」升级为顶层模块' })).toBeInTheDocument()
+    expect(await suggestions.findByRole('heading', { name: '把「服务时长」升级为顶层功能' })).toBeInTheDocument()
     const old = 'profession.appointments.sub.duration'
     expect(runtime.getState().modules.find((module) => module.id === old)?.kind).toBe('sub')
 
@@ -230,7 +230,7 @@ describe('settings.profession (B-18)', () => {
     await waitFor(() => expect(runtime.getState().modules.find((module) => module.id === 'profession.duration')?.kind).toBe('profession'))
     expect(await suggestions.findByRole('link', { name: '打开「服务时长」' })).toHaveAttribute('href', '/m/profession.duration')
     // In the module set, beside the four.
-    expect(within(main().getByRole('list', { name: '职业模块' })).getByText('服务时长')).toBeInTheDocument()
+    expect(within(main().getByRole('list', { name: '职业功能' })).getByText('服务时长')).toBeInTheDocument()
 
     await act(() => router.navigate(`/m/${old}`))
     await waitFor(() => expect(router.state.location.pathname).toBe('/m/profession.duration'))
@@ -238,23 +238,23 @@ describe('settings.profession (B-18)', () => {
 
   it('in its states: reading, unreadable, an empty set with no suggestion, twelve modules', async () => {
     const loading = open('/settings/profession', { scene: 's4', preview: 'loading' })
-    await heading('职业模块')
+    await heading('职业功能')
     expect(main().getAllByText('加载中…').length).toBeGreaterThan(0)
     loading.unmount()
 
     const failed = open('/settings/profession', { scene: 's4', preview: 'error' })
-    expect(await main().findByText('暂时读不到模块')).toBeInTheDocument()
+    expect(await main().findByText('暂时读不到功能')).toBeInTheDocument()
     expect(main().getByRole('button', { name: '重试' })).toBeInTheDocument()
     failed.unmount()
 
     const empty = open('/settings/profession', { scene: 's4', preview: 'empty' })
-    expect(await main().findByText('还没有模块')).toBeInTheDocument()
+    expect(await main().findByText('还没有功能')).toBeInTheDocument()
     expect(main().getByText('暂无建议。')).toBeInTheDocument()
-    expect(main().getByRole('button', { name: '添加模块' })).toBeInTheDocument()
+    expect(main().getByRole('button', { name: '添加功能' })).toBeInTheDocument()
     empty.unmount()
 
     open('/settings/profession', { scene: 's4', preview: 'long' })
-    const list = await main().findByRole('list', { name: '职业模块' })
+    const list = await main().findByRole('list', { name: '职业功能' })
     await waitFor(() => expect(list.querySelectorAll(':scope > [role="listitem"]')).toHaveLength(12))
   })
 })

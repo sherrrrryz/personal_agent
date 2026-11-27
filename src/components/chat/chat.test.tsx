@@ -457,9 +457,9 @@ describe('PersistenceSwitch', () => {
     )
     const control = screen.getByRole('switch', { name: '设为长期' })
     expect(control).not.toBeChecked()
-    expect(control).toHaveAccessibleDescription(/会变成一个子模块：有自己的工作流，可以重复运行。创建前先确认名称和所属模块。/)
+    expect(control).toHaveAccessibleDescription(/会变成一个子功能：有自己的流程，可以重复更新。创建前先确认名称和所属功能。/)
     expect(container.querySelector('[data-state="one-off"]')).not.toBeNull()
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
     expect(await axe(container)).toHaveNoViolations()
   })
 
@@ -483,10 +483,10 @@ describe('PersistenceSwitch', () => {
     expect(onCreate).not.toHaveBeenCalled()
     // Focus stays on the switch; the question follows it in the tab order.
     expect(control).toHaveFocus()
-    const group = screen.getByRole('group', { name: '创建子模块' })
+    const group = screen.getByRole('group', { name: '创建子功能' })
     const name = within(group).getByRole('textbox', { name: '名称' })
     expect(name).toHaveValue('预约确认')
-    expect(within(group).getByRole('combobox', { name: '所属模块' })).toHaveTextContent('顾客')
+    expect(within(group).getByRole('combobox', { name: '所属功能' })).toHaveTextContent('顾客')
     expect(await axe(container)).toHaveNoViolations()
 
     await userEvent.tab()
@@ -495,7 +495,7 @@ describe('PersistenceSwitch', () => {
     await userEvent.type(name, ' 每晚确认 {Enter}')
     expect(onCreate).toHaveBeenCalledExactlyOnceWith({ name: '每晚确认', parentId: 'customers' })
     // The question is answered: it leaves, and focus is back on the switch.
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
     expect(control).toHaveFocus()
   })
 
@@ -509,12 +509,12 @@ describe('PersistenceSwitch', () => {
     await userEvent.click(screen.getByRole('button', { name: '创建' }))
     expect(onCreate).not.toHaveBeenCalled()
     expect(name).toBeInvalid()
-    expect(name).toHaveAccessibleDescription('请给子模块起个名称。')
+    expect(name).toHaveAccessibleDescription('请给子功能起个名称。')
     await userEvent.type(name, '确')
     expect(name).not.toBeInvalid()
 
     await userEvent.click(screen.getByRole('button', { name: '取消' }))
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
     expect(control).not.toBeChecked()
     expect(control).toHaveFocus()
     expect(onCreate).not.toHaveBeenCalled()
@@ -523,7 +523,7 @@ describe('PersistenceSwitch', () => {
     expect(screen.getByRole('textbox', { name: '名称' })).toHaveValue('预约确认')
     // Turning the switch off again is the same as cancelling.
     await userEvent.click(control)
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
   })
 
   it('persistent: on, naming what it became; turning it off asks first and archives only on 归档', async () => {
@@ -540,7 +540,7 @@ describe('PersistenceSwitch', () => {
     )
     const control = screen.getByRole('switch', { name: '设为长期' })
     expect(control).toBeChecked()
-    expect(control).toHaveAccessibleDescription('这段对话已是子模块「预约确认」。关闭会把它归档，对话仍保留在话题里。')
+    expect(control).toHaveAccessibleDescription('这段对话已是子功能「预约确认」。关闭会把它归档，对话仍保留在话题里。')
     expect(container.querySelector('[data-state="persistent"]')).not.toBeNull()
 
     await userEvent.click(control)
@@ -563,15 +563,15 @@ describe('PersistenceSwitch', () => {
     const props = { defaultName: '预约确认', parents, onCreate: () => undefined, onArchive: () => undefined }
     const { rerender } = zh(<PersistenceSwitch persistent={false} {...props} />)
     fireEvent.click(screen.getByRole('switch', { name: '设为长期' }))
-    expect(screen.getByRole('group', { name: '创建子模块' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: '创建子功能' })).toBeInTheDocument()
     rerender(
       <LocaleProvider>
         <PersistenceSwitch persistent {...props} />
       </LocaleProvider>,
     )
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
     expect(screen.getByRole('switch', { name: '设为长期' })).toBeChecked()
-    expect(screen.getByRole('switch')).toHaveAccessibleDescription('这段对话已是一个子模块。关闭会把它归档，对话仍保留在话题里。')
+    expect(screen.getByRole('switch')).toHaveAccessibleDescription('这段对话已是一个子功能。关闭会把它归档，对话仍保留在话题里。')
   })
 
   it('disabled: cannot be turned', async () => {
@@ -579,7 +579,7 @@ describe('PersistenceSwitch', () => {
     const control = screen.getByRole('switch', { name: '设为长期' })
     expect(control).toHaveAttribute('aria-disabled', 'true')
     await userEvent.click(control)
-    expect(screen.queryByRole('group', { name: '创建子模块' })).toBeNull()
+    expect(screen.queryByRole('group', { name: '创建子功能' })).toBeNull()
   })
 })
 

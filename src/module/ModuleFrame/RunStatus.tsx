@@ -14,8 +14,22 @@ import { linkClass } from './link-class'
  * an icon and words, never colour alone — then when it runs next. A failure
  * adds the reason in words and the way to fix it. The whole is one status
  * region, so a run that ends is announced without moving focus.
+ *
+ * Since D-50 the line is read in 模块设置; on the page the region stays,
+ * `quiet`: its line out of sight (still announced), only a failure shown.
+ * In 模块设置 it is not a region (`announce: false`) — the page's says it.
  */
-export function RunStatus({ run, onRetry }: { run: RunState; onRetry: () => void }) {
+export function RunStatus({
+  run,
+  onRetry,
+  quiet = false,
+  announce = true,
+}: {
+  run: RunState
+  onRetry: () => void
+  quiet?: boolean
+  announce?: boolean
+}) {
   const t = useT('module')
   const format = useFormat()
   const { locale } = useLocale()
@@ -37,8 +51,13 @@ export function RunStatus({ run, onRetry }: { run: RunState; onRetry: () => void
   const failure = run.status === 'failed' ? failureWords(run.reason, state, locale, t) : null
 
   return (
-    <div role="status" data-run-status={run.status} className="flex min-w-0 flex-1 basis-64 flex-col gap-2">
-      <div className="flex min-w-0 flex-col gap-1">
+    <div
+      role={announce ? 'status' : undefined}
+      data-run-status={run.status}
+      // Quiet and not failed: the whole region is out of sight and takes no room in the page's flow.
+      className={quiet && run.status !== 'failed' ? 'sr-only' : 'flex min-w-0 flex-col gap-2'}
+    >
+      <div className={`flex min-w-0 flex-col gap-1 ${quiet ? 'sr-only' : ''}`}>
         <p className="flex min-w-0 items-center gap-2 font-medium">
           {line.icon}
           <span className="min-w-0 wrap-break-word">{line.text}</span>

@@ -158,7 +158,9 @@ describe('the facade', () => {
 
   it('answers empty by the data when nothing is forced', async () => {
     const runtime = runtimeIn('e1')
-    for (const ref of [{ kind: 'topics' }, { kind: 'conversations' }, { kind: 'proposals' }, { kind: 'runs', moduleId: moduleId.todo }, { kind: 'memory', moduleId: moduleId.todo }] as const) {
+    // A module she adds has never run and keeps no records.
+    const added = runtime.actions.addModule({ name: '寄养' })!
+    for (const ref of [{ kind: 'topics' }, { kind: 'conversations' }, { kind: 'proposals' }, { kind: 'runs', moduleId: added }, { kind: 'memory', moduleId: added }] as const) {
       expect((await runtime.read(ref)).state, ref.kind).toBe('empty')
     }
     expect((await runtime.read({ kind: 'memory', moduleId: moduleId.inventory })).state).toBe('ready')
@@ -240,15 +242,17 @@ describe('setPreview (R-02)', () => {
   it('forces the run state of every module', () => {
     const runtime = runtimeIn('s1')
     const status = (id: string) => runStateOf(runtime.getState(), id).status
-    // As the story has it: 预约 ran, 待办 never did.
+    // As the story has it: 预约 and 待办 ran (D-51); a module she adds never did.
     expect(runStateOf(runtime.getState(), moduleId.appointments)).toMatchObject({ status: 'ok', last: { result: 'ok' }, nextRunAt: '2026-11-06T08:00' })
-    expect(status(moduleId.todo)).toBe('never-run')
+    expect(status(moduleId.todo)).toBe('ok')
+    const added = runtime.actions.addModule({ name: '寄养' })!
+    expect(status(added)).toBe('never-run')
 
     const forced = { empty: 'never-run', loading: 'running', error: 'failed', long: 'ok', normal: 'ok' } as const
     for (const preview of previewIds) {
       runtime.actions.setPreview(preview)
       for (const module of runtime.getState().modules.filter((each) => each.id !== moduleId.duration)) {
-        const expected = module.custom || [moduleId.todo, moduleId.mail, moduleId.files].includes(module.id as never) ? (preview === 'normal' || preview === 'long' ? 'never-run' : forced[preview]) : forced[preview]
+        const expected = module.custom ? (preview === 'normal' || preview === 'long' ? 'never-run' : forced[preview]) : forced[preview]
         expect(status(module.id), `${module.id} ${preview}`).toBe(expected)
       }
     }

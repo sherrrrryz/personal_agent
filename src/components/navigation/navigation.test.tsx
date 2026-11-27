@@ -129,7 +129,7 @@ describe('Sidebar', () => {
     render(<Example onRecent={onRecent} />)
     const heading = screen.getByRole('button', { name: '最近对话' })
     expect(heading).toHaveAttribute('aria-expanded', 'false')
-    expect(heading).toHaveClass('min-h-7')
+    expect(heading).toHaveClass('min-h-8')
     expect(screen.queryByRole('link', { name: '调整周六的预约' })).not.toBeInTheDocument()
     await userEvent.click(heading)
     expect(heading).toHaveAttribute('aria-expanded', 'true')
@@ -168,7 +168,7 @@ describe('Sidebar', () => {
     render(<Example />)
     const trigger = screen.getByRole('button', { name: '展开或收起侧边栏' })
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    expect(trigger).toHaveClass('size-8')
+    expect(trigger).toHaveClass('size-9')
     await userEvent.click(trigger)
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByText('通知')).toHaveClass('sr-only')
@@ -257,7 +257,7 @@ describe('Breadcrumb', () => {
     expect(folded).toContainElement(waived[0] as HTMLElement)
 
     const open = within(folded).getByRole('button', { name: '显示完整路径' })
-    expect(open).toHaveClass('size-8')
+    expect(open).toHaveClass('size-9')
     await userEvent.click(open)
     const menu = await screen.findByRole('menu')
     const items = within(menu).getAllByRole('menuitem')
@@ -291,8 +291,8 @@ describe('Tabs', () => {
   ]
 
   it('a named tablist, drawn as the kit draws it; the first tab is selected and shows its panel; tabs that do not fit run onto a further line', async () => {
-    const { container } = render(<Tabs aria-label="记忆里的表格" tabs={tabs} />)
-    const list = screen.getByRole('tablist', { name: '记忆里的表格' })
+    const { container } = render(<Tabs aria-label="资料里的表格" tabs={tabs} />)
+    const list = screen.getByRole('tablist', { name: '资料里的表格' })
     expect(list).toHaveClass('flex-wrap', 'max-w-full', 'group-data-horizontal/tabs:h-auto')
     expect(tokens(list)).not.toContain('group-data-horizontal/tabs:h-8')
     const [first, second, third] = within(list).getAllByRole('tab')
@@ -311,7 +311,7 @@ describe('Tabs', () => {
 
   it('keyboard: one tab stop; the arrows move, Enter selects; a press selects', async () => {
     const onValueChange = vi.fn()
-    render(<Tabs aria-label="记忆里的表格" tabs={tabs} onValueChange={onValueChange} />)
+    render(<Tabs aria-label="资料里的表格" tabs={tabs} onValueChange={onValueChange} />)
     const [first, second] = screen.getAllByRole('tab')
     await userEvent.tab()
     expect(first).toHaveFocus()
@@ -329,7 +329,7 @@ describe('Tabs', () => {
   })
 
   it('controlled: shows the tab it is given', () => {
-    render(<Tabs aria-label="记忆里的表格" tabs={tabs} value="dogs" />)
+    render(<Tabs aria-label="资料里的表格" tabs={tabs} value="dogs" />)
     expect(screen.getByRole('tab', { name: '每只狗的实际耗时' })).toHaveAttribute('aria-selected', 'true')
   })
 })

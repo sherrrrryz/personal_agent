@@ -34,6 +34,7 @@ export {
   channels,
   coats,
   confirmationStatusNames,
+  fileKinds,
   services,
   sizes,
   staff,

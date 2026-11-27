@@ -107,9 +107,10 @@ history of this file.
 
 | Tier | Tokens | Notes |
 | --- | --- | --- |
-| Primitive | `color.neutral.0 … 950` — twelve steps | shadcn/ui's neutral ramp, OKLCH, chroma 0; named after Tailwind's neutral scale, `0` is white |
+| ~~Primitive~~ | ~~`color.neutral.0 … 950`~~ | shadcn/ui's neutral ramp, OKLCH, chroma 0 — **replaced by `color.warm` (D-50)**; its values are the Stock column of § Changed from stock |
+| Primitive | `color.warm.0 … 950` — twelve steps | The warm ramp (D-50): the neutral ramp's lightness with chroma 0.004–0.016 toward amber; every role that was a neutral step points here (§ Changed from stock) |
 | Primitive | `color.white-alpha.10`, `.15` | White at 10% and 15%: the stock dark theme's borders |
-| Primitive | `color.white-alpha.70` · `color.neutral-900-alpha.70` · `color.black-alpha.10`, `.40` · `blur.sm` (8px), `blur.md` (12px) | The frosted surface (D-47, § Frosted surface). The blur steps are named after Tailwind's blur scale; fixed unit by the allowlist (`RESPONSIVE.md` § Unit policy) |
+| Primitive | `color.warm-alpha.0-70` · `color.warm-alpha.900-70` (D-50; were `white-alpha.70` · `neutral-900-alpha.70`) · `color.black-alpha.10`, `.40` · `blur.sm` (8px), `blur.md` (12px) | The frosted surface (D-47, § Frosted surface). The blur steps are named after Tailwind's blur scale; fixed unit by the allowlist (`RESPONSIVE.md` § Unit policy) |
 | Primitive | `color.red.400`, `.600` · `color.blue.700` | The stock theme's `destructive` (dark, light) and its dark `sidebar-primary`; named after Tailwind's scales |
 | Primitive | `color.system.highlight` | The CSS system colour `Highlight`, a string token |
 | Primitive | `border.width.2` (2px) | A step of Tailwind's shipped border-width scale |
@@ -122,6 +123,7 @@ history of this file.
 | Semantic | `radius.base` → `radius.lg`, and `radius.step.sm … 4xl` | The steps are the base × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`pa.scale`) — shadcn/ui's own formula |
 | Semantic | `font.family.sans` → `font.stack.sans` | All text, both locales |
 | Semantic | `color.surface-frosted`, `color.surface-frosted-shadow` (light and dark) · `surface.frosted.blur`, `surface.frosted.shadow.blur` | The frosted surface (D-47): ours, not shadcn/ui's — § Frosted surface |
+| Semantic | `color.canvas` → `color.warm.100` (light) · `color.warm.950` (dark) | The app's backdrop (D-50): the floating sidebar and the cards stand on it; a step darker than `card` in light, the page colour in dark (raised surfaces get lighter). Ours, not shadcn/ui's. Used once, by `SidebarProvider` (`bg-canvas`) |
 | Primitive | `duration.120` · `.300` · `.500` · `.1200` (ms) | Lengths of time, `$type: duration`, `{ value, unit: "ms" }`; named by their value. Added by package K1 (D-45) — the first motion values of our own |
 | Semantic | `motion.simulated.delay` → `duration.120` | How long a faked read and a faked run take (`SIMULATED_DELAY` in `src/runtime/store.ts`) |
 | Semantic | `motion.reply.beat` → `duration.500` · `motion.reply.write` → `duration.1200` · `motion.reply.settle` → `duration.300` | The replay of an AI reply (`components/chat.md` § The replay of a reply): the thinking state and each step · a text being written out · the pause before each thing the text carries. Read by the runtime, `ChatMessageList` and the onboarding interview from `motion.ts`; no mode |
@@ -158,7 +160,7 @@ holds any of it.
 
 | Token (semantic) | Light → primitive | Dark → primitive | CSS | What it is |
 | --- | --- | --- | --- | --- |
-| `color.surface-frosted` | `color.white-alpha.70` | `color.neutral-900-alpha.70` | `--surface-frosted` | The surface's background. Dark is the stock raised surface (`card`, `popover`) let through, not the page colour: raised surfaces get lighter |
+| `color.surface-frosted` | `color.warm-alpha.0-70` | `color.warm-alpha.900-70` | `--surface-frosted` | The surface's background. Dark is the stock raised surface (`card`, `popover`) let through, not the page colour: raised surfaces get lighter |
 | `color.surface-frosted-shadow` | `color.black-alpha.10` | `color.black-alpha.40` | `--surface-frosted-shadow` | Colour of the small shadow |
 | `surface.frosted.blur` | `blur.md` (12px) | — (no mode) | `--surface-frosted-blur` | Radius of the backdrop blur |
 | `surface.frosted.shadow.blur` | `blur.sm` (8px) | — (no mode) | `--surface-frosted-shadow-blur` | Blur radius of the shadow; it has no offset, so it reads the same under the top bar and above the bottom one |
@@ -190,10 +192,50 @@ holds any of it.
 Colour roles whose value differs from shadcn/ui's stock `neutral` theme, in
 either mode. `src/test/tokens.test.ts` compares every role with the stock
 value and fails when a changed role is missing here or a listed one is stock
-again. **None yet.**
+again.
+
+**D-50 — warm whites and greys** (owner: “让界面的白/灰都偏暖”). Every role
+that pointed at a step of the stock `neutral` ramp now points at the step of
+the same name in `color.warm` — the same lightness, a little chroma toward
+amber. The reds and the dark `sidebar-primary` blue are untouched; the dark
+mode's white-alpha borders are untouched (they take the warmth of what they
+lie on). The stock `neutral` ramp left the primitives with it (a primitive no
+role uses fails the tiers test); its values are the "Stock" column below and
+`STOCK` in `src/test/tokens.test.ts` — to go back, add it again and point
+these roles at it.
 
 | Role | Stock (light · dark) | Now (light · dark) | Decision |
 | --- | --- | --- | --- |
+| `color.background` | `neutral.0` · `neutral.950` | `warm.0` · `warm.950` | D-50 |
+| `color.foreground` | `neutral.950` · `neutral.50` | `warm.950` · `warm.50` | D-50 |
+| `color.card` | `neutral.0` · `neutral.900` | `warm.0` · `warm.900` | D-50 |
+| `color.card-foreground` | `neutral.950` · `neutral.50` | `warm.950` · `warm.50` | D-50 |
+| `color.popover` | `neutral.0` · `neutral.900` | `warm.0` · `warm.900` | D-50 |
+| `color.popover-foreground` | `neutral.950` · `neutral.50` | `warm.950` · `warm.50` | D-50 |
+| `color.primary` | `neutral.900` · `neutral.200` | `warm.900` · `warm.200` | D-50 |
+| `color.primary-foreground` | `neutral.50` · `neutral.900` | `warm.50` · `warm.900` | D-50 |
+| `color.secondary` | `neutral.100` · `neutral.800` | `warm.100` · `warm.800` | D-50 |
+| `color.secondary-foreground` | `neutral.900` · `neutral.50` | `warm.900` · `warm.50` | D-50 |
+| `color.muted` | `neutral.100` · `neutral.800` | `warm.100` · `warm.800` | D-50 |
+| `color.muted-foreground` | `neutral.500` · `neutral.400` | `warm.500` · `warm.400` | D-50 |
+| `color.accent` | `neutral.100` · `neutral.800` | `warm.100` · `warm.800` | D-50 |
+| `color.accent-foreground` | `neutral.900` · `neutral.50` | `warm.900` · `warm.50` | D-50 |
+| `color.border` | `neutral.200` · `white-alpha.10` | `warm.200` · `white-alpha.10` | D-50 |
+| `color.input` | `neutral.200` · `white-alpha.15` | `warm.200` · `white-alpha.15` | D-50 |
+| `color.ring` | `neutral.400` · `neutral.500` | `warm.400` · `warm.500` | D-50 |
+| `color.chart-1` | `neutral.300` · `neutral.300` | `warm.300` · `warm.300` | D-50 |
+| `color.chart-2` | `neutral.500` · `neutral.500` | `warm.500` · `warm.500` | D-50 |
+| `color.chart-3` | `neutral.600` · `neutral.600` | `warm.600` · `warm.600` | D-50 |
+| `color.chart-4` | `neutral.700` · `neutral.700` | `warm.700` · `warm.700` | D-50 |
+| `color.chart-5` | `neutral.800` · `neutral.800` | `warm.800` · `warm.800` | D-50 |
+| `color.sidebar` | `neutral.50` · `neutral.900` | `warm.50` · `warm.900` | D-50 |
+| `color.sidebar-foreground` | `neutral.950` · `neutral.50` | `warm.950` · `warm.50` | D-50 |
+| `color.sidebar-primary` | `neutral.900` · `blue.700` | `warm.900` · `blue.700` | D-50 |
+| `color.sidebar-primary-foreground` | `neutral.50` · `neutral.50` | `warm.50` · `warm.50` | D-50 |
+| `color.sidebar-accent` | `neutral.100` · `neutral.800` | `warm.100` · `warm.800` | D-50 |
+| `color.sidebar-accent-foreground` | `neutral.900` · `neutral.50` | `warm.900` · `warm.50` | D-50 |
+| `color.sidebar-border` | `neutral.200` · `white-alpha.10` | `warm.200` · `white-alpha.10` | D-50 |
+| `color.sidebar-ring` | `neutral.400` · `neutral.500` | `warm.400` · `warm.500` | D-50 |
 
 ## Naming
 

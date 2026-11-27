@@ -97,9 +97,9 @@ describe('built CSS', () => {
     expect(css.includes('--primitive-color-system-highlight: Highlight;')).toBe(true)
   })
 
-  it('carries both modes of the theme, with the stock hues', () => {
-    expect(/:root \{[^}]*--background: var\(--primitive-color-neutral-0\);/.test(css)).toBe(true)
-    expect(/\.dark \{[^}]*--background: var\(--primitive-color-neutral-950\);/.test(css)).toBe(true)
+  it('carries both modes of the theme: the warm neutrals (D-50), the stock reds and borders', () => {
+    expect(/:root \{[^}]*--background: var\(--primitive-color-warm-0\);/.test(css)).toBe(true)
+    expect(/\.dark \{[^}]*--background: var\(--primitive-color-warm-950\);/.test(css)).toBe(true)
     expect(/:root \{[^}]*--destructive: var\(--primitive-color-red-600\);/.test(css)).toBe(true)
     expect(/\.dark \{[^}]*--border: var\(--primitive-color-white-alpha-10\);/.test(css)).toBe(true)
   })

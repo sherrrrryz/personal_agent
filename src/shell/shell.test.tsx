@@ -47,7 +47,7 @@ function ModulePage() {
   return (
     <Page title={resolveModule(state, id)?.module.name['zh-CN'] ?? id}>
       <button type="button">页面按钮</button>
-      <Link to={`/m/${id}/workflow`}>工作流</Link>
+      <Link to={`/m/${id}/workflow`}>流程</Link>
     </Page>
   )
 }
@@ -77,7 +77,7 @@ function routesWith(slots?: ShellSlots): RouteObject[] {
       element: <Shell slots={slots} />,
       children: [
         { path: '/m/:id', element: <ModulePage /> },
-        { path: '/m/:id/workflow', element: <Page title="工作流" /> },
+        { path: '/m/:id/workflow', element: <Page title="流程" /> },
         { path: '/topics', element: <Page title="话题" /> },
         { path: '/settings', element: <Page title="设置" /> },
         { path: '/dev/plain', element: <Page title="工具" /> },
@@ -116,7 +116,7 @@ function open(
   return { runtime, router, ...view }
 }
 
-const nav = () => screen.getByRole('navigation', { name: '模块导航' })
+const nav = () => screen.getByRole('navigation', { name: '功能导航' })
 const deviceButton = () => screen.getByRole('button', { name: /^原型控制 · 时间推进：/ })
 const shellHeader = () => document.querySelector('[data-shell] > header')
 const announced = () => shellHeader()?.querySelector('[role="status"]')?.textContent
@@ -162,12 +162,12 @@ describe('the shell in each size class (R-05)', () => {
   it('compact: the sidebar is off the canvas until the header button opens it; the device is an icon that keeps its name; a link closes the sheet', async () => {
     const { router } = open('/m/notifications', { size: 'compact' })
     await screen.findByRole('heading', { level: 1 })
-    expect(screen.queryByRole('navigation', { name: '模块导航' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: '功能导航' })).not.toBeInTheDocument()
     expect(deviceButton()).toHaveAccessibleName('原型控制 · 时间推进：第 1–2 周')
     expect(deviceButton()).toHaveTextContent('')
 
     await userEvent.click(screen.getByRole('button', { name: '展开或收起侧边栏' }))
-    const sheet = await screen.findByRole('dialog', { name: '模块导航' })
+    const sheet = await screen.findByRole('dialog', { name: '功能导航' })
     await userEvent.click(within(sheet).getByRole('link', { name: '服务时长' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(router.state.location.pathname).toBe(`/m/${duration}`)
@@ -188,14 +188,25 @@ describe('the shell in each size class (R-05)', () => {
     expect(main).toHaveClass('row-start-1', 'overflow-y-auto')
   })
 
-  it('the header and the bottom row are frosted and lie over the two ends of main, which keeps their room (D-47)', async () => {
+  it('the header and the bottom row are floating frosted panels over the two ends of main, which keeps their room (D-47, D-50)', async () => {
     const { container } = open('/m/notifications', { slots: { chatBar: TestBar } })
     await screen.findByRole('heading', { level: 1 })
     const row = container.querySelector('[data-shell-bar]') as HTMLElement
     const main = screen.getByRole('main')
     // The same cell as `main`: the header at its start, the row at its end, both above what a screen stacks.
-    expect(shellHeader()).toHaveClass('surface-frosted', 'bg-background', 'row-start-1', 'self-start', 'z-10')
-    expect(row).toHaveClass('surface-frosted', 'bg-background', 'row-start-1', 'self-end', 'z-10')
+    expect(shellHeader()).toHaveClass('row-start-1', 'self-start', 'z-10')
+    expect(row).toHaveClass('row-start-1', 'self-end', 'z-10')
+    // Each is a transparent row with room around a floating panel (D-50): frosted, rounded on every corner, ringed.
+    for (const bar of [shellHeader()!, row]) {
+      expect(bar).toHaveClass('pointer-events-none', 'p-2')
+      expect(bar.querySelector(':scope > [data-shell-panel]')).toHaveClass(
+        'surface-frosted',
+        'bg-background',
+        'rounded-xl',
+        'ring-1',
+        'pointer-events-auto',
+      )
+    }
     expect(main).toHaveClass('isolate')
     // The room of each bar, and the same again as scroll padding: a focused control is not left under one.
     expect(main).toHaveClass('pt-(--shell-header-size)', 'pb-(--shell-bar-size)')
@@ -284,7 +295,7 @@ describe('the sidebar (R-06)', () => {
       .getAllByRole('link')
       .map((link) => link.textContent)
 
-  it('lists the seven base entries, the profession heading with its modules and nested sub-modules, 设置 and the preferences menu', async () => {
+  it('lists the seven base entries, the profession heading with its modules and nested sub-modules, and 设置', async () => {
     open()
     await screen.findByRole('heading', { level: 1 })
     expect(linkNames()).toEqual([
@@ -310,7 +321,8 @@ describe('the sidebar (R-06)', () => {
     const parent = within(profession).getByRole('link', { name: '预约' }).closest('li') as HTMLElement
     expect(within(parent).getByRole('link', { name: '服务时长' })).toHaveAttribute('href', `/m/${duration}`)
     expect(within(nav()).getByRole('link', { name: '设置' })).toHaveAttribute('href', '/settings')
-    expect(within(nav()).getByRole('button', { name: '偏好设置' })).toHaveAttribute('aria-haspopup', 'menu')
+    // No preferences menu (D-50): appearance and language live in 设置 alone.
+    expect(within(nav()).queryByRole('button', { name: '偏好设置' })).toBeNull()
   })
 
   it('shows renameModule, addModule, removeModule and createSubModule at once', async () => {
@@ -359,26 +371,12 @@ describe('the sidebar (R-06)', () => {
   it('en: labels are in English and wrap instead of being cut', async () => {
     open('/m/notifications', { locale: 'en' })
     await screen.findByRole('heading', { level: 1 })
-    const english = screen.getByRole('navigation', { name: 'Module navigation' })
+    const english = screen.getByRole('navigation', { name: 'Feature navigation' })
     const label = within(english).getByText('Clients and pets')
     expect(label.className).toContain('whitespace-normal!')
     expect(label.className).toContain('wrap-anywhere')
     expect(label.className).not.toContain('truncate')
     expect(within(english).getByText('My shop · Pet grooming')).toBeInTheDocument()
-  })
-
-  it('the preferences menu changes appearance and language in place', async () => {
-    open()
-    await screen.findByRole('heading', { level: 1 })
-    await userEvent.click(within(nav()).getByRole('button', { name: '偏好设置' }))
-    const menu = await screen.findByRole('menu')
-    expect(within(menu).getAllByRole('menuitemradio').map((item) => item.textContent)).toEqual(['跟随系统', '浅色', '深色', '简体中文', 'English'])
-    expect(within(menu).getByRole('menuitemradio', { name: '跟随系统' })).toHaveAttribute('aria-checked', 'true')
-    await userEvent.click(within(menu).getByRole('menuitemradio', { name: '深色' }))
-    expect(document.documentElement).toHaveClass('dark')
-    await userEvent.click(within(menu).getByRole('menuitemradio', { name: 'English' }))
-    expect(await screen.findByRole('navigation', { name: 'Module navigation' })).toBeInTheDocument()
-    expect(document.documentElement.lang).toBe('en')
   })
 })
 
@@ -397,7 +395,6 @@ describe('keyboard and focus (R-07)', () => {
       screen.getByRole('link', { name: '跳到主要内容' }),
       within(nav()).getByRole('link', { name: '通知' }),
       within(nav()).getByRole('link', { name: '设置' }),
-      within(nav()).getByRole('button', { name: '偏好设置' }),
       screen.getByRole('button', { name: '展开或收起侧边栏' }),
       deviceButton(),
       screen.getByRole('button', { name: '页面按钮' }),
@@ -418,7 +415,7 @@ describe('keyboard and focus (R-07)', () => {
       await userEvent.tab()
       names.push(document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent ?? '')
     }
-    expect(names).toEqual(['跳到主要内容', '展开或收起侧边栏', '原型控制 · 时间推进：第 1–2 周', '页面按钮', '工作流', '栏内按钮'])
+    expect(names).toEqual(['跳到主要内容', '展开或收起侧边栏', '原型控制 · 时间推进：第 1–2 周', '页面按钮', '流程', '栏内按钮'])
   })
 
   it('the skip link moves focus to main', async () => {
@@ -441,8 +438,8 @@ describe('keyboard and focus (R-07)', () => {
     await waitFor(() => expect(heading).toHaveFocus())
     await waitFor(() => expect(document.title).toBe('服务时长 · Personal Agent'))
 
-    await userEvent.click(screen.getByRole('link', { name: '工作流' }))
-    await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: '工作流' })).toHaveFocus())
+    await userEvent.click(screen.getByRole('link', { name: '流程' }))
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1, name: '流程' })).toHaveFocus())
   })
 
   it('the breadcrumb names the open page by its h1 and the levels above it from the address', async () => {
@@ -452,8 +449,8 @@ describe('keyboard and focus (R-07)', () => {
     await waitFor(() => expect(within(crumbs()).getAllByText('服务时长').length).toBeGreaterThan(0))
     expect(within(crumbs()).getAllByRole('link', { name: '预约' })[0]).toHaveAttribute('href', `/m/${appointments}`)
 
-    await userEvent.click(screen.getByRole('link', { name: '工作流' }))
-    await waitFor(() => expect(within(crumbs()).getAllByText('工作流').length).toBeGreaterThan(0))
+    await userEvent.click(screen.getByRole('link', { name: '流程' }))
+    await waitFor(() => expect(within(crumbs()).getAllByText('流程').length).toBeGreaterThan(0))
     expect(within(crumbs()).getAllByRole('link', { name: '服务时长' })[0]).toHaveAttribute('href', `/m/${duration}`)
 
     const state = runtime.getState()
@@ -478,7 +475,7 @@ describe('the 时间推进 device and 状态预览 (R-08)', () => {
     expect(within(named('热身')).getAllByRole('menuitemradio').map((item) => item.textContent)).toEqual(['第一晚', '第二晚'])
     expect(within(named('主线')).getAllByRole('menuitemradio').map((item) => item.textContent)).toEqual([
       '今天',
-      '变成工作流',
+      '变成流程',
       '第 1–2 周',
       '第 3 周',
       '第 2 个月',

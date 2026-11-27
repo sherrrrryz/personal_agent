@@ -42,6 +42,9 @@ export function durationModuleId(view: Snapshot): string | undefined {
 }
 
 export const petPath = (dogId: string) => `${modulePath(moduleId.clients)}/pets/${dogId}`
+
+/** A dog's portrait (D-50): an illustration in `public/pets/`; a dog without one shows a paw. */
+export const petAvatar = (dogId: string) => `${import.meta.env.BASE_URL}pets/${dogId}.svg`
 export const appointmentPath = (appointmentId: string) => `${modulePath(moduleId.appointments)}/appointments/${appointmentId}`
 
 /** The words and formats of one page, in the reader's language. */

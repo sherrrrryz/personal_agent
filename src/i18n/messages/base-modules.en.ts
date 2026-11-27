@@ -12,7 +12,7 @@ const messages = {
   'notifications.important': 'Important',
   'notifications.empty.section': 'Nothing to handle',
   'notifications.empty.title': 'Nothing needs you right now',
-  'notifications.empty.body': 'When a module has something for you to decide or to look at, it appears here.',
+  'notifications.empty.body': 'When a feature has something for you to decide or to look at, it appears here.',
 
   // 消息
   'messages.summary': 'At a glance',
@@ -41,15 +41,52 @@ const messages = {
   'calendar.today.empty.title': 'Nothing planned today',
   'calendar.today.empty.body': 'The rest of the week is in the calendar above.',
 
-  // 待办 · 邮件 · 文件
-  'stub.section': 'Not connected yet',
-  'stub.todo.title': 'Your to-dos will be gathered here',
-  'stub.todo.body': 'Once a task tool is connected, this module collects what is due and what others are waiting on.',
-  'stub.mail.title': 'The mail that needs you will be sorted here',
-  'stub.mail.body': 'Once a mailbox is connected, this module picks out the mail that needs your reply.',
-  'stub.files.title': 'The files you used lately will be listed here',
-  'stub.files.body': 'Once a drive is connected, this module lists the files you opened and changed recently.',
-  'stub.action': 'Connect an account',
+  // 待办
+  'todo.summary': 'At a glance',
+  'todo.summary.open': 'Open',
+  'todo.summary.today': 'Due today',
+  'todo.summary.overdue': 'Overdue',
+  'todo.open': 'To do',
+  'todo.done': 'Recently done',
+  'todo.item.due': 'Due {date}',
+  'todo.item.today': 'Due today',
+  'todo.item.overdue': 'Was due {date}',
+  'todo.item.own': 'Your own',
+  'todo.item.late': 'Overdue',
+  'todo.item.done': 'Done',
+  'todo.empty.section': 'No to-dos',
+  'todo.empty.title': 'Nothing to do',
+  'todo.empty.body': 'Once Slack is connected, what is handed to you and what each feature needs you to do is gathered here.',
+  'todo.empty.action': 'Connect an account',
+
+  // 邮件
+  'mail.summary': 'At a glance',
+  'mail.summary.reply': 'Need a reply',
+  'mail.summary.week': 'Received in 7 days',
+  'mail.reply': 'Needs a reply',
+  'mail.other': 'Other mail',
+  'mail.item.meta': '{from} · {when} · {preview}',
+  'mail.item.reply': 'Reply',
+  'mail.empty.section': 'No mail',
+  'mail.empty.title': 'No mail yet',
+  'mail.empty.body': 'Once Google is connected, the mail that needs your reply is sorted here.',
+  'mail.empty.action': 'Connect an account',
+
+  // 文件
+  'files.summary': 'At a glance',
+  'files.summary.total': 'Files',
+  'files.summary.week': 'Changed in 7 days',
+  'files.recent': 'Recent files',
+  'files.recent.caption': 'The files you used lately, the latest change first',
+  'files.col.name': 'Name',
+  'files.col.kind': 'Kind',
+  'files.col.modified': 'Changed',
+  'files.col.by': 'Changed by',
+  'files.col.size': 'Size',
+  'files.empty.section': 'No files',
+  'files.empty.title': 'No files yet',
+  'files.empty.body': 'Once Google is connected, the files you opened and changed lately are listed here.',
+  'files.empty.action': 'Connect an account',
 } satisfies Messages
 
 export default messages

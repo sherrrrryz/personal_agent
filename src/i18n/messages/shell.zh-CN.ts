@@ -4,7 +4,7 @@ import type en from './shell.en'
 const messages: Translation<typeof en> = {
   skip: '跳到主要内容',
 
-  'nav.label': '模块导航',
+  'nav.label': '功能导航',
   'nav.base': '基础',
   'nav.profession': '我的店 · 宠物美容',
   'nav.topics': '话题',
@@ -12,7 +12,6 @@ const messages: Translation<typeof en> = {
   'nav.settings': '设置',
   'nav.awaiting': { other: '{count} 项等待你确认' },
 
-  'prefs.label': '偏好设置',
 
   'device.label': '原型控制 · 时间推进：{scene}',
   'device.prev': '上一幕',
@@ -37,14 +36,14 @@ const messages: Translation<typeof en> = {
   'demo.parts.sidebar': '窗口宽时侧边栏完整展开，中等宽度时收成图标栏，窗口窄时收到画面之外、需要时再滑出。页头最前面的按钮用来切换。',
   'demo.parts.device': '页头末尾的原型控制可以在各幕之间跳转，也可以让每个页面强制显示某种状态。强制状态期间，页头下方会有一行提示，直到恢复正常。',
   'demo.parts.bar': '这块区域下方的一行是对话栏的位置。它是布局中的一行，不会盖住页面：这块区域自己滚动。',
-  'demo.modules.title': '改动模块',
-  'demo.modules.note': '每个按钮调用一个运行时操作，侧边栏会立刻显示变化。',
+  'demo.modules.title': '改动功能',
+  'demo.modules.note': '每个按钮调用一个更新时操作，侧边栏会立刻显示变化。',
   'demo.modules.rename': '重命名「预约」',
   'demo.modules.renamed': '预约与到店（已重命名）',
-  'demo.modules.add': '添加一个模块',
+  'demo.modules.add': '添加一个功能',
   'demo.modules.added': '会员',
   'demo.modules.remove': '移除「排班」',
-  'demo.modules.sub': '在「预约」下添加子模块',
+  'demo.modules.sub': '在「预约」下添加子功能',
   'demo.modules.subName': '老顾客的生日提醒',
   'demo.route.title': '在页面之间移动',
   'demo.route.note': '点开链接后，焦点会移到新页面的标题上，标签页的标题也随之更新。',

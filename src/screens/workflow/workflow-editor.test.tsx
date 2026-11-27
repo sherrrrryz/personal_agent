@@ -43,7 +43,7 @@ function open(address = path, options: { scene?: string; preview?: string } = {}
   return { runtime, workflow }
 }
 
-const canvas = () => screen.findByRole('region', { name: '工作流画布' })
+const canvas = () => screen.findByRole('region', { name: '流程画布' })
 const nodeElements = () => [...document.querySelectorAll<HTMLElement>('.react-flow__node')]
 const node = (id: string) => {
   const found = document.querySelector<HTMLElement>(`.react-flow__node[data-id="${id}"]`)
@@ -79,7 +79,7 @@ describe('the workflow editor', () => {
   it('B-09: seven kinds with the kind as text, in flow order; Enter opens the inspector, Escape gives the focus back', async () => {
     const { workflow } = open()
     const region = await laidOut()
-    for (const kind of ['触发', '来源', '步骤', '条件', '动作', '输出', '记忆']) {
+    for (const kind of ['开始', '来源', '步骤', '条件', '动作', '内容', '资料']) {
       expect(within(region).getAllByText(kind, { selector: '[data-slot="workflow-node-kind"]' }).length).toBeGreaterThan(0)
     }
 
@@ -105,7 +105,7 @@ describe('the workflow editor', () => {
     expect(screen.getByRole('button', { name: '缩小' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '适应画面' })).toBeInTheDocument()
 
-    const { sheet } = await inspect('review', '触发：每周一复盘')
+    const { sheet } = await inspect('review', '开始：每周一复盘')
     expect(within(sheet).getByLabelText('时间')).toHaveValue('18:00')
     await user.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
@@ -128,7 +128,7 @@ describe('the workflow editor', () => {
     const items = within(list).getAllByRole('listitem')
     expect(items.map((item) => item.dataset.step)).toEqual(onCanvas)
     expect(items.find((item) => item.dataset.step === 'deviation')).toHaveAttribute('aria-current', 'true')
-    expect(screen.queryByRole('region', { name: '工作流画布' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '流程画布' })).not.toBeInTheDocument()
 
     const button = within(list).getByRole('button', { name: '查看和调整：条件：偏差超过 30 分钟' })
     await user.click(button)
@@ -142,7 +142,7 @@ describe('the workflow editor', () => {
     await laidOut()
     expect(screen.getByText('版本 1（当前）')).toBeInTheDocument()
 
-    const trigger = await inspect('review', '触发：每周一复盘')
+    const trigger = await inspect('review', '开始：每周一复盘')
     fireEvent.change(within(trigger.sheet).getByLabelText('时间'), { target: { value: '09:00' } })
     await trigger.user.click(save(trigger.sheet))
     await waitFor(() => expect(workflow().current).toBe(2))
@@ -202,16 +202,17 @@ describe('the workflow editor', () => {
 
   it('B-11: loading says so and keeps the frame', async () => {
     open(path, { preview: 'loading' })
-    expect(await screen.findByText('正在载入工作流…')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: '工作流' })).toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: '工作流画布' })).not.toBeInTheDocument()
+    expect(await screen.findByText('正在载入流程…')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: '流程' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '流程画布' })).not.toBeInTheDocument()
   })
 
   it('B-11: error keeps the frame and offers a retry; 空 is the three-node placeholder', async () => {
     open(path, { preview: 'error' })
-    expect(await screen.findByText('无法载入工作流')).toBeInTheDocument()
+    expect(await screen.findByText('无法载入流程')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: '记忆' })).toBeInTheDocument()
+    // The frame stays: its controls are in the header (D-50).
+    expect(screen.getByRole('button', { name: '功能设置' })).toBeInTheDocument()
   })
 
   it('B-11: 空 shows the placeholder workflow of three nodes', async () => {

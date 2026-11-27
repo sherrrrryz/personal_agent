@@ -12,13 +12,13 @@ const messages = {
   'home.modes': 'AI behaviour modes',
   'home.modes.status': { one: '{count} kind of task set', other: '{count} kinds of task set' },
   'home.modes.none': 'Nothing set yet',
-  'home.profession': 'Profession modules',
-  'home.profession.status': { one: '{count} module', other: '{count} modules' },
+  'home.profession': 'Profession features',
+  'home.profession.status': { one: '{count} feature', other: '{count} features' },
   'home.status.error': 'The status cannot be read right now',
   'home.display': 'Display',
 
   'accounts.title': 'Accounts',
-  'accounts.description': 'The accounts your modules draw on. A module stops when its account is disconnected.',
+  'accounts.description': 'The accounts your features draw on. A feature stops when its account is disconnected.',
 
   'modes.title': 'AI behaviour modes',
   'modes.lead':
@@ -35,19 +35,19 @@ const messages = {
   'modes.capped': 'Held back by the ceiling',
   'modes.showAll': { one: 'Show all ({count})', other: 'Show all ({count})' },
 
-  'profession.title': 'Profession modules',
-  'profession.description': 'The modules made for your work. Changes show in the sidebar at once.',
-  'profession.error.title': 'Could not read your modules',
+  'profession.title': 'Profession features',
+  'profession.description': 'The features made for your work. Changes show in the sidebar at once.',
+  'profession.error.title': 'Could not read your features',
   'profession.regenerate': 'Regenerate',
-  'profession.regenerate.title': 'Regenerate the module set?',
+  'profession.regenerate.title': 'Regenerate the feature set?',
   'profession.regenerate.body':
-    'The set goes back to what the AI first proposed. Modules you added are removed and renamed ones get their first names back.',
-  'profession.regenerated': 'The module set was regenerated',
+    'The set goes back to what the AI first proposed. Features you added are removed and renamed ones get their first names back.',
+  'profession.regenerated': 'The feature set was regenerated',
   'profession.interview': 'Redo the profession interview',
   'profession.interview.note': 'Opens the three onboarding steps again; you can cancel and come back here.',
   'profession.promotions': 'Promotion suggestions',
   'profession.promotions.none': 'No suggestions at present.',
-  'profession.promoted': 'Promoted to a top-level module',
+  'profession.promoted': 'Promoted to a top-level feature',
   'profession.promoted.open': 'Open {name}',
 } satisfies Messages
 

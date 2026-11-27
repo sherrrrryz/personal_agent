@@ -1,10 +1,11 @@
 import type { CellValue, MemoryRow, Snapshot, TriggerKind } from '@/runtime/model'
-import { applyEstimates, finishRun, markChange, recordActualDuration, resolveProposalPart, startRun, updateMemory } from '@/runtime/reduce'
+import { applyEstimates, finishRun, markChange, recordActualDuration, resolveProposalPart, startRun } from '@/runtime/reduce'
 import { latestRun, rowOf, tableOf, versionOf, workflowOf } from '@/runtime/selectors'
 import type { Text } from '@/runtime/text'
 import { addDays, addMinutes, datePart, lastAt, lastWeekdayAt, mondayOf, nextAt, nextWeekdayAt } from '@/runtime/time'
 
 import { row } from './build'
+import { agendaRows, deskTables, sideTalk, sideTalks } from './everyday'
 import { appointmentStatus, blockKey, column, moduleId, tableId } from './keys'
 import { staff } from './vocabulary'
 import { ownerOf, requested } from './world'
@@ -32,11 +33,6 @@ export function ranAt(draft: Snapshot, module: string, at: string, trigger: Trig
   draft.storyTime = now
 }
 
-/** One more important item in 通知. */
-export function notice(draft: Snapshot, id: string, text: Text, source: string): void {
-  updateMemory(draft, [{ tableId: tableId.notices, rowId: id, cells: { text, source, at: draft.storyTime }, insert: true }])
-}
-
 /**
  * The important items as the notifications workflow ranks them now: the old ones give way.
  * An item that only announces a proposal names it (`proposal`): 通知 drops the line once she has decided.
@@ -48,13 +44,25 @@ export function setNotices(draft: Snapshot, items: Array<[id: string, text: Text
   notices.updatedAt = draft.storyTime
 }
 
-/** A customer wrote; what came before has been read. */
-export function customerWrote(draft: Snapshot, id: string, dog: string, text: Text, module: string, at: string): void {
-  const messages = tableOf(draft, tableId.messages)
-  if (!messages) return
-  for (const each of messages.rows) each.cells.unread = false
-  messages.rows.unshift(row(id, { from: ownerOf(dog), channel: 'wechat', text, module, at, unread: true }))
-  messages.updatedAt = at
+/** A message from a customer: [id, dog, text, filed under, at, unread]. */
+export type CustomerMessage = [id: string, dog: string, text: Text, module: string, at: string, unread?: boolean]
+
+/** How many messages 消息 keeps: the newest. */
+const inboxSize = 10
+
+/**
+ * Customers wrote: what came before has been read, the new messages are
+ * unread unless they say otherwise, and only the newest ten are kept.
+ */
+export function customersWrote(draft: Snapshot, messages: CustomerMessage[]): void {
+  const table = tableOf(draft, tableId.messages)
+  if (!table) return
+  for (const each of table.rows) each.cells.unread = false
+  const added = messages.map(([id, dog, text, module, at, unread = true]) => row(id, { from: ownerOf(dog), channel: 'wechat', text, module, at, unread }))
+  table.rows = [...added, ...table.rows]
+    .sort((one, other) => String(other.cells.at).localeCompare(String(one.cells.at)))
+    .slice(0, inboxSize)
+  table.updatedAt = messages.map(([, , , , at]) => at).sort().at(-1) ?? table.updatedAt
 }
 
 /** New bookings enter the schedule and are estimated by whatever rule is in force. */
@@ -150,18 +158,31 @@ export function setRota(draft: Snapshot): void {
   swaps.updatedAt = draft.storyTime
 }
 
-/** Her own calendar this week: the supplier tomorrow morning, the stocktake on Friday evening. */
-export function setAgenda(draft: Snapshot, titles: { supplier: Text; stocktake: Text }): void {
+/** Her own calendar this week (`agendaRows`): a fixed event every day, and the supplier tomorrow morning. */
+export function setAgenda(draft: Snapshot): void {
   const events = tableOf(draft, tableId.events)
   if (!events) return
-  const tomorrow = addDays(datePart(draft.storyTime), 1)
-  let friday = addDays(mondayOf(draft.storyTime), 4)
-  if (friday < datePart(draft.storyTime)) friday = addDays(friday, 7)
-  events.rows = [
-    row('event-supplier', { title: titles.supplier, start: `${tomorrow}T09:00`, end: `${tomorrow}T09:30` }),
-    row('event-stocktake', { title: titles.stocktake, start: `${friday}T18:30`, end: `${friday}T19:30` }),
-  ]
+  events.rows = agendaRows(draft.storyTime)
   events.updatedAt = draft.storyTime
+}
+
+/** 待办 · 邮件 · 文件 as the scene's day finds them (`deskTables`). */
+export function setDesk(draft: Snapshot): void {
+  for (const fresh of deskTables(draft.storyTime)) {
+    const kept = tableOf(draft, fresh.id)
+    if (!kept) continue
+    kept.rows = fresh.rows
+    kept.updatedAt = draft.storyTime
+  }
+}
+
+/** The side conversations of `sideTalks[at]` happened: each topic with its one dedicated chat. */
+export function talkedAbout(draft: Snapshot, at: keyof typeof sideTalks): void {
+  for (const talk of sideTalks[at]) {
+    const { topic, conversation } = sideTalk(talk)
+    draft.topics.push(topic)
+    draft.conversations.push(conversation)
+  }
 }
 
 /**

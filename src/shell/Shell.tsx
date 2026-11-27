@@ -7,6 +7,8 @@ import { useT } from '@/i18n'
 
 import { AppSidebar } from './AppSidebar'
 import { useShellRoute } from './route'
+import { ShellHeaderSlotContext } from './header-slot'
+import { shellPanelClass } from './panel'
 import { ShellHeader } from './ShellHeader'
 import type { ShellSlots } from './slots'
 import { useBarSizes } from './use-bar-sizes'
@@ -39,9 +41,14 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
   const t = useT('shell')
   const route = useShellRoute()
   const { main, heading } = usePageHeading()
+  // The header's slot for the open screen's own controls (D-50).
+  const [headerSlot, setHeaderSlot] = useState<HTMLElement | null>(null)
 
   const expanded = useMediaQuery(expandedQuery)
-  const [choice, setChoice] = useState<{ expanded: boolean; open: boolean } | null>(null)
+  const [choice, setChoice] = useState<{
+    expanded: boolean
+    open: boolean
+  } | null>(null)
   // A choice made in one size class is forgotten when the class changes.
   if (choice && choice.expanded !== expanded) setChoice(null)
   const open = choice && choice.expanded === expanded ? choice.open : expanded
@@ -68,38 +75,43 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
       <a href="#main" className={skipClass} onClick={skip}>
         {t('skip')}
       </a>
-      <SidebarProvider open={open} onOpenChange={(next) => setChoice({ expanded, open: next })}>
-        <AppSidebar recent={sidebarRecent} />
-        <div
-          ref={shell}
-          className="grid h-svh min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-clip overflow-y-auto"
-          data-shell=""
-        >
-          <ShellHeader heading={heading} />
-          {/*
-            Sideways the page is cut, not scrolled: a screen that is too wide
-            then fails the matrix as clipped text instead of passing with a
-            scroll bar nobody looked for. The minimum keeps `main` reachable
-            in a short window; the column scrolls as a whole when even that
-            does not fit. `isolate`: nothing a screen stacks rises over the
-            two bars. The padding is the bars' room, the scroll padding keeps
-            a focused control out from under them.
-          */}
-          <main
-            id="main"
-            ref={main}
-            tabIndex={-1}
-            className="relative isolate col-start-1 row-start-1 min-h-48 scroll-pt-(--shell-header-size) scroll-pb-(--shell-bar-size) overflow-x-clip overflow-y-auto pt-(--shell-header-size) pb-(--shell-bar-size)"
+      <ShellHeaderSlotContext value={headerSlot}>
+        <SidebarProvider open={open} onOpenChange={(next) => setChoice({ expanded, open: next })}>
+          <AppSidebar recent={sidebarRecent} />
+          <div
+            ref={shell}
+            className="grid h-svh min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-clip overflow-y-auto"
+            data-shell=""
           >
-            <Outlet />
-          </main>
-          {ChatBar && (
-            <div className="surface-frosted z-10 col-start-1 row-start-1 self-end border-t bg-background" data-shell-bar="">
-              <ChatBar />
-            </div>
-          )}
-        </div>
-      </SidebarProvider>
+            <ShellHeader heading={heading} slot={setHeaderSlot} />
+            {/*
+              Sideways the page is cut, not scrolled: a screen that is too wide
+              then fails the matrix as clipped text instead of passing with a
+              scroll bar nobody looked for. The minimum keeps `main` reachable
+              in a short window; the column scrolls as a whole when even that
+              does not fit. `isolate`: nothing a screen stacks rises over the
+              two bars. The padding is the bars' room, the scroll padding keeps
+              a focused control out from under them.
+            */}
+            <main
+              id="main"
+              ref={main}
+              tabIndex={-1}
+              className="relative isolate col-start-1 row-start-1 min-h-48 scroll-pt-(--shell-header-size) scroll-pb-(--shell-bar-size) overflow-x-clip overflow-y-auto pt-(--shell-header-size) pb-(--shell-bar-size)"
+            >
+              <Outlet />
+            </main>
+            {ChatBar && (
+              // A transparent row with room around a floating panel (D-50); the room lets clicks through to the page.
+              <div className="pointer-events-none z-10 col-start-1 row-start-1 self-end p-2" data-shell-bar="">
+                <div className={shellPanelClass} data-shell-panel="">
+                  <ChatBar />
+                </div>
+              </div>
+            )}
+          </div>
+        </SidebarProvider>
+      </ShellHeaderSlotContext>
     </>
   )
 }

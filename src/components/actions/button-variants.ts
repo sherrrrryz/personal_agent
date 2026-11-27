@@ -12,10 +12,13 @@ export type ButtonSize = (typeof buttonSizes)[number]
 // a long label pushes a 320 px page sideways. Ours keeps the kit's height as
 // a minimum and lets the label wrap. A label that fits is drawn exactly as stock.
 const wraps = 'h-auto max-w-full shrink py-1 text-center whitespace-normal wrap-anywhere'
+//
+// Roomier than stock (D-50): each of our sizes takes the kit's next size up
+// and wider side padding, so a label has air around it.
 const sizeClass: Record<ButtonSize, string | undefined> = {
-  sm: `min-h-7 ${wraps}`,
-  md: `min-h-8 ${wraps}`,
-  // No label, nothing to wrap: the kit's square.
+  sm: `min-h-8 px-3 ${wraps}`,
+  md: `min-h-9 px-4 ${wraps}`,
+  // No label, nothing to wrap: the kit's square, one size up.
   icon: undefined,
 }
 
@@ -29,7 +32,7 @@ const kitVariant = {
   link: 'link',
 } as const
 
-const kitSize = { sm: 'sm', md: 'default', icon: 'icon' } as const
+const kitSize = { sm: 'default', md: 'lg', icon: 'icon-lg' } as const
 
 type Look = { variant?: ButtonVariant; size?: ButtonSize }
 

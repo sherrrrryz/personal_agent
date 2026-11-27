@@ -49,7 +49,7 @@ const messages = {
   'demo.breadcrumb.bookings': 'Bookings and reminders for regular customers',
   'demo.breadcrumb.duration': 'Grooming time by breed and coat type',
 
-  'demo.tabs.name': 'Tables of the memory',
+  'demo.tabs.name': 'Tables of the records',
   'demo.tabs.breeds': 'Usual time by breed',
   'demo.tabs.dogs': 'Actual time for each dog',
   'demo.tabs.archive': 'Archive (empty)',
@@ -88,13 +88,13 @@ const messages = {
   'demo.alert.confirm': 'Disconnect',
   'demo.alert.result': 'Disconnected {count} times.',
 
-  'demo.sheet.end': 'Run history (at the side)',
-  'demo.sheet.bottom': 'Run history (from below)',
-  'demo.sheet.title': 'Run history',
-  'demo.sheet.description': 'One row for every run of this workflow.',
+  'demo.sheet.end': 'Update history (at the side)',
+  'demo.sheet.bottom': 'Update history (from below)',
+  'demo.sheet.title': 'Update history',
+  'demo.sheet.description': 'One row for every update of this process.',
   'demo.sheet.row1': 'Today 09:00 · on schedule · three reminders sent',
   'demo.sheet.row2': 'Yesterday 09:00 · on schedule · nothing to send',
-  'demo.sheet.row3': 'Monday 14:20 · run by you · one reminder sent, one waiting for you',
+  'demo.sheet.row3': 'Monday 14:20 · update by you · one reminder sent, one waiting for you',
   'demo.sheet.done': 'Done',
 
   'demo.collapsible.trigger': 'Conversation of 12 March',
@@ -103,8 +103,8 @@ const messages = {
 
   'demo.tooltip.add': 'Add a booking',
   'demo.tooltip.addHint': 'Opens an empty booking for today',
-  'demo.tooltip.run': 'Run now',
-  'demo.tooltip.runHint': 'Runs the workflow once, outside its schedule',
+  'demo.tooltip.run': 'Refresh',
+  'demo.tooltip.runHint': 'Updates the process once, outside its schedule',
 
   'demo.card.title': 'Tomorrow',
   'demo.card.description': 'Six bookings, the first at nine.',

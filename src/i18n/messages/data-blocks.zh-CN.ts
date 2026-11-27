@@ -15,7 +15,7 @@ const messages: Translation<typeof en> = {
   'schedule.slot.time': '{start} – {end}',
   'schedule.none': '没有安排',
 
-  'demo.pick': '区块的状态',
+  'demo.pick': '卡片的状态',
   'demo.state.ready': '就绪',
   'demo.state.loading': '载入中',
   'demo.state.empty': '空',
@@ -66,7 +66,7 @@ const messages: Translation<typeof en> = {
   'table.demo.title': '各犬种洗护用时',
   'table.demo.caption': '各犬种洗护用时：规则与实测',
   'table.demo.long.caption': '每只狗的洗护用时，全部 40 条记录',
-  'table.demo.alone.caption': '各犬种洗护用时：这个区块单独的演示',
+  'table.demo.alone.caption': '各犬种洗护用时：这个卡片单独的演示',
   'table.demo.col.breed': '犬种',
   'table.demo.col.size': '体型',
   'table.demo.col.rule': '规则时长',

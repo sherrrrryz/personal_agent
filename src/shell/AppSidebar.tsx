@@ -16,7 +16,6 @@ import { awaitingCount, navigationOf, resolveModule, useRuntimeState, type Modul
 
 import { modulePath, partsOf } from './crumbs'
 import { moduleIconComponents } from './module-icons'
-import { PreferencesMenu } from './PreferencesMenu'
 
 /**
  * The module navigation (spec part 2 § Shell, "Sidebar, in order"): 基础 — the
@@ -102,7 +101,6 @@ export function AppSidebar({ recent: Recent }: { recent?: ComponentType }) {
             render={<Link to="/settings" />}
           />
         </SidebarGroup>
-        <PreferencesMenu />
       </SidebarFooter>
     </Sidebar>
   )

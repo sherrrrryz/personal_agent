@@ -72,7 +72,7 @@ function TopicCard({ topic, view }: { topic: Topic; view: RuntimeState }) {
   })
 
   return (
-    <Card data-topic={topic.id}>
+    <Card data-topic={topic.id} className="shadow-sm">
       <CardHeader>
         <CardTitle>
           <Link to={topicPath(topic.id)} className={linkClass}>

@@ -42,8 +42,8 @@ export const interview: {
     },
   ],
   summary: tx(
-    '明白了。你是宠物美容店的店长，和小陈、阿杰一起按预约给狗做美容，也卖商品；每晚确认预约、每周排班、按库存补货；每只狗有自己的档案。我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。下一步你可以调整它们。',
-    'Understood. You manage a pet-grooming shop; with Xiao Chen and A-Jie you groom dogs by appointment and sell products; you confirm bookings every evening, plan the rota every week and restock by stock level; every dog has its own file. I suggest starting with four modules: Appointments, Clients and pets, Products and stock, Shifts. You can adjust them in the next step.',
+    '明白了。你是宠物美容店的店长，和小陈、阿杰一起按预约给狗做美容，也卖商品；每晚确认预约、每周排班、按库存补货；每只狗有自己的档案。我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。下一步你可以调整它们。',
+    'Understood. You manage a pet-grooming shop; with Xiao Chen and A-Jie you groom dogs by appointment and sell products; you confirm bookings every evening, plan the rota every week and restock by stock level; every dog has its own file. I suggest starting with four features: Appointments, Clients and pets, Products and stock, Shifts. You can adjust them in the next step.',
   ),
 }
 

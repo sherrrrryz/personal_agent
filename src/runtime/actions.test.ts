@@ -339,7 +339,7 @@ const effects: Record<keyof RuntimeActions, () => void | Promise<void>> = {
     const first = booked(runtime, 'doudou')
     runtime.actions.recordActualDuration({ appointmentId: first.id, minutes: 200 })
     const running = runtime.actions.runModule(moduleId.duration)
-    // 正在运行, at once.
+    // 正在更新, at once.
     expect(latestRun(runtime.getState(), moduleId.duration)).toMatchObject({ result: 'running', trigger: 'manual', version: 1 })
     const id = await running
     const run = latestRun(runtime.getState(), moduleId.duration)!
@@ -405,6 +405,8 @@ const effects: Record<keyof RuntimeActions, () => void | Promise<void>> = {
 
   async connectAccount() {
     const runtime = runtimeIn('s1')
+    // Google is connected in the story (D-51): take it away first, so 邮件 has nothing to read.
+    runtime.actions.disconnectAccount(accountId.google)
     await runtime.actions.runModule(moduleId.mail)
     expect(latestRun(runtime.getState(), moduleId.mail)).toMatchObject({ result: 'failed', reason: { code: 'account-missing', account: accountId.google } })
     runtime.actions.connectAccount(accountId.google)

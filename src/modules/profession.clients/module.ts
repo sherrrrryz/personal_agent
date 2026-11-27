@@ -1,6 +1,6 @@
 import { basis, blockKey, column, moduleId, tableId } from '@/fixtures/keys'
 import { stringCell, tableOf, type ModuleDefinition } from '@/runtime'
-import { appliedFor, pageTools, petPath } from '@/screens/profession/page-tools'
+import { appliedFor, pageTools, petAvatar, petPath } from '@/screens/profession/page-tools'
 
 // `profession.clients` 顾客与宠物 (spec part 3 § Screens and flows): one row
 // per dog — breed, owner, 适用时长 with its basis, 下次到店 — each opening the
@@ -55,6 +55,7 @@ const definition: ModuleDefinition = {
                 }),
                 badges: [],
                 href: petPath(row.id),
+                avatar: petAvatar(row.id),
               }
             }),
           },

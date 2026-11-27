@@ -59,8 +59,8 @@ export async function nav(page: Page, name: string, heading = name): Promise<voi
   await expect(h1(page, heading)).toBeVisible()
 }
 
-/** One of the frame's three views: 页面 · 工作流 · 记忆. */
-export async function view(page: Page, name: '页面' | '工作流' | '记忆'): Promise<void> {
+/** One of the frame's three views: 页面 · 流程 · 资料. */
+export async function view(page: Page, name: '页面' | '流程' | '资料'): Promise<void> {
   await main(page).getByRole('link', { name, exact: true }).click()
   if (name !== '页面') await expect(h1(page, name)).toBeVisible()
 }
@@ -85,9 +85,9 @@ const node = (page: Page, id: string) => page.locator(`.react-flow__node[data-id
 const memoryRow = (page: Page, id: string) => main(page).locator(`[data-memory-row="${id}"]`)
 
 async function runRecords(page: Page, check: (dialog: Locator) => Promise<void>): Promise<void> {
-  await main(page).getByRole('button', { name: '运行记录' }).click()
-  const dialog = page.getByRole('dialog', { name: '运行记录' })
-  await expect(dialog.getByRole('columnheader', { name: '工作流版本' })).toBeVisible()
+  await main(page).getByRole('button', { name: '更新记录' }).click()
+  const dialog = page.getByRole('dialog', { name: '更新记录' })
+  await expect(dialog.getByRole('columnheader', { name: '流程版本' })).toBeVisible()
   await check(dialog)
   await dialog.getByRole('button', { name: '关闭' }).last().click()
   await expect(dialog).toBeHidden()
@@ -118,7 +118,7 @@ export async function stage0(page: Page, flow: string): Promise<void> {
   await shot(page, flow, '0-answer-in-place')
 }
 
-// ── Stage 1 · 变成工作流 (B-21) ──────────────────────────────────────────────
+// ── Stage 1 · 变成流程 (B-21) ──────────────────────────────────────────────
 
 const canvasNodes = [
   '预约新建或修改',
@@ -130,7 +130,7 @@ const canvasNodes = [
   '记录实际耗时',
   '偏差超过 30 分钟',
   '提议修改规则',
-  '记忆表：品种大致时长、每只狗的实际耗时',
+  '资料表：品种大致时长、每只狗的实际耗时',
 ]
 
 /** She accepts (the answer of stage 0 is open): 服务时长 exists and opens on its canvas. */
@@ -159,10 +159,10 @@ export async function stage1(page: Page, flow: string): Promise<void> {
   await main(page).getByRole('button', { name: '画布', exact: true }).click()
   await expect(node(page, 'set-duration')).toBeVisible()
 
-  // Memory: the breed table is seeded from her rule, no dog is timed yet, and 排班 reads it.
-  await view(page, '记忆')
+  // Records: the breed table is seeded from her rule, no dog is timed yet, and 排班 reads it.
+  await view(page, '资料')
   await expect(memoryRow(page, 'golden')).toContainText(/4小时\s*你的经验\s*尚无数据/)
-  await expect(main(page).getByRole('region', { name: '谁在读这份记忆' })).toContainText('排班')
+  await expect(main(page).getByRole('region', { name: '谁在读这份资料' })).toContainText('排班')
   await main(page).getByRole('tab', { name: '每只狗的实际耗时' }).click()
   await expect(main(page)).toContainText('暂无记录')
 
@@ -170,7 +170,7 @@ export async function stage1(page: Page, flow: string): Promise<void> {
   await nav(page, '预约')
   await booked(page, '可乐（阿拉斯加）', '4小时 · 按品种表')
   await nav(page, '服务时长')
-  await view(page, '工作流')
+  await view(page, '流程')
 }
 
 // ── Stage 2 · 第 1–2 周 (B-22) ───────────────────────────────────────────────
@@ -189,10 +189,10 @@ export async function stage2(page: Page, flow: string): Promise<void> {
   await runRecords(page, async (dialog) => {
     // Two Monday reviews and ten timed visits, every one on version 1.
     expect(await dialog.getByRole('row').filter({ hasText: '第 1 版' }).count()).toBeGreaterThanOrEqual(12)
-    await expect(dialog.getByRole('row').filter({ hasText: '定时' }).first()).toBeVisible()
+    await expect(dialog.getByRole('row').filter({ hasText: '按计划' }).first()).toBeVisible()
   })
 
-  await view(page, '记忆')
+  await view(page, '资料')
   await expect(memoryRow(page, 'golden')).toContainText(/4小时\s*你的经验\s*约 3小时45分钟（5 只，3小时20分钟 – 4小时10分钟）/)
   const breeds = main(page)
   await expect(breeds).toContainText(/比熊[\s\S]*约 2小时10分钟/)
@@ -236,7 +236,7 @@ export async function stage3(page: Page, flow: string): Promise<void> {
 
   // Both memory tables carry the new 适用 values, marked.
   await nav(page, '服务时长')
-  await view(page, '记忆')
+  await view(page, '资料')
   await expect(memoryRow(page, 'golden')).toContainText(/3小时45分钟\s*5 只的平均/)
   await expect(memoryRow(page, 'golden').locator('[data-change]')).not.toHaveCount(0)
   await main(page).getByRole('tab', { name: '每只狗的实际耗时' }).click()
@@ -246,7 +246,7 @@ export async function stage3(page: Page, flow: string): Promise<void> {
   }
   await shot(page, flow, '3-memory-dogs')
   // The workflow is still version 1, the canvas as it was.
-  await view(page, '工作流')
+  await view(page, '流程')
   await expect(main(page).getByText('版本 1（当前）')).toBeVisible()
   await expect(node(page, 'set-duration')).toBeVisible()
   await expect(node(page, 'first-visit')).toHaveCount(0)
@@ -283,8 +283,8 @@ const firstVisitReason = '复盘发现第一次来的狗平均多用 30 分钟�
 /** `s4`: the proposal opens the canvas on the change; 批准 makes version 2; history, run records and a first visit explain it. */
 export async function stage4(page: Page, flow: string): Promise<void> {
   await nav(page, '通知')
-  const item = block(page, '每周复盘：建议修改工作流')
-  await expect(item.getByText('在工作流里新增条件「第一次来的狗 +30 分钟」？')).toBeVisible()
+  const item = block(page, '每周复盘：建议修改流程')
+  await expect(item.getByText('在流程里新增条件「第一次来的狗 +30 分钟」？')).toBeVisible()
   // One click from the proposal to the diff.
   await item.getByRole('link', { name: '服务时长' }).click()
   await expect(page).toHaveURL(new RegExp(`${escapeRe(DURATION)}/workflow$`))
@@ -317,7 +317,7 @@ export async function stage4(page: Page, flow: string): Promise<void> {
   await history.getByRole('button', { name: '关闭' }).last().click()
   await expect(history).toBeHidden()
 
-  // 运行记录 names the version of every run.
+  // 更新记录 names the version of every run.
   await view(page, '页面')
   await runRecords(page, async (dialog) => {
     await expect(dialog.getByRole('row').nth(1)).toContainText(/第 \d 版/)
@@ -346,7 +346,7 @@ export async function stage5(page: Page, flow: string): Promise<void> {
   for (const told of [
     '长毛大型 4 小时，短毛小型 2 小时，其他 3 小时',
     '品种表改成了 3 小时 45 分，豆豆和大福改按自己的记录排',
-    '工作流新增了条件「第一次来的狗 +30 分钟」，成为版本 2',
+    '流程新增了条件「第一次来的狗 +30 分钟」，成为版本 2',
   ]) {
     await expect(topic).toContainText(told)
   }

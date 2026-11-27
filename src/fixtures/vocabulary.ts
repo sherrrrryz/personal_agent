@@ -70,6 +70,14 @@ export const confirmationStatusNames = {
 
 export const channels = { wechat: tx('微信', 'WeChat') }
 
+/** 文件「类型」列. */
+export const fileKinds = {
+  sheet: tx('表格', 'Spreadsheet'),
+  doc: tx('文档', 'Document'),
+  pdf: tx('PDF', 'PDF'),
+  images: tx('图片', 'Pictures'),
+}
+
 export const swapStatusNames = { open: tx('待处理', 'Open'), approved: tx('已同意', 'Approved') }
 
 /** The kinds of task of `settings.ai-modes`. */
@@ -77,7 +85,7 @@ export const taskKindNames: Record<TaskKind, Text> = {
   'message-customers': tx('给顾客发消息', 'Message customers'),
   'change-appointments': tx('修改预约', 'Change appointments'),
   'adjust-shifts': tx('调整排班', 'Adjust shifts'),
-  'change-rules': tx('修改规则和工作流', 'Change rules and workflows'),
+  'change-rules': tx('修改规则和流程', 'Change rules and processes'),
   'order-stock': tx('下单补货', 'Order stock'),
   organise: tx('整理归档', 'Organise and file'),
 }

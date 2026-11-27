@@ -17,7 +17,7 @@ import { buildRoutes } from './router'
 // the whole route table (I6): the appointment sheet's and `settings.ai-modes`'
 // links to the workflow editor, the failure fixes' and stubs' link to
 // `settings.accounts`, the recent rows' and records' links to a thread and to
-// a topic's home, and the memory view (the frame's 记忆 link, 服务时长's page
+// a topic's home, and the memory view (the frame's 资料 link, 服务时长's page
 // and the editor's memory node).
 
 beforeEach(() => installFlowDom({ width: 200, height: 100 }))
@@ -51,13 +51,13 @@ describe('links from one package to another', () => {
       [workflowPath(moduleId.appointments), 's2'],
       [workflowPath(moduleId.confirmations), 'e2'],
       [workflowPath(moduleId.notifications), 'e1'],
-      // The frame's failure fixes and the stubs' 去连接.
+      // The frame's failure fixes and the empty pages' 去连接.
       [accountsPath, 'e2'],
       // 最近对话 and a topic's records.
       [threadPath(conversation.id), 's2'],
       [topicPath(conversation.topicId), 's2'],
       [modulePath(moduleId.duration), 's2'],
-      // The frame's 记忆 link of every module — a stub's memory is empty, not missing.
+      // The frame's 资料 link of every module.
       [`${modulePath(moduleId.duration)}/memory`, 's2'],
       [`${modulePath(moduleId.todo)}/memory`, 's2'],
     ]

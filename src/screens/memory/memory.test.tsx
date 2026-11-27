@@ -41,8 +41,9 @@ describe('the memory view (B-13)', () => {
   it('one tab per table; 依据, 适用 and 实测 in words; 尚无数据; markers on the rows an accepted proposal changed', async () => {
     const user = userEvent.setup()
     open('s3-resolved')
-    expect(await within(main()).findByRole('heading', { level: 1, name: '记忆' }, { timeout: 5000 })).toBeInTheDocument()
-    expect(within(main()).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['品种大致时长', '每只狗的实际耗时'])
+    expect(await within(main()).findByRole('heading', { level: 1, name: '资料' }, { timeout: 5000 })).toBeInTheDocument()
+    // The tables arrive after the heading; wait for them rather than racing the simulated delay.
+    expect((await within(main()).findAllByRole('tab', {}, { timeout: 5000 })).map((tab) => tab.textContent)).toEqual(['品种大致时长', '每只狗的实际耗时'])
 
     const breeds = await table('品种大致时长')
     expect(headers(breeds)).toEqual(['品种', '类型', '适用时长', '依据', '实测平均', '更新时间'])
@@ -65,14 +66,14 @@ describe('the memory view (B-13)', () => {
     expect(row('doudou').querySelector('[data-change]')).not.toBeNull()
   })
 
-  it('谁在读这份记忆 links the reader modules and says what each reads; nothing shares or edits; the chat bar is beside it', async () => {
+  it('谁在读这份资料 links the reader modules and says what each reads; nothing shares or edits; the chat bar is beside it', async () => {
     open('s2')
     await table('品种大致时长')
-    const readers = within(main()).getByRole('region', { name: '谁在读这份记忆' })
+    const readers = within(main()).getByRole('region', { name: '谁在读这份资料' })
     expect(within(readers).getByRole('link', { name: '预约' })).toHaveAttribute('href', '/m/profession.appointments')
     expect(within(readers).getByRole('link', { name: '顾客与宠物' })).toHaveAttribute('href', '/m/profession.clients')
     expect(readers).toHaveTextContent('读取：品种大致时长、每只狗的实际耗时')
-    expect(readers).toHaveTextContent('记忆在你的整个工作台里是共享的')
+    expect(readers).toHaveTextContent('资料在你的整个工作台里是共享的')
 
     // Read-only, and no sharing control (D-28): the view holds links and tabs, and no switch, checkbox, field or button.
     for (const role of ['switch', 'checkbox', 'textbox', 'combobox', 'button']) expect(within(main()).queryAllByRole(role), role).toHaveLength(0)
@@ -90,17 +91,18 @@ describe('the memory view (B-13)', () => {
     expect(await within(main()).findByText('暂无记录')).toBeInTheDocument()
 
     act(() => runtime.actions.setPreview('empty'))
-    expect(await within(main()).findByText('这个模块还没有记住任何东西')).toBeInTheDocument()
+    expect(await within(main()).findByText('这个功能还没有记住任何东西')).toBeInTheDocument()
     expect(within(main()).queryByRole('tab')).not.toBeInTheDocument()
 
     act(() => runtime.actions.setPreview('loading'))
-    expect(await within(main()).findByText('正在载入记忆…')).toBeInTheDocument()
-    expect(within(main()).getByRole('heading', { level: 1, name: '记忆' })).toBeInTheDocument()
+    expect(await within(main()).findByText('正在载入资料…')).toBeInTheDocument()
+    expect(within(main()).getByRole('heading', { level: 1, name: '资料' })).toBeInTheDocument()
 
     act(() => runtime.actions.setPreview('error'))
-    expect(await within(main()).findByText('无法载入记忆')).toBeInTheDocument()
+    expect(await within(main()).findByText('无法载入资料')).toBeInTheDocument()
     expect(within(main()).getByRole('button', { name: '重试' })).toBeInTheDocument()
-    expect(within(main()).getByRole('link', { name: '工作流' })).toBeInTheDocument()
+    // The frame stays: its controls are in the header (D-50).
+    expect(screen.getByRole('button', { name: '功能设置' })).toBeInTheDocument()
 
     act(() => runtime.actions.jumpToScene('s2'))
     act(() => runtime.actions.setPreview('long'))
@@ -109,8 +111,11 @@ describe('the memory view (B-13)', () => {
   })
 
   it('a stub module’s memory is empty, not missing', async () => {
-    open('s2', undefined, '/m/todo/memory')
-    expect(await within(main()).findByText('这个模块还没有记住任何东西', {}, { timeout: 5000 })).toBeInTheDocument()
+    // A module she adds is a stub: no table of its own.
+    const { runtime, router } = open('s2', undefined, '/m/notifications')
+    const added = runtime.actions.addModule({ name: '寄养' })!
+    await act(() => router.navigate(`/m/${added}/memory`))
+    expect(await within(main()).findByText('这个功能还没有记住任何东西', {}, { timeout: 5000 })).toBeInTheDocument()
     expect(document.querySelector('[data-route-not-found]')).toBeNull()
   })
 })

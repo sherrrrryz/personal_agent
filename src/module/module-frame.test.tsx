@@ -15,7 +15,7 @@ import { demoAccountId, demoFailures, demoModuleId, demoSnapshot, type DemoLastR
 import { ModuleFrame } from './ModuleFrame'
 
 // R-14 of docs/specs/lofi-prototype-shell.md: the frame's run states, its two
-// sheets, 立即运行 and the first row the four views share.
+// sheets, 刷新 and the first row the four views share.
 
 type View = 'page' | 'workflow' | 'memory' | 'child'
 
@@ -55,7 +55,13 @@ function open(
 }
 
 const status = () => document.querySelector<HTMLElement>('[data-run-status]')!
-const runNow = () => screen.getByRole('button', { name: '立即运行' })
+
+/** Opens 功能设置 (D-50), where the views, the run state, 待你确认 and 更新记录 are. */
+async function openSettings(name = '功能设置') {
+  await userEvent.click(screen.getByRole('button', { name }))
+  return screen.findByRole('dialog', { name })
+}
+const runNow = () => screen.getByRole('button', { name: '刷新' })
 
 /** The demo's state with its last run failed for a reason the demo's own control does not offer. */
 function failedWith(reason: FailureReason): Snapshot {
@@ -69,24 +75,24 @@ describe('ModuleFrame — the run state (R-14)', () => {
     open({ last: 'never' })
     expect(status()).toHaveAttribute('role', 'status')
     expect(status()).toHaveAttribute('data-run-status', 'never-run')
-    expect(status()).toHaveTextContent('尚未运行')
-    expect(status()).toHaveTextContent('没有安排下次运行')
+    expect(status()).toHaveTextContent('尚未更新')
+    expect(status()).toHaveTextContent('没有安排下次更新')
     expect(status().querySelector('svg')).toBeInTheDocument()
   })
 
   it('says when the last run succeeded and when the next one is', () => {
     open()
     expect(status()).toHaveAttribute('data-run-status', 'ok')
-    expect(status()).toHaveTextContent(/上次运行：2026年11月26日 08:00 · 成功/)
-    expect(status()).toHaveTextContent(/下次运行：2026年11月27日 08:00/)
+    expect(status()).toHaveTextContent(/上次更新：2026年11月26日 08:00 · 成功/)
+    expect(status()).toHaveTextContent(/下次更新：2026年11月27日 08:00/)
     expect(status().querySelector('svg')).toBeInTheDocument()
     expect(status().querySelector('[data-run-failure]')).toBeNull()
   })
 
-  it('says a run is under way, and holds 立即运行 busy meanwhile', () => {
+  it('says a run is under way, and holds 刷新 busy meanwhile', () => {
     open({ search: '?preview=loading' })
     expect(status()).toHaveAttribute('data-run-status', 'running')
-    expect(status()).toHaveTextContent('正在运行…')
+    expect(status()).toHaveTextContent('正在更新…')
     expect(status().querySelector('svg')).toBeInTheDocument()
     expect(runNow()).toHaveAttribute('aria-busy', 'true')
   })
@@ -94,21 +100,21 @@ describe('ModuleFrame — the run state (R-14)', () => {
   it.each(demoFailures)('says why the last run failed and how to fix it: %s', (code) => {
     open({ last: code })
     expect(status()).toHaveAttribute('data-run-status', 'failed')
-    expect(status()).toHaveTextContent(/上次运行：2026年11月26日 08:00 · 失败/)
+    expect(status()).toHaveTextContent(/上次更新：2026年11月26日 08:00 · 失败/)
     const failure = status().querySelector<HTMLElement>('[data-run-failure]')!
     expect(failure).toHaveAttribute('data-run-failure', code)
-    expect(failure).toHaveTextContent('上次运行失败')
+    expect(failure).toHaveTextContent('上次更新失败')
     // Said once, politely, by the status region around it.
     expect(failure).not.toHaveAttribute('role')
     if (code === 'account-expired') {
-      expect(failure).toHaveTextContent('「演示账号」的授权已过期，这次运行没能从它那里读到内容。')
+      expect(failure).toHaveTextContent('「演示账号」的授权已过期，这次更新没能从它那里读到内容。')
       expect(within(failure).getByRole('link', { name: '去设置里重新连接' })).toHaveAttribute('href', '/settings/accounts')
     } else if (code === 'account-missing') {
       expect(failure).toHaveTextContent('还没有连接「演示账号」')
       expect(within(failure).getByRole('link', { name: '去设置里连接' })).toHaveAttribute('href', '/settings/accounts')
     } else {
       expect(failure).toHaveTextContent(code === 'platform-unreachable' ? '暂时连不上平台' : '这次的总结没有写出来')
-      expect(within(failure).getByRole('button', { name: '再运行一次' })).toBeInTheDocument()
+      expect(within(failure).getByRole('button', { name: '再试一次' })).toBeInTheDocument()
     }
   })
 
@@ -136,22 +142,22 @@ describe('ModuleFrame — the run state (R-14)', () => {
   it('runs again from the failure, and the new run replaces it', async () => {
     // A run long enough to be seen running when the suite is under load, and a wait for it.
     const { runtime } = open({ last: 'generation-failed', delay: 150 })
-    await userEvent.click(within(status()).getByRole('button', { name: '再运行一次' }))
+    await userEvent.click(within(status()).getByRole('button', { name: '再试一次' }))
     await waitFor(() => expect(status()).toHaveAttribute('data-run-status', 'running'))
     await waitFor(() => expect(status()).toHaveAttribute('data-run-status', 'ok'))
     expect(runtime.getState().runs).toHaveLength(4)
   })
 })
 
-describe('ModuleFrame — 立即运行 (R-14)', () => {
-  it('shows 正在运行 and then the new run', async () => {
+describe('ModuleFrame — 刷新 (R-14)', () => {
+  it('shows 正在更新 and then the new run', async () => {
     const { runtime } = open({ delay: 30 })
     await userEvent.click(runNow())
-    expect(status()).toHaveTextContent('正在运行…')
+    expect(status()).toHaveTextContent('正在更新…')
     expect(runNow()).toHaveAttribute('aria-busy', 'true')
     // Busy, not gone: the button keeps the focus it had.
     expect(runNow()).toHaveFocus()
-    await waitFor(() => expect(status()).toHaveTextContent(/上次运行：2026年11月26日 09:30 · 成功/))
+    await waitFor(() => expect(status()).toHaveTextContent(/上次更新：2026年11月26日 09:30 · 成功/))
     expect(runNow()).not.toHaveAttribute('aria-busy')
     expect(runtime.getState().runs.at(-1)).toMatchObject({ trigger: 'manual', result: 'ok', version: 2 })
   })
@@ -170,7 +176,8 @@ describe('ModuleFrame — 立即运行 (R-14)', () => {
 describe('ModuleFrame — 待你确认 (R-14)', () => {
   it('opens the module’s deferred proposals in a sheet, moves focus in and gives it back', async () => {
     open()
-    const trigger = await screen.findByRole('button', { name: '待你确认（2）' })
+    const settings = await openSettings()
+    const trigger = await within(settings).findByRole('button', { name: '待你确认（2）' })
     await userEvent.click(trigger)
     const sheet = await screen.findByRole('dialog', { name: '待你确认' })
     await waitFor(() => expect(sheet).toContainElement(document.activeElement as HTMLElement))
@@ -179,12 +186,13 @@ describe('ModuleFrame — 待你确认 (R-14)', () => {
     expect(await within(sheet).findByRole('region', { name: '调整两个预约' })).toBeInTheDocument()
     expect(within(sheet).getByRole('region', { name: '补货：沐浴露' })).toBeInTheDocument()
     await userEvent.keyboard('{Escape}')
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '待你确认' })).toBeNull())
     await waitFor(() => expect(trigger).toHaveFocus())
   })
 
   it('resolves a part through the runtime, keeps the decided card until the sheet closes, and counts what is left', async () => {
     const { runtime } = open()
+    await openSettings()
     await userEvent.click(await screen.findByRole('button', { name: '待你确认（2）' }))
     const sheet = await screen.findByRole('dialog', { name: '待你确认' })
     const second = await within(sheet).findByRole('region', { name: '补货：沐浴露' })
@@ -193,7 +201,7 @@ describe('ModuleFrame — 待你确认 (R-14)', () => {
     // Still there, saying what she decided.
     expect(within(sheet).getByRole('region', { name: '补货：沐浴露' })).toHaveTextContent('已接受')
     await userEvent.keyboard('{Escape}')
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '待你确认' })).toBeNull())
     expect(screen.getByRole('button', { name: '待你确认（1）' })).toBeInTheDocument()
     // Opened again, only what still waits is listed.
     await userEvent.click(screen.getByRole('button', { name: '待你确认（1）' }))
@@ -204,6 +212,7 @@ describe('ModuleFrame — 待你确认 (R-14)', () => {
 
   it('says so when nothing waits, and slides in from the bottom in the compact size class', async () => {
     open({ last: 'never', compact: true })
+    await openSettings()
     await userEvent.click(await screen.findByRole('button', { name: '待你确认（0）' }))
     const sheet = await screen.findByRole('dialog', { name: '待你确认' })
     expect(await within(sheet).findByText('没有等你确认的事项')).toBeInTheDocument()
@@ -211,76 +220,78 @@ describe('ModuleFrame — 待你确认 (R-14)', () => {
   })
 })
 
-describe('ModuleFrame — 运行记录 (R-14)', () => {
+describe('ModuleFrame — 更新记录 (R-14)', () => {
   it('lists one row per run, the latest first, in a sheet that handles focus', async () => {
     open({ last: 'account-expired' })
-    const trigger = screen.getByRole('button', { name: '运行记录' })
+    await openSettings()
+    const trigger = screen.getByRole('button', { name: '更新记录' })
     await userEvent.click(trigger)
-    const sheet = await screen.findByRole('dialog', { name: '运行记录' })
+    const sheet = await screen.findByRole('dialog', { name: '更新记录' })
     await waitFor(() => expect(sheet).toContainElement(document.activeElement as HTMLElement))
     const table = await within(sheet).findByRole('table')
     expect(within(table).getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
       '时间',
-      '触发方式',
+      '起因',
       '结果',
       '变化',
-      '工作流版本',
+      '流程版本',
     ])
     const rows = within(table).getAllByRole('row').slice(1)
     expect(rows).toHaveLength(3)
-    expect(rows[0]).toHaveTextContent(/2026年11月26日 08:00定时失败「演示账号」的授权已过期.*没有变化第 2 版/)
-    expect(rows[2]).toHaveTextContent(/2026年11月24日 08:00定时成功1 处更新第 1 版/)
+    expect(rows[0]).toHaveTextContent(/2026年11月26日 08:00按计划失败「演示账号」的授权已过期.*没有变化第 2 版/)
+    expect(rows[2]).toHaveTextContent(/2026年11月24日 08:00按计划成功1 处更新第 1 版/)
     // The result is an icon and a word, never colour alone.
     expect(rows[0].querySelector('svg')).toBeInTheDocument()
-    expect(within(sheet).getByRole('region', { name: '每次运行一行，最新的在最前' })).toHaveAttribute('tabindex', '0')
+    expect(within(sheet).getByRole('region', { name: '每次更新一行，最新的在最前' })).toHaveAttribute('tabindex', '0')
     await userEvent.keyboard('{Escape}')
     await waitFor(() => expect(trigger).toHaveFocus())
   })
 
   it('shows its empty and its failed state', async () => {
     const { runtime } = open({ last: 'never' })
-    await userEvent.click(screen.getByRole('button', { name: '运行记录' }))
-    const sheet = await screen.findByRole('dialog', { name: '运行记录' })
-    expect(await within(sheet).findByText('还没有运行过')).toBeInTheDocument()
+    await openSettings()
+    await userEvent.click(screen.getByRole('button', { name: '更新记录' }))
+    const sheet = await screen.findByRole('dialog', { name: '更新记录' })
+    expect(await within(sheet).findByText('还没有更新过')).toBeInTheDocument()
     act(() => runtime.actions.setPreview('error'))
-    expect(await within(sheet).findByText('无法载入运行记录')).toBeInTheDocument()
+    expect(await within(sheet).findByText('无法载入更新记录')).toBeInTheDocument()
     expect(sheet).toHaveTextContent('暂时连不上平台')
   })
 })
 
 describe('ModuleFrame — the four views (R-14)', () => {
-  const firstRow = () => document.querySelector<HTMLElement>('[data-slot="module-frame-row"]')!
-
-  it.each(['page', 'workflow', 'memory', 'child'] as const)('draws the same first row in the %s view', (view) => {
+  it.each(['page', 'workflow', 'memory', 'child'] as const)('draws the same controls in the %s view, and no visible title (D-50)', async (view) => {
     open({ view })
-    const row = firstRow()
-    expect(row).toHaveTextContent('框架演示')
-    expect(row.querySelector('svg')).toBeInTheDocument()
-    const nav = within(row).getByRole('navigation', { name: '模块视图' })
-    const links = within(nav).getAllByRole('link')
-    expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
-      ['页面', `/m/${demoModuleId}`],
-      ['工作流', `/m/${demoModuleId}/workflow`],
-      ['记忆', `/m/${demoModuleId}/memory`],
-    ])
-    const current = links.filter((link) => link.getAttribute('aria-current') === 'page').map((link) => link.textContent)
-    expect(current).toEqual(view === 'child' ? [] : [{ page: '页面', workflow: '工作流', memory: '记忆' }[view]])
-    // One `h1`: the module's name on the page view, the view's own title elsewhere.
+    // Outside the shell the controls stand at the top of the frame; inside it, in the header's slot.
+    const row = document.querySelector<HTMLElement>('[data-slot="module-frame-row"]')!
+    expect(within(row).getByRole('button', { name: '功能设置' })).toBeInTheDocument()
+    // 刷新 belongs to the page view alone.
+    expect(within(row).queryByRole('button', { name: '刷新' }) !== null).toBe(view === 'page')
+    // One `h1`, out of sight: the module's name on the page view, the view's own title elsewhere.
     const headings = screen.getAllByRole('heading', { level: 1 })
     expect(headings).toHaveLength(1)
     expect(headings[0]).toHaveTextContent(view === 'page' ? '框架演示' : '视图标题')
-    expect(row.contains(headings[0])).toBe(view === 'page')
-    // The run state and the frame's actions belong to the page view alone.
+    expect(headings[0]).toHaveClass('sr-only')
+    // The run state is a quiet region on the page view only; the views are not on the page.
     expect(document.querySelector('[data-run-status]') !== null).toBe(view === 'page')
-    expect(screen.queryByRole('button', { name: '立即运行' }) !== null).toBe(view === 'page')
-    // No breadcrumb of its own: the shell header's is the only one.
-    expect(screen.getAllByRole('navigation')).toHaveLength(1)
+    expect(screen.queryAllByRole('navigation')).toHaveLength(0)
+    const settings = await openSettings()
+    const nav = within(settings).getByRole('navigation', { name: '功能视图' })
+    const links = within(nav).getAllByRole('link')
+    expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
+      ['页面', `/m/${demoModuleId}`],
+      ['流程', `/m/${demoModuleId}/workflow`],
+      ['资料', `/m/${demoModuleId}/memory`],
+    ])
+    const current = links.filter((link) => link.getAttribute('aria-current') === 'page').map((link) => link.textContent)
+    expect(current).toEqual(view === 'child' ? [] : [{ page: '页面', workflow: '流程', memory: '资料' }[view]])
+    expect(within(settings).getByText(/上次更新|尚未更新/)).toBeInTheDocument()
   })
 
-  it('starts the view links from `basePath` when a demo shows the frame elsewhere', () => {
+  it('starts the view links from `basePath` when a demo shows the frame elsewhere', async () => {
     function Elsewhere() {
       const module = useRuntimeState((state) => state.modules[0])
-      return <ModuleFrame module={module} view="memory" title="记忆" basePath="/dev/frame" />
+      return <ModuleFrame module={module} view="memory" title="资料" basePath="/dev/frame" />
     }
     render(
       <Providers>
@@ -291,7 +302,8 @@ describe('ModuleFrame — the four views (R-14)', () => {
         </RuntimeContext>
       </Providers>,
     )
-    expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+    const settings = await openSettings(document.documentElement.lang === 'en' ? 'Feature settings' : '功能设置')
+    expect(within(settings).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
       '/dev/frame',
       '/dev/frame/workflow',
       '/dev/frame/memory',
@@ -307,12 +319,13 @@ describe('ModuleFrame — accessibility and wording (R-14)', () => {
     ['ok', 'workflow'],
   ] as const)('has no axe violation: last run %s, %s view', async (last, view) => {
     const { container } = open({ last, view })
-    await screen.findAllByRole('link')
+    await screen.findByRole('button', { name: '功能设置' })
     expect(await axe(container)).toHaveNoViolations()
   })
 
   it('has no axe violation with a sheet open', async () => {
     open()
+    await openSettings()
     await userEvent.click(await screen.findByRole('button', { name: '待你确认（2）' }))
     const sheet = await screen.findByRole('dialog', { name: '待你确认' })
     await within(sheet).findByRole('region', { name: '调整两个预约' })
@@ -321,22 +334,26 @@ describe('ModuleFrame — accessibility and wording (R-14)', () => {
 
   it('shows no English text or name in zh-CN', async () => {
     const { container } = open({ last: 'account-expired' })
+    await openSettings()
     await screen.findByRole('button', { name: '待你确认（2）' })
     expect(container.textContent).not.toMatch(/[A-Za-z]{2,}/)
     for (const control of [...screen.getAllByRole('button'), ...screen.getAllByRole('link')]) {
       expect(control.getAttribute('aria-label') ?? '').not.toMatch(/[A-Za-z]{2,}/)
     }
-    expect(screen.getByRole('navigation').getAttribute('aria-label')).toBe('模块视图')
+    expect(screen.getByRole('navigation').getAttribute('aria-label')).toBe('功能视图')
+    expect(document.body.textContent).not.toMatch(/[A-Za-z]{2,}/)
   })
 
   it('speaks English in en', async () => {
     open({ locale: 'en', last: 'platform-unreachable' })
+    // 刷新 is beside 功能设置; the sheet makes the rest of the page inert, so look before opening it.
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument()
+    await openSettings('Feature settings')
     expect(await screen.findByRole('button', { name: 'Awaiting you (2)' })).toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Module views' })).toBeInTheDocument()
-    expect(status()).toHaveTextContent(/Last run: Nov 26, 2026, 8:00 AM · failed/)
+    expect(screen.getByRole('navigation', { name: 'Feature views' })).toBeInTheDocument()
+    expect(status()).toHaveTextContent(/Last updated: Nov 26, 2026, 8:00 AM · failed/)
     expect(status()).toHaveTextContent('The platform could not be reached. Nothing was changed.')
-    expect(screen.getByRole('button', { name: 'Run now' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Run history' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Update history' })).toBeInTheDocument()
   })
 })
 
@@ -368,9 +385,9 @@ describe('module definitions', () => {
         title: '页面内容',
         span: 'full',
         props: {
-          title: '这个模块还没有输出',
-          body: '它的工作流还没有产出页面。设置好工作流并运行后，输出的内容会出现在这里。',
-          action: { label: '打开工作流', href: `/m/${module.id}/workflow` },
+          title: '这个功能还没有内容',
+          body: '它的流程还没有产出页面。设置好流程并更新后，给出的内容会出现在这里。',
+          action: { label: '打开流程', href: `/m/${module.id}/workflow` },
         },
       },
     ])

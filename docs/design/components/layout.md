@@ -62,11 +62,18 @@ target-size and no contrast requirement; the "Min target" column binds nothing.
 | `Grid` | None | — | Not interactive; items keep the source order at every column count | — | — | — |
 | `Section` | `region` (a `section` with a name) | Its heading, by `aria-labelledby`; two sections on one page need different titles | Not interactive | — | — | — |
 
+`Section` takes `inline` (D-50): the heading, the body and the actions on one row, wrapping only when they do not fit — for a short body such as `block.summary`'s line of figures.
+
 **The shell's two bars lie over `main` (D-47).** `Page` and `ModuleFrame` sit
 in the shell's `main` (`src/shell/Shell.tsx`), which fills the whole column:
 the shell's header is laid over its start and the chat bar row
 (`[data-shell-bar]`) over its end, both frosted (`surface-frosted`,
-`../TOKENS.md` § Frosted surface), and the page scrolls beneath them. `main`
+`../TOKENS.md` § Frosted surface), and the page scrolls beneath them. Since
+D-50 each bar is a transparent row (`p-2`, `pointer-events-none`) holding a
+floating panel (`[data-shell-panel]`, `shellPanelClass` in
+`src/shell/panel.ts`): frosted, rounded on every corner, ringed like a card.
+The page shows and takes clicks in the room around the panel; the measured
+size of a bar includes that room. `main`
 keeps the room of each bar as padding and as `scroll-padding` — measured, as
 `--shell-header-size` and `--shell-bar-size` on `[data-shell]`
 (`src/shell/use-bar-sizes.ts`) — so a page's first and last content and a

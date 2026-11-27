@@ -5,7 +5,7 @@ import type { Messages } from '../types'
 const messages = {
   'history.open': 'History',
   'history.title': 'Version history',
-  'history.description': 'Every version of this workflow, newest first, with who made it and why.',
+  'history.description': 'Every version of this process, newest first, with who made it and why.',
   'history.version': 'Version {n}',
   'history.current': 'Current',
   'history.author.ai': 'AI',
@@ -40,7 +40,7 @@ const messages = {
   'proposal.approve': 'Approve',
   'proposal.reject': 'Reject',
   'proposal.approved': 'Approved. Version {n} is now in force.',
-  'proposal.rejected': 'Rejected. The workflow stays at version {n}.',
+  'proposal.rejected': 'Rejected. The process stays at version {n}.',
 } satisfies Messages
 
 export default messages

@@ -49,6 +49,8 @@ export type ListBlockProps = {
     badges: BlockBadge[]
     actions?: BlockAction[]
     href?: string
+    /** A picture of what the item is — a pet's portrait (D-50); decorative, beside the title. */
+    avatar?: string
   }>
 }
 

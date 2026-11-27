@@ -31,7 +31,8 @@ label fits on one line.
 
 | Component | What is added | Why — the matrix cell that fails without it |
 | --- | --- | --- |
-| `Button` (`sm`, `md`) | The kit's height as a minimum (`min-h-7` / `min-h-8`) with height `auto`, `max-w-full`, `shrink`, and a label that wraps (`button-variants.ts`) | Sideways scroll at 320 px: the kit's button is one unbreakable line (gallery, long-label demo, zh-CN and en) |
+| `Button` (`sm`, `md`) | The kit's height as a minimum with height `auto`, `max-w-full`, `shrink`, and a label that wraps (`button-variants.ts`) | Sideways scroll at 320 px: the kit's button is one unbreakable line (gallery, long-label demo, zh-CN and en) |
+| `Button` (every size) | **Roomier (D-50):** each size is drawn as the kit's next size up — `sm` → kit `default` (`min-h-8`, `px-3`), `md` → kit `lg` (`min-h-9`, `px-4`), `icon` → kit `icon-lg` (`size-9`) | Not a matrix failure: the owner found the stock buttons too tight (“按钮的样式更宽松一些”) |
 | `Toggle`, `ToggleGroupItem` | The same, for a toggle (`toggle-class.ts`) | Sideways scroll at 320 px with root 24 px: one long item is wider than the page |
 | `ToggleGroup` | `max-w-full flex-wrap` on the group | Sideways scroll at 320 px: the kit's group is one row |
 

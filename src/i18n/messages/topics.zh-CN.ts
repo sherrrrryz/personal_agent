@@ -11,7 +11,7 @@ const messages: Translation<typeof en> = {
   'list.error.body': '暂时连不上平台。你的对话都还在，请重试。',
   'card.conversations': { other: '{count} 段对话' },
   'card.lastActivity': '最近活动：{when}',
-  'card.subModule': '已成为模块',
+  'card.subModule': '已成为功能',
   'card.summaryPending': '摘要生成中',
 
   'topic.summary': 'AI 摘要',
@@ -22,7 +22,7 @@ const messages: Translation<typeof en> = {
   'topic.summary.pending.body': 'AI 读完下面的对话后，摘要会出现在这里。',
   'topic.summary.error.title': '摘要没有生成出来',
   'topic.summary.error.body': '下面的对话记录不受影响。重试可以让 AI 再写一次。',
-  'topic.modules': '相关模块',
+  'topic.modules': '相关功能',
   'topic.records': '对话记录',
   'topic.records.loading': '正在载入对话记录…',
   'topic.record.toggle': '{title} · {date}',

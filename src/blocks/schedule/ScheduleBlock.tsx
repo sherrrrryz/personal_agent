@@ -35,21 +35,59 @@ const pickerShown = {
 // every other resource's does, and a row is as high as its highest cell. The
 // columns fill in the order of the resources; one that is not drawn takes no
 // column and adds nothing to a row's height.
-const gridClass = 'grid grid-flow-col gap-x-4 gap-y-3'
+//
+// With several days the first column names them (D-50): the date once per
+// row, on the left, the resources to its right. The columns stand without a
+// gap and every cell brings its own padding, so the very light line above
+// each day runs unbroken across the whole row.
+const gridClass = 'grid grid-flow-col'
 
-// The number of rows comes from the range, and a column is one share of the
-// width but never narrower than its own minimum (`auto-cols-fr` would let a
-// column shrink under it and run into its neighbour). Neither is a design
-// value: a count and a share.
-const gridTracks = (days: number) => ({ gridTemplateRows: `repeat(${days + 1}, auto)`, gridAutoColumns: '1fr' })
+// The number of rows comes from the range; the date column is as wide as its
+// longest date, and a resource column is one share of the rest but never
+// narrower than its own minimum (`auto-cols-fr` would let a column shrink
+// under it and run into its neighbour). Neither is a design value: a count
+// and a share.
+const gridTracks = (days: number) => ({
+  gridTemplateRows: `repeat(${days + 1}, auto)`,
+  gridTemplateColumns: days > 1 ? 'max-content' : undefined,
+  gridAutoColumns: '1fr',
+})
 
 // Alone, a column takes the block's width; beside others it keeps a readable
 // width, and the row scrolls inside the scroller when they do not all fit.
 const columnClass = 'row-span-full min-w-0 grid-rows-subgrid @md:min-w-48'
 
+// A row's line: very light, above every day but the first row of names.
+const rowLine = 'border-t border-border/50'
+
+// The name heading a column.
+const nameClass = 'px-3 pb-3 font-medium wrap-anywhere'
+
 // Each cell is a size container: its entries' actions stay under the text. (A
 // size container cannot be a subgrid, so it is the cell, not the column.)
-const cellClass = '@container flex min-w-0 flex-col gap-2'
+const cellClass = `@container flex min-w-0 flex-col gap-2 px-3 py-3 ${rowLine}`
+
+const dayFormat = { weekday: 'short', month: 'short', day: 'numeric' } as const
+
+/**
+ * The date column: one date per row, on the left. It is what the eye reads;
+ * assistive technology reads each day where it belongs instead — inside every
+ * resource's cell, out of sight — so the order stays a person, then their
+ * days, and this column is hidden from it.
+ */
+function DayColumn({ days }: { days: string[] }) {
+  const format = useFormat()
+  return (
+    <div aria-hidden="true" data-slot="schedule-days" className="row-span-full grid grid-rows-subgrid">
+      <span className={nameClass} />
+      {days.map((day) => (
+        <p key={day} data-day={day} className={`${rowLine} px-3 py-3 text-sm font-medium whitespace-nowrap text-muted-foreground`}>
+          {format.date(toDate(day), dayFormat)}
+        </p>
+      ))}
+    </div>
+  )
+}
 
 type ColumnProps = {
   resource: ScheduleBlockProps['resources'][number]
@@ -68,7 +106,7 @@ function ResourceColumn({ resource, days, slots, changes, visibility, onAction }
   const time = (at: string) => format.time(toDate(at))
   return (
     <div role="group" aria-labelledby={labelId} data-resource={resource.id} className={`${columnClass} ${visibility}`}>
-      <p id={labelId} className="font-medium wrap-anywhere">
+      <p id={labelId} className={nameClass}>
         {resource.label}
       </p>
       {days.map((day) => {
@@ -77,8 +115,9 @@ function ResourceColumn({ resource, days, slots, changes, visibility, onAction }
         return (
           <div key={day} data-day={day} className={cellClass}>
             {days.length > 1 && (
-              <p id={dayId} className="text-sm font-medium text-muted-foreground">
-                {format.date(toDate(day), { weekday: 'short', month: 'short', day: 'numeric' })}
+              // The date column on the left shows the day; here it names the cell's list for assistive technology.
+              <p id={dayId} className="sr-only">
+                {format.date(toDate(day), dayFormat)}
               </p>
             )}
             {ofDay.length === 0 ? (
@@ -110,8 +149,9 @@ function ResourceColumn({ resource, days, slots, changes, visibility, onAction }
 
 /**
  * `block.schedule` — time slots by resource over a day or a week. The
- * resources are columns in a scroller that has a name and is a tab stop, and
- * a day is one row across them; how many are drawn follows the block's own
+ * resources are columns in a scroller that has a name and is a tab stop, a
+ * day is one row across them, and with several days a date column on the left
+ * names the rows; how many are drawn follows the block's own
  * width, and below the step that shows them all a labelled `Select` chooses
  * the one to start from.
  */
@@ -170,9 +210,10 @@ export function ScheduleBlock({ props, changes, state, onAction }: BlockComponen
           aria-label={t('schedule.region', { range: rangeText })}
           tabIndex={0}
           data-slot="schedule-scroller"
-          className={`overflow-x-auto rounded-md border p-3 ${focusRing}`}
+          className={`overflow-x-auto rounded-md border pt-3 ${focusRing}`}
         >
           <div data-slot="schedule-grid" className={gridClass} style={gridTracks(days.length)}>
+            {days.length > 1 && <DayColumn days={days} />}
             {resources.map((resource, index) => (
               <ResourceColumn
                 key={resource.id}

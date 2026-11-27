@@ -118,7 +118,7 @@ for (const cell of cells) {
       expect(drawn.overlaps, 'nodes that overlap').toEqual([])
       expect(drawn.clipped, 'nodes with text cut off').toEqual([])
       expect(drawn.outside, 'nodes outside the view after fitting').toEqual([])
-      for (const kind of ['触发', '来源', '步骤', '条件', '动作', '输出', '记忆']) {
+      for (const kind of ['开始', '来源', '步骤', '条件', '动作', '内容', '资料']) {
         await expect(page.locator('[data-slot="workflow-node-kind"]', { hasText: kind }).first()).toBeVisible()
       }
       await shoot(page, `canvas-keyboard-${id}-canvas`)
@@ -158,7 +158,7 @@ for (const cell of cells) {
       const review = page.locator('.react-flow__node[data-id="review"]')
       await review.focus()
       await page.keyboard.press('Enter')
-      const sheet = page.getByRole('dialog', { name: '触发：每周一复盘' })
+      const sheet = page.getByRole('dialog', { name: '开始：每周一复盘' })
       await expect(sheet).toBeVisible()
       await expect.poll(() => sheet.evaluate((element) => element.contains(document.activeElement)), 'focus is inside the inspector').toBe(true)
       await settle(page)

@@ -30,8 +30,8 @@ const durationTopic = {
   id: 'duration-rule',
   title: tx('服务时长规则', 'Service duration rule'),
   summary: tx(
-    '你按品种和毛长给了一条估时规则：长毛大型 4 小时，短毛小型 2 小时，其他 3 小时。它成为长期模块「服务时长」，并按每只狗的实际耗时继续学习。',
-    'You gave a rule for estimating time by breed and coat: long-haired large dogs 4 hours, short-haired small dogs 2 hours, others 3 hours. It became the standing module “Service duration” and keeps learning from the time each dog actually takes.',
+    '你按品种和毛长给了一条估时规则：长毛大型 4 小时，短毛小型 2 小时，其他 3 小时。它成为长期功能「服务时长」，并按每只狗的实际耗时继续学习。',
+    'You gave a rule for estimating time by breed and coat: long-haired large dogs 4 hours, short-haired small dogs 2 hours, others 3 hours. It became the standing feature “Service duration” and keeps learning from the time each dog actually takes.',
   ),
   moduleIds: [moduleId.appointments],
 }
@@ -79,8 +79,8 @@ export const chatScripts: readonly ChatScript[] = [
       id: 'confirmations',
       title: tx('预约确认', 'Booking confirmations'),
       summary: tx(
-        '你让 AI 查看第二天的预约并给顾客发确认。这件事之后设成了长期模块「预约确认」，每晚 19:00 自动运行。',
-        'You asked the AI to look up the next day’s bookings and confirm them with the customers. It later became the standing module “Booking confirmations”, which runs every evening at 19:00.',
+        '你让 AI 查看第二天的预约并给顾客发确认。这件事之后设成了长期功能「预约确认」，每晚 19:00 自动更新。',
+        'You asked the AI to look up the next day’s bookings and confirm them with the customers. It later became the standing feature “Booking confirmations”, which updates every evening at 19:00.',
       ),
       moduleIds: [moduleId.appointments],
     },
@@ -92,7 +92,7 @@ export const chatScripts: readonly ChatScript[] = [
     ],
     reply: tx(
       '明天的预约见下表。我已经给每位顾客发了一条确认消息。如果你想每天晚上都这样做，可以把这次对话设为长期。',
-      'Tomorrow’s bookings are in the table below. I have sent each customer a confirmation. If you want this done every evening, keep this conversation as a module.',
+      'Tomorrow’s bookings are in the table below. I have sent each customer a confirmation. If you want this done every evening, keep this conversation as a feature.',
     ),
     attachments: tomorrowsBookings,
   },
@@ -113,19 +113,19 @@ export const chatScripts: readonly ChatScript[] = [
     ],
     reply: tx(
       '明白了。我把你的经验整理成下面这张表：长毛大型 4 小时，短毛小型 2 小时，其他 3 小时。同一个品种的狗差别也可能很大，所以我还会按名字记录每只狗的实际耗时。这听起来是一条长期规则——要不要把它设为长期，以后预约和排班都按它来？',
-      'Understood. I have put your rule of thumb into the table below: long-haired large dogs 4 hours, short-haired small dogs 2 hours, others 3 hours. Dogs of one breed can differ a lot, so I will also record each dog’s actual time by name. This sounds like a standing rule — shall I keep it as a module, so bookings and shifts follow it from now on?',
+      'Understood. I have put your rule of thumb into the table below: long-haired large dogs 4 hours, short-haired small dogs 2 hours, others 3 hours. Dogs of one breed can differ a lot, so I will also record each dog’s actual time by name. This sounds like a standing rule — shall I keep it as a feature, so bookings and shifts follow it from now on?',
     ),
     attachments: ruleTable,
     proposal: () => ({
       moduleId: moduleId.appointments,
       mode: 'assisted',
-      title: tx('把这条规则设为长期', 'Keep this rule as a module'),
+      title: tx('把这条规则设为长期', 'Keep this rule as a feature'),
       parts: [
         {
           id: 'persist',
           text: tx(
-            '在「预约」下创建长期模块「服务时长」，按品种表和每只狗的记录估算时长？',
-            'Create the module “Service duration” under Appointments, estimating from the breed table and each dog’s record?',
+            '在「预约」下创建长期功能「服务时长」，按品种表和每只狗的记录估算时长？',
+            'Create the feature “Service duration” under Appointments, estimating from the breed table and each dog’s record?',
           ),
           state: 'pending',
         },
@@ -170,12 +170,12 @@ export const chatScripts: readonly ChatScript[] = [
           workflow.versions.some((version) => version.n === workflow.current && version.nodes.some((node) => node.id === nodeId.review)),
       ),
     steps: [
-      tx('读取这个工作流的当前版本', 'Reading the current version of this workflow'),
-      tx('找到触发器「每周一复盘」', 'Finding the trigger “Review every Monday”'),
+      tx('读取这个流程的当前版本', 'Reading the current version of this process'),
+      tx('找到开始条件「每周一复盘」', 'Finding the start condition “Review every Monday”'),
     ],
     reply: tx(
-      '可以。这会把「每周一复盘」的时间从 18:00 改为 09:00，其他步骤不变。你确认后，工作流会保存为一个新版本。',
-      'Yes. This moves “Review every Monday” from 18:00 to 09:00 and leaves every other step as it is. Once you confirm, the workflow is saved as a new version.',
+      '可以。这会把「每周一复盘」的时间从 18:00 改为 09:00，其他步骤不变。你确认后，流程会保存为一个新版本。',
+      'Yes. This moves “Review every Monday” from 18:00 to 09:00 and leaves every other step as it is. Once you confirm, the process is saved as a new version.',
     ),
     proposal: (state, context) => {
       const workflow = state.workflows.find((each) => each.moduleId === context.moduleId)

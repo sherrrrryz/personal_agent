@@ -136,10 +136,10 @@ appointment and shift rules over the following weeks. The task-1 spec sizes
 this into work packages; backends are faked. Market competition is out of
 scope — this is a design exercise. **Base modules in the prototype**
 (D-37): `notifications`, `messages`, `calendar` and `topics` are
-built in full because the flows use them; `todo`, `mail` and `files` are built
-as **stubs** — the shared module frame with an empty state and a placeholder
-workflow — so that every IA node is reachable (`WORKFLOW.md` row 1) without
-faking content the story never touches.
+built in full because the flows use them; `todo`, `mail` and `files` were
+first built as stubs, and since D-51 they too are real features filled with
+sample data (her to-dos, her mail, her recent files), so that every base page
+looks lived-in. That sample data never moves the main story.
 
 ## Information architecture
 

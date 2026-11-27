@@ -70,7 +70,7 @@ describe('topics (B-04)', () => {
     expect(rule.getByText('你按品种和毛长给了一条估时规则：长毛大型 4 小时，短毛小型 2 小时，其他 3 小时。')).toBeInTheDocument()
     expect(rule.getByText('1 段对话')).toBeInTheDocument()
     expect(rule.getByText(/^最近活动：2026年11月/)).toBeInTheDocument()
-    expect(rule.getByText('已成为模块')).toBeInTheDocument()
+    expect(rule.getByText('已成为功能')).toBeInTheDocument()
     expect(main().getByRole('link', { name: '预约确认' })).toBeInTheDocument()
     expect(await axe(document.body)).toHaveNoViolations()
   })
@@ -105,7 +105,7 @@ describe('topics.<topic> (B-04)', () => {
     expect(summary).toHaveTextContent('根据 1 条对话整理')
     expect(summary).toHaveTextContent('更新于')
 
-    const modules = main().getByRole('region', { name: '相关模块' })
+    const modules = main().getByRole('region', { name: '相关功能' })
     expect(hrefOf(within(modules).getByRole('link', { name: '服务时长' }))).toBe(modulePath(duration))
 
     const records = main().getByRole('region', { name: '对话记录' })

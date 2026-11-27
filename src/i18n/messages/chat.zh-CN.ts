@@ -21,7 +21,7 @@ const messages: Translation<typeof en> = {
   'thread.label': '在这段对话中回复',
   'thread.untitled': '对话',
   'thread.topic': '话题：{topic}',
-  'thread.module': '模块：{module}',
+  'thread.module': '功能：{module}',
   'thread.details': '关于这段对话',
   'thread.error': '消息没有载入成功。内容没有丢失，请重试。',
 

@@ -40,7 +40,7 @@ const routes: RouteObject[] = [
     children: [
       { path: '/chat/:id', element: <ThreadPage /> },
       { path: '/topics/:id', element: <Page title="一个话题" /> },
-      { path: '/m/:id', element: <Page title="一个模块" /> },
+      { path: '/m/:id', element: <Page title="一个功能" /> },
     ],
   },
 ]
@@ -81,7 +81,7 @@ describe('chat.thread (R-19)', () => {
     await title()
     const details = main().getByRole('list', { name: '关于这段对话' })
     const topic = within(details).getByRole('link', { name: '话题：预约确认' })
-    const module = within(details).getByRole('link', { name: '模块：预约确认' })
+    const module = within(details).getByRole('link', { name: '功能：预约确认' })
     expect(decodeURIComponent(topic.getAttribute('href') ?? '')).toBe('/topics/confirmations')
     expect(decodeURIComponent(module.getAttribute('href') ?? '')).toBe(modulePath(confirmations))
     expect(main().getByRole('switch', { name: '设为长期' })).toBeChecked()
@@ -99,7 +99,7 @@ describe('chat.thread (R-19)', () => {
     const { runtime } = open('/chat/conv-1')
     await title()
     act(() => runtime.actions.archiveSubModule(confirmations))
-    await waitFor(() => expect(main().queryByRole('link', { name: /^模块：/ })).not.toBeInTheDocument())
+    await waitFor(() => expect(main().queryByRole('link', { name: /^功能：/ })).not.toBeInTheDocument())
     expect(main().getByRole('link', { name: '话题：预约确认' })).toBeInTheDocument()
     await waitFor(() => expect(main().getByRole('switch', { name: '设为长期' })).not.toBeChecked())
   })
@@ -189,7 +189,7 @@ describe('chat.thread (R-19)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Tomorrow’s confirmations' })).toBeInTheDocument()
     const details = main().getByRole('list', { name: 'About this chat' })
     expect(within(details).getByRole('link', { name: /^Topic: / })).toBeInTheDocument()
-    expect(within(details).getByRole('link', { name: /^Module: / })).toBeInTheDocument()
+    expect(within(details).getByRole('link', { name: /^Feature: / })).toBeInTheDocument()
     const region = screen.getByRole('region', { name: 'Chat with the AI' })
     expect(within(region).getByRole('textbox', { name: 'Reply in this chat' })).toBeInTheDocument()
   })

@@ -11,19 +11,19 @@ import { breedBasisNames, breeds, breedType, breedTypes, confirmationStatusNames
 /** Words for a module the user adds herself. */
 export const customModule = {
   subName: tx('新的长期事项', 'New standing task'),
-  description: tx('尚未连接来源；连接后这里会按工作流更新。', 'No source connected yet; once connected, its workflow keeps this page up to date.'),
+  description: tx('尚未连接来源；连接后这里会按流程更新。', 'No source connected yet; once connected, its process keeps this page up to date.'),
 }
 
-/** The placeholder workflow of a stub: 手动触发 → 来源：未连接 → 输出. */
+/** The placeholder workflow of a stub: 手动开始 → 来源：未连接 → 内容. */
 export function stubWorkflow() {
   return {
-    reason: tx('创建模块时的占位工作流', 'Placeholder workflow from when the module was created'),
+    reason: tx('创建功能时的占位流程', 'Placeholder process from when the feature was created'),
     nodes: [
-      wf.trigger('manual', tx('手动触发', 'Run by hand'), 'manual'),
+      wf.trigger('manual', tx('手动开始', 'Started by hand'), 'manual'),
       wf.source('source', tx('来源：未连接', 'Source: not connected'), {
         detail: tx('连接账号后才有内容可读。', 'Nothing to read until an account is connected.'),
       }),
-      wf.output('output', 'block.empty', 'empty', tx('输出', 'Output')),
+      wf.output('output', 'block.empty', 'empty', tx('内容', 'Content')),
     ],
     edges: chain('manual', 'source', 'output'),
   }
@@ -69,7 +69,7 @@ const duration: SubModuleTemplate = {
       }),
       wf.condition('deviation', tx('偏差超过 30 分钟', 'Off by more than 30 minutes'), { params: { thresholdMinutes: 30 } }),
       wf.action('propose-rule', tx('提议修改规则', 'Propose a rule change'), 'deferred', 'change-rules', { targetModuleId: self }),
-      wf.memory('memory', tx('记忆', 'Memory'), [tableId.breeds, tableId.dogDurations]),
+      wf.memory('memory', tx('资料', 'Records'), [tableId.breeds, tableId.dogDurations]),
       wf.output('out-summary', 'block.summary', 'summary', tx('学习概况', 'Learning at a glance')),
       wf.output('out-records', 'block.table', blockKey.duration.records, tx('预计与实际', 'Estimated and actual')),
       wf.output('out-rule', 'block.text', 'rule', tx('现在的规则', 'The rule right now')),
@@ -156,7 +156,7 @@ const confirmations: SubModuleTemplate = {
       wf.action('remind-me', tx('无回复则提醒我', 'Tell me when there is no reply'), 'deferred', 'message-customers', {
         targetModuleId: moduleId.notifications,
       }),
-      wf.memory('memory', tx('记忆', 'Memory'), [tableId.confirmations]),
+      wf.memory('memory', tx('资料', 'Records'), [tableId.confirmations]),
       wf.output('out-summary', 'block.summary', 'summary', tx('今晚的确认', 'Tonight’s confirmations')),
       wf.output('out-list', 'block.list', 'customers', tx('每位顾客', 'Each customer')),
       wf.output('out-note', 'block.text', 'note', tx('说明', 'Note')),

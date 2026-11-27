@@ -101,7 +101,7 @@ describe('BlockRenderer — an unknown block id', () => {
     const { container } = renderIn('zh-CN', <BlockRenderer page={page(text('a', '说明'), unknown)} />)
     const region = screen.getByRole('region', { name: '月度图表' })
     const alert = within(region).getByRole('alert')
-    expect(alert).toHaveTextContent('无法显示这个区块')
+    expect(alert).toHaveTextContent('无法显示这个卡片')
     expect(alert).toHaveTextContent('block.chart')
     expect(logged).toHaveBeenCalledWith(expect.stringContaining('"block.chart"'))
     expect(within(screen.getByRole('region', { name: '说明' })).getByText('说明的内容')).toBeInTheDocument()
@@ -111,7 +111,7 @@ describe('BlockRenderer — an unknown block id', () => {
   it('a registered id that the given registry lacks is refused the same way', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     renderIn('en', <BlockRenderer registry={new Map()} page={page(text('a', 'Note'))} />)
-    expect(screen.getByRole('alert')).toHaveTextContent('This block cannot be shown')
+    expect(screen.getByRole('alert')).toHaveTextContent('This card cannot be shown')
     expect(screen.getByRole('alert')).toHaveTextContent('block.text')
   })
 })
@@ -128,8 +128,8 @@ describe('BlockRenderer — pinning', () => {
     const free = screen.getByRole('button', { name: '固定「下一步」' })
     expect(pinned).toHaveAttribute('aria-pressed', 'true')
     expect(free).toHaveAttribute('aria-pressed', 'false')
-    // The name contains the visible label.
-    expect(free).toHaveTextContent('固定')
+    // Icon only (D-50): no visible text, named by \`aria-label\` and explained by its tooltip.
+    expect(free.textContent).toBe('')
     const status = container.querySelector('[data-slot="block-pin-status"]')!
     expect(status).toHaveAttribute('role', 'status')
     expect(status).toBeEmptyDOMElement()
@@ -208,8 +208,8 @@ describe('BlockRenderer — what changed', () => {
   const changes: ChangeSet = { blocks: { a: { body: 'updated' }, shifts: { p1: 'new', p2: 'updated' } } }
 
   it.each([
-    ['zh-CN', '本次运行：3 处更新', '已更新'],
-    ['en', 'This run: 3 updates', 'Updated'],
+    ['zh-CN', '这次带来 3 处更新', '已更新'],
+    ['en', 'This update brought 3 changes', 'Updated'],
   ] as const)('%s: marks the titles the set names and counts the changes in one line', async (locale, line, word) => {
     const { container } = renderIn(locale, <BlockRenderer page={blocks} changes={changes} />)
     const marked = screen.getAllByRole('heading').filter((heading) => heading.querySelector('[data-change]'))
@@ -227,7 +227,7 @@ describe('BlockRenderer — what changed', () => {
 
   it('one update is singular in English; a block named without an item is one change', () => {
     renderIn('en', <BlockRenderer page={blocks} changes={{ blocks: { c: {} } }} />)
-    expect(screen.getByText('This run: 1 update')).toBeInTheDocument()
+    expect(screen.getByText('This update brought 1 change')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '下一步 Updated' })).toBeInTheDocument()
   })
 
@@ -298,7 +298,7 @@ describe('BlockRenderer — the demo', () => {
     const before = drawn()
     const pin = within(first.querySelector(`[data-block-key="${before[1]}"]`) as HTMLElement).getByRole('button', { pressed: false })
     await user.click(pin)
-    await user.click(screen.getByRole('button', { name: locale === 'en' ? 'Re-order the workflow’s output' : '调整工作流的输出顺序' }))
+    await user.click(screen.getByRole('button', { name: locale === 'en' ? 'Re-order the process’s content' : '调整流程的内容顺序' }))
     expect(drawn()[1]).toBe(before[1])
     expect(drawn()).not.toEqual(before)
   })

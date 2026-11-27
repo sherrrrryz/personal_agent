@@ -51,11 +51,12 @@ describe('scenes', () => {
       [moduleId.shifts, 'profession'],
     ])
     expect(state.conversations).toEqual([])
-    expect(state.accounts.filter((account) => account.status === 'connected')).toHaveLength(3)
+    // 日历, 微信 and 收款, and Google and Slack for 邮件 · 文件 · 待办 (D-51).
+    expect(state.accounts.filter((account) => account.status === 'connected').map((account) => account.id)).toEqual(['calendar', 'wechat', 'payments', 'google', 'slack'])
     expect(state.modeSettings.filter((setting) => setting.ceiling !== null)).toHaveLength(2)
-    // Every module has a workflow; a stub's is the three-node placeholder.
+    // Every module has a workflow; 待办 · 邮件 · 文件 have their own, not the placeholder (D-51).
     for (const module of state.modules) expect(workflowOf(state, module.id), module.id).toBeDefined()
-    expect(versionOf(workflowOf(state, moduleId.todo)!).nodes).toHaveLength(3)
+    for (const id of [moduleId.todo, moduleId.mail, moduleId.files]) expect(versionOf(workflowOf(state, id)!).nodes.length, id).toBeGreaterThan(3)
     // Every edge joins two nodes of its version, and every table a module names exists.
     for (const workflow of state.workflows) {
       const ids = new Set(versionOf(workflow).nodes.map((node) => node.id))
@@ -101,6 +102,7 @@ describe('scenes', () => {
     // 设置预约时长 already ran: the last run of 预约 reports the five rewritten bookings.
     const lastRun = state.runs.filter((run) => run.moduleId === moduleId.appointments).at(-1)!
     expect(Object.keys(lastRun.changes.blocks.schedule)).toHaveLength(5)
-    expect(state.topics.map((topic) => topic.id)).toEqual(['confirmations', 'duration-rule'])
+    // The two topics of the story, and between them what she talked about on the side.
+    expect(state.topics.map((topic) => topic.id)).toEqual(['confirmations', 'winter-care', 'commission', 'shampoo-supplier', 'duration-rule'])
   })
 })

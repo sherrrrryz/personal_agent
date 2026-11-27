@@ -29,21 +29,21 @@ const messages = {
   'list.error.body': 'Nothing was lost. Try again in a moment.',
 
   // PersistenceSwitch.
-  'persistence.label': 'Keep as a module',
+  'persistence.label': 'Keep as a feature',
   'persistence.description.off':
-    'Turning this on makes this conversation a sub-module with its own workflow that can run again. You confirm its name and where it belongs first.',
-  'persistence.description.on': 'This conversation is a sub-module. Turning this off archives it; the conversation stays in Topics.',
+    'Turning this on makes this conversation a sub-feature with its own process that can update again. You confirm its name and where it belongs first.',
+  'persistence.description.on': 'This conversation is a sub-feature. Turning this off archives it; the conversation stays in Topics.',
   'persistence.description.named':
-    'This conversation is the sub-module “{name}”. Turning this off archives it; the conversation stays in Topics.',
-  'persistence.confirm.title': 'Create the sub-module',
+    'This conversation is the sub-feature “{name}”. Turning this off archives it; the conversation stays in Topics.',
+  'persistence.confirm.title': 'Create the sub-feature',
   'persistence.confirm.name': 'Name',
-  'persistence.confirm.nameRequired': 'Give the sub-module a name.',
+  'persistence.confirm.nameRequired': 'Give the sub-feature a name.',
   'persistence.confirm.parent': 'Belongs to',
   'persistence.confirm.create': 'Create',
-  'persistence.archive.title': 'Archive this sub-module?',
+  'persistence.archive.title': 'Archive this sub-feature?',
   'persistence.archive.titleNamed': 'Archive “{name}”?',
   'persistence.archive.body':
-    'It leaves the navigation and stops running. Its conversations stay in Topics, and nothing it has recorded is deleted.',
+    'It leaves the navigation and stops updating. Its conversations stay in Topics, and nothing it has recorded is deleted.',
   'persistence.archive.confirm': 'Archive',
 
   // Demo captions.
@@ -74,12 +74,12 @@ const messages = {
   'demo.list.failed': 'Failed answer',
   'demo.list.long': '60 messages',
   'demo.list.working': 'Working',
-  'demo.list.workingCaption': 'Working: the steps are open, the last one running',
+  'demo.list.workingCaption': 'Working: the steps are open, the last one updating',
   'demo.list.step1': 'Looking up tomorrow’s bookings',
   'demo.list.step2': 'Drafting a confirmation for each owner',
   'demo.list.streamingCaption': 'Streaming: the part that has arrived, and the status',
   'demo.list.failedCaption': 'Failed answer: said in words, with retry',
-  'demo.list.note': 'Loading keeps the page busy; the matrix runs it with the loading preview.',
+  'demo.list.note': 'Loading keeps the page busy; the matrix updates it with the loading preview.',
   'demo.list.user1': 'Which appointments are there tomorrow? Send the owners a confirmation.',
   'demo.list.ai1':
     'Tomorrow has five appointments. I drafted a confirmation for each owner; nothing is sent until you agree.',
@@ -100,7 +100,7 @@ const messages = {
 
   // PersistenceSwitch demo.
   'demo.persistence.oneOff': 'One-off conversation',
-  'demo.persistence.persistent': 'Already a sub-module',
+  'demo.persistence.persistent': 'Already a sub-feature',
   'demo.persistence.disabled': 'Disabled',
   'demo.persistence.name': 'Appointment confirmations',
   'demo.persistence.parent1': 'Appointments',

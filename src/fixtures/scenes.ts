@@ -6,9 +6,9 @@ import { addDays, datePart, nextAt } from '@/runtime/time'
 
 import { row } from './build'
 import { column, moduleId, tableId } from './keys'
-import { closeBookingsBefore, notice, ranAt, request } from './scene-tools'
+import { closeBookingsBefore, customersWrote, ranAt, request, setAgenda, setDesk, setNotices, talkedAbout } from './scene-tools'
 import { scriptId } from './scripts'
-import { acceptReview, approveFirstVisit, firstChange, learning, lookingBack, workflowChanges } from './story'
+import { acceptReview, approveFirstVisit, earCleaner, firstChange, learning, lookingBack, shampoo, workflowChanges } from './story'
 import { booking, ownerOf, syncNextDue, world } from './world'
 
 // The scenes of the story (spec part 2 § Fake workflow runtime, "Scenes").
@@ -28,7 +28,7 @@ export const sceneNames: Record<SceneId, Text> = {
   e1: tx('第一晚', 'First evening'),
   e2: tx('第二晚', 'Second evening'),
   s0: tx('今天', 'Today'),
-  s1: tx('变成工作流', 'It becomes a workflow'),
+  s1: tx('变成流程', 'It becomes a process'),
   s2: tx('第 1–2 周', 'Weeks 1–2'),
   s3: tx('第 3 周', 'Week 3'),
   s4: tx('第 2 个月', 'Month 2'),
@@ -99,7 +99,22 @@ function secondEvening(draft: Snapshot): void {
       at: `${today}T21:00`,
     })
   }
-  notice(draft, 'notice-confirmations', tx('预约确认已发出 3 条，2 位顾客还没回复。', 'Three confirmations sent; two customers have not answered.'), moduleId.confirmations)
+  setNotices(draft, [
+    ['notice-confirmations', tx('预约确认已发出 3 条，2 位顾客还没回复。', 'Three confirmations sent; two customers have not answered.'), moduleId.confirmations],
+    ['notice-today-done', tx('今天的 4 个预约都已完成：雪球、Max、土豆和胖虎。', 'All four of today’s bookings are done: Xueqiu, Max, Tudou and Panghu.'), moduleId.appointments, `${today}T18:30`],
+    ['notice-tudou-skin', tx('给土豆洗澡时发现背上有一小块皮肤发红，已记进档案，建议告诉主人。', 'Bathing Tudou showed a small red patch on its back; it is in the file, and worth telling the owner.'), moduleId.clients, `${today}T15:50`],
+    ['notice-mail-quote', tx('宠沐供应链发来香波报价：订 12 瓶以上打九折。', 'Chongmu Supply sent a shampoo quote: 10% off from 12 bottles.'), moduleId.mail, `${today}T10:40`],
+    ['notice-swap', tx('阿杰申请和小陈对调周六的班，等你批准。', 'A-Jie asks to swap Saturday’s shift with Xiao Chen and waits for your approval.'), moduleId.shifts, '2026-11-02T16:10'],
+    ['notice-shampoo', shampoo, moduleId.inventory, '2026-11-02T21:00'],
+    ['notice-ear-cleaner', earCleaner, moduleId.inventory, '2026-11-02T21:00'],
+  ])
+  customersWrote(draft, [
+    ['msg-chen-confirm', 'maiya', tx('收到确认，明天十点见！', 'Got the confirmation — see you at ten tomorrow!'), moduleId.confirmations, `${today}T19:02`],
+    ['msg-zheng-skin', 'tudou', tx('谢谢提醒，土豆背上那块我们会带去医院看看。', 'Thanks for telling us — we will take Tudou to the vet about that patch.'), moduleId.clients, `${today}T18:40`],
+    ['msg-wang', 'dafu', tx('大福下周想约一次洗剪吹，最好是周五上午。', 'Dafu would like a full groom next week, ideally on Friday morning.'), moduleId.appointments, `${today}T12:30`],
+  ])
+  setAgenda(draft)
+  setDesk(draft)
 }
 
 /** `s0` 今天 — Thursday morning; 可乐 is booked for the default two hours. */
@@ -136,10 +151,27 @@ function today(draft: Snapshot): void {
     const module = findModule(draft, id)
     if (module?.nextRunAt) module.nextRunAt = nextAt(draft.storyTime, module.nextRunAt.slice(11))
   }
-  notice(draft, 'notice-kele', tx('可乐（阿拉斯加）今天 14:00 的预约按默认 2 小时安排。', 'Kele (Alaskan Malamute) is booked today at 14:00 for the default 2 hours.'), moduleId.appointments)
+  setNotices(draft, [
+    ['notice-kele', tx('可乐（阿拉斯加）今天 14:00 的预约按默认 2 小时安排。', 'Kele (Alaskan Malamute) is booked today at 14:00 for the default 2 hours.'), moduleId.appointments],
+    ['notice-messages', tx('有 2 条顾客消息还没回复。', 'Two customer messages have not been answered yet.'), moduleId.messages, `${day}T09:58`],
+    ['notice-tudou-request', tx('郑女士想给土豆约下周的洗剪吹，还没排时间。', 'Ms Zheng wants a full groom for Tudou next week; no time is set yet.'), moduleId.appointments, `${day}T09:20`],
+    ['notice-week', tx('本周还有 5 个预约，周六有 2 个：雪球和 Max。', 'Five more bookings this week, two of them on Saturday: Xueqiu and Max.'), moduleId.appointments, `${day}T08:00`],
+    ['notice-confirmed', tx('今天的 2 位顾客都已确认到店：林女士（豆豆）和吴先生（可乐）。', 'Both of today’s customers have confirmed: Ms Lin (Doudou) and Mr Wu (Kele).'), moduleId.confirmations, `${addDays(day, -1)}T19:40`],
+    ['notice-mail-vet', tx('安心宠物医院的李医生来信：合作协议月底到期，想约时间通个电话。', 'Dr Li at Anxin Pet Clinic wrote: the partnership ends this month, and he would like to arrange a call.'), moduleId.mail, `${addDays(day, -1)}T16:30`],
+    ['notice-swap', tx('阿杰申请和小陈对调周六的班，等你批准。', 'A-Jie asks to swap Saturday’s shift with Xiao Chen and waits for your approval.'), moduleId.shifts, '2026-11-02T16:10'],
+    ['notice-shampoo', shampoo, moduleId.inventory, `${addDays(day, -1)}T21:00`],
+  ])
+  customersWrote(draft, [
+    ['msg-lin-here', 'doudou', tx('我们到楼下了，豆豆今天特别兴奋。', 'We are downstairs — Doudou is very excited today.'), moduleId.appointments, `${day}T09:56`],
+    ['msg-wu-kele', 'kele', tx('下午两点送可乐过去，它最近掉毛很多。', 'Bringing Kele over at two; it has been shedding a lot lately.'), moduleId.clients, `${day}T08:30`],
+    ['msg-he-conditioner', 'max', tx('护毛素先帮我留一瓶，周六来的时候拿。', 'Please keep a bottle of conditioner for me; I will pick it up on Saturday.'), moduleId.inventory, `${addDays(day, -1)}T20:15`, false],
+  ])
+  setAgenda(draft)
+  setDesk(draft)
+  talkedAbout(draft, 's0')
 }
 
-/** `s1` 变成工作流 — she accepted: 服务时长 exists and every open booking is on its breed's row. */
+/** `s1` 变成流程 — she accepted: 服务时长 exists and every open booking is on its breed's row. */
 function becomesWorkflow(draft: Snapshot): void {
   replayScript(draft, scriptId.hero, { moduleId: moduleId.appointments, view: 'page' })
   const proposal = draft.proposals.at(-1)

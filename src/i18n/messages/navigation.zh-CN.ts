@@ -45,7 +45,7 @@ const messages: Translation<typeof en> = {
   'demo.breadcrumb.bookings': '老顾客的预约与提醒',
   'demo.breadcrumb.duration': '各品种和毛发类型的美容时长',
 
-  'demo.tabs.name': '记忆里的表格',
+  'demo.tabs.name': '资料里的表格',
   'demo.tabs.breeds': '品种大致时长',
   'demo.tabs.dogs': '每只狗的实际耗时',
   'demo.tabs.archive': '归档（暂无内容）',
@@ -84,13 +84,13 @@ const messages: Translation<typeof en> = {
   'demo.alert.confirm': '断开',
   'demo.alert.result': '已断开 {count} 次。',
 
-  'demo.sheet.end': '运行记录（从侧边打开）',
-  'demo.sheet.bottom': '运行记录（从底部打开）',
-  'demo.sheet.title': '运行记录',
-  'demo.sheet.description': '这个工作流每运行一次，这里就多一行。',
-  'demo.sheet.row1': '今天 09:00 · 按计划运行 · 发出三条提醒',
-  'demo.sheet.row2': '昨天 09:00 · 按计划运行 · 没有需要发送的内容',
-  'demo.sheet.row3': '周一 14:20 · 由你手动运行 · 发出一条提醒，另有一条待你确认',
+  'demo.sheet.end': '更新记录（从侧边打开）',
+  'demo.sheet.bottom': '更新记录（从底部打开）',
+  'demo.sheet.title': '更新记录',
+  'demo.sheet.description': '这个流程每更新一次，这里就多一行。',
+  'demo.sheet.row1': '今天 09:00 · 按计划更新 · 发出三条提醒',
+  'demo.sheet.row2': '昨天 09:00 · 按计划更新 · 没有需要发送的内容',
+  'demo.sheet.row3': '周一 14:20 · 由你手动更新 · 发出一条提醒，另有一条待你确认',
   'demo.sheet.done': '完成',
 
   'demo.collapsible.trigger': '3 月 12 日的对话',
@@ -99,8 +99,8 @@ const messages: Translation<typeof en> = {
 
   'demo.tooltip.add': '添加预约',
   'demo.tooltip.addHint': '新建一条今天的空白预约',
-  'demo.tooltip.run': '立即运行',
-  'demo.tooltip.runHint': '在计划之外把工作流运行一次',
+  'demo.tooltip.run': '刷新',
+  'demo.tooltip.runHint': '在计划之外把流程更新一次',
 
   'demo.card.title': '明天',
   'demo.card.description': '六个预约，第一个在九点。',

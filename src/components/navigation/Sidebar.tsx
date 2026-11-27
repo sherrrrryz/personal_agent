@@ -38,7 +38,8 @@ export type SidebarProviderProps = {
 export function SidebarProvider({ placement = 'viewport', children, ...state }: SidebarProviderProps) {
   return (
     <SidebarPlacementContext value={placement}>
-      <KitSidebarProvider {...state} className={placement === 'inline' ? 'min-h-0' : undefined}>
+      {/* In the viewport the app stands on the canvas, the floating sidebar and the cards over it (D-50). */}
+      <KitSidebarProvider {...state} className={placement === 'inline' ? 'min-h-0' : 'bg-canvas'}>
         {children}
       </KitSidebarProvider>
     </SidebarPlacementContext>
@@ -53,8 +54,9 @@ export type SidebarProps = {
 }
 
 /**
- * The app's navigation, as stock shadcn/ui draws it (D-43): open, an icon rail, or — in the
- * compact size class — a sheet off the canvas that `SidebarTrigger` opens.
+ * The app's navigation, as stock shadcn/ui draws it (D-43) in the kit's own `floating` variant
+ * (D-50: a panel with its background, ring and small shadow, set off the canvas): open, an icon
+ * rail, or — in the compact size class — a sheet off the canvas that `SidebarTrigger` opens.
  */
 export function Sidebar({ 'aria-label': label, children }: SidebarProps) {
   const t = useT('navigation')
@@ -81,7 +83,7 @@ export function Sidebar({ 'aria-label': label, children }: SidebarProps) {
     )
   }
   return (
-    <KitSidebar collapsible="icon" mobileTitle={label}>
+    <KitSidebar variant="floating" collapsible="icon" mobileTitle={label}>
       {body}
     </KitSidebar>
   )

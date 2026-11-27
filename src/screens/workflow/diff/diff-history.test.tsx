@@ -53,7 +53,7 @@ const marked = () => nodes().filter((each) => each.querySelector('[data-diff]'))
 const versionLine = () => document.querySelector('[data-slot="workflow-version"]')
 /** The canvas with its nodes laid out and visible. */
 async function laidOut() {
-  await screen.findByRole('region', { name: '工作流画布' }, wait)
+  await screen.findByRole('region', { name: '流程画布' }, wait)
   await waitFor(() => expect(nodes().length).toBeGreaterThan(0), wait)
   await waitFor(() => expect(nodes()[0]).toBeVisible(), wait)
 }
@@ -165,7 +165,7 @@ describe('the workflow editor’s diff and history (B-12)', () => {
     await waitFor(() => expect(workflow().proposed).toBeUndefined())
     expect(workflow().current).toBe(1)
     await waitFor(() => expect(versionLine()).toHaveTextContent('版本 1（当前）'))
-    expect(document.querySelector('[data-slot="workflow-decision"]')).toHaveTextContent('已拒绝。工作流仍是版本 1。')
+    expect(document.querySelector('[data-slot="workflow-decision"]')).toHaveTextContent('已拒绝。流程仍是版本 1。')
     expect(document.querySelector(`.react-flow__node[data-id="${nodeId.firstVisit}"]`)).toBeNull()
     expect(document.querySelector('[data-slot="workflow-canvas"]')).toHaveAttribute('data-mode', 'view')
   })

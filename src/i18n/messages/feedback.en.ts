@@ -64,7 +64,7 @@ const messages = {
 
   'progress.demo.label': 'Step 2 of 3',
   'progress.demo.done': 'Learning from finished appointments',
-  'progress.demo.indeterminate': 'Preparing the workflow',
+  'progress.demo.indeterminate': 'Preparing the process',
 
   'dataState.demo.pick': 'State shown',
   'dataState.demo.ready': 'Ready',
@@ -108,8 +108,8 @@ const messages = {
   'item.demo.body1': '3 connected',
   'item.demo.title2': 'How the AI acts',
   'item.demo.body2': '2 kinds of task set',
-  'item.demo.title3': 'Your profession and modules',
-  'item.demo.body3': '4 modules. A long status line shows that the description wraps onto further lines instead of being cut off after two.',
+  'item.demo.title3': 'Your profession and features',
+  'item.demo.body3': '4 features. A long status line shows that the description wraps onto further lines instead of being cut off after two.',
   'item.demo.links': 'As links',
   'item.demo.static': 'With media and an action',
   'item.demo.dog': 'Momo',

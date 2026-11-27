@@ -24,6 +24,12 @@ export const tableId = {
   notices: 'notices',
   messages: 'customer-messages',
   events: 'events',
+  /** 待办 — her to-dos: from Slack and from what the features need her to do. */
+  tasks: 'tasks',
+  /** 邮件 — the mail in her Google mailbox. */
+  emails: 'emails',
+  /** 文件 — the files of her Google Drive she worked on lately. */
+  files: 'recent-files',
   appointments: 'appointments',
   dogs: 'dogs',
   visits: 'visits',

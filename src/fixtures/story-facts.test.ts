@@ -193,17 +193,29 @@ const facts: Fact[] = [
   ],
   [
     'todo · mail · files',
-    'stubs: what the module will do once connected, 尚未运行, the placeholder workflow 手动触发 → 来源：未连接 → 输出, empty memory',
+    'filled with sample data in every scene (D-51): a table of its own read from Google or Slack, a workflow of its own that has run, to-dos open and done, mail that needs a reply, recent files',
     () => {
       for (const ref of sceneRefs) {
         const state = at(ref)
-        for (const id of [moduleId.todo, moduleId.mail, moduleId.files]) {
-          expect(labels(state, id)).toEqual(['手动触发', '来源：未连接', '输出'])
-          expect(runsOf(state, id)).toEqual([])
-          expect(findModule(state, id)?.memoryTableIds).toEqual([])
-          expect(findModule(state, id)?.description['zh-CN']).toContain('连接')
+        const today = datePart(state.storyTime)
+        for (const [id, table] of [
+          [moduleId.todo, tableId.tasks],
+          [moduleId.mail, tableId.emails],
+          [moduleId.files, tableId.files],
+        ] as const) {
+          expect(findModule(state, id)?.memoryTableIds, `${ref} ${id}`).toEqual([table])
+          expect(rows(state, table).length, `${ref} ${table}`).toBeGreaterThanOrEqual(8)
+          expect(labels(state, id), `${ref} ${id}`).not.toContain('来源：未连接')
+          expect(latestRun(state, id)?.result, `${ref} ${id}`).toBe('ok')
         }
+        const tasks = rows(state, tableId.tasks)
+        expect(tasks.some((task) => task.cells.done === true) && tasks.some((task) => task.cells.done === false), ref).toBe(true)
+        expect(tasks.some((task) => task.cells.due === today && task.cells.done === false), ref).toBe(true)
+        expect(new Set(tasks.map((task) => task.cells.source)).size, ref).toBeGreaterThanOrEqual(3)
+        expect(rows(state, tableId.emails).filter((mail) => mail.cells.reply === true).length, ref).toBeGreaterThanOrEqual(3)
+        for (const file of rows(state, tableId.files)) expect(String(file.cells.modified) <= state.storyTime, `${ref} ${file.id}`).toBe(true)
       }
+      for (const account of ['google', 'slack']) expect(at('e1').accounts.find((each) => each.id === account)?.status, account).toBe('connected')
     },
   ],
   [
@@ -211,16 +223,25 @@ const facts: Fact[] = [
     'AI-given title, summary with its time, the conversations with their surface, last activity, the sub-module that grew from it',
     () => {
       const state = at('s1')
-      expect(state.topics.map((topic) => topic.title['zh-CN'])).toEqual(['预约确认', '服务时长规则'])
+      // The two topics of the story, and the side conversations she had with the AI (D-51).
+      expect(state.topics.map((topic) => topic.title['zh-CN'])).toEqual(['预约确认', '冬季护毛提醒', '美容师提成', '低敏香波换供应商', '服务时长规则'])
       for (const topic of state.topics) {
         expect(topic.summary?.['zh-CN'].length).toBeGreaterThan(20)
         expect(topic.summaryAt).toBeDefined()
         expect(topic.lastActivityAt).toBeDefined()
         const records = conversationsOf(state, topic.id)
         expect(records).toHaveLength(1)
-        expect(records[0]).toMatchObject({ surface: 'in-place', persistence: 'persistent' })
-        expect(topic.moduleIds).toContain(records[0].subModuleId)
+        if (topic.id === 'confirmations' || topic.id === 'duration-rule') {
+          expect(records[0]).toMatchObject({ surface: 'in-place', persistence: 'persistent' })
+          expect(topic.moduleIds).toContain(records[0].subModuleId)
+        } else {
+          expect(records[0]).toMatchObject({ surface: 'thread', persistence: 'one-off' })
+          expect(records[0].messages.length, topic.id).toBeGreaterThanOrEqual(2)
+          expect(records[0].messages.at(-1)?.at, topic.id).toBe(topic.lastActivityAt)
+        }
       }
+      // By the end there are seven: one more side conversation in weeks 1–2, one in month 2.
+      expect(at('s5').topics).toHaveLength(7)
       expect(previewErrors.topic).toEqual({ reason: { code: 'generation-failed' }, keeps: 'partial' })
     },
   ],
@@ -323,7 +344,7 @@ const facts: Fact[] = [
   ],
   [
     '…sub.confirmations 预约确认',
-    'before its first run in `e1` (今晚 19:00 第一次运行); 已发 · 已回复 · 无回复 per customer',
+    'before its first run in `e1` (今晚 19:00 第一次更新); 已发 · 已回复 · 无回复 per customer',
     () => {
       // Turning the switch in `e1`: the module exists, has never run, and runs first at 19:00 tonight.
       const runtime = runtimeIn('e1')
@@ -342,10 +363,11 @@ const facts: Fact[] = [
   ],
   [
     'settings',
-    'live status lines: 3 个已连接 · 2 类任务已设置 · 4 个模块; a fresh workspace has none',
+    'live status lines: 5 个已连接 · 2 类任务已设置 · 4 个功能; a fresh workspace has none',
     () => {
       const state = at('e1')
-      expect(state.accounts.filter((account) => account.status === 'connected')).toHaveLength(3)
+      // 日历, 微信, 收款 — and Google and Slack, which 邮件 · 文件 · 待办 read (D-51).
+      expect(state.accounts.filter((account) => account.status === 'connected')).toHaveLength(5)
       expect(state.modeSettings.filter((setting) => setting.ceiling !== null)).toHaveLength(2)
       expect(state.modules.filter((module) => module.kind === 'profession')).toHaveLength(4)
       const fresh = emptyVariant(state)
@@ -355,9 +377,9 @@ const facts: Fact[] = [
   ],
   [
     'settings.ai-modes',
-    'one row per kind of task — 给顾客发消息 · 修改预约 · 调整排班 · 修改规则和工作流 · 下单补货 · 整理归档 — each listing the actions it caps; a row capping nothing',
+    'one row per kind of task — 给顾客发消息 · 修改预约 · 调整排班 · 修改规则和流程 · 下单补货 · 整理归档 — each listing the actions it caps; a row capping nothing',
     () => {
-      expect(taskKinds.map((kind) => taskKindNames[kind]['zh-CN'])).toEqual(['给顾客发消息', '修改预约', '调整排班', '修改规则和工作流', '下单补货', '整理归档'])
+      expect(taskKinds.map((kind) => taskKindNames[kind]['zh-CN'])).toEqual(['给顾客发消息', '修改预约', '调整排班', '修改规则和流程', '下单补货', '整理归档'])
       const state = at('s1')
       expect(state.modeSettings.map((setting) => setting.taskKind)).toEqual([...taskKinds])
       expect(actionsOfKind(state, 'change-rules').map(({ node: each }) => each.label['zh-CN'])).toEqual(['提议修改规则'])
@@ -383,7 +405,7 @@ const facts: Fact[] = [
   ],
   [
     'memory view',
-    '品种大致时长: 依据 你的经验 / n 只的平均, 尚无数据 rows; 每只狗的实际耗时; 谁在读这份记忆',
+    '品种大致时长: 依据 你的经验 / n 只的平均, 尚无数据 rows; 每只狗的实际耗时; 谁在读这份资料',
     () => {
       expect(Object.values(breedBasisNames).map((name) => name['zh-CN'])).toEqual(['你的经验', '实测平均'])
       const state = at('s3-resolved')
@@ -434,7 +456,7 @@ const facts: Fact[] = [
         '记录实际耗时',
         '偏差超过 30 分钟',
         '提议修改规则',
-        '记忆',
+        '资料',
         '学习概况',
         '预计与实际',
         '现在的规则',
@@ -447,7 +469,7 @@ const facts: Fact[] = [
       ])
       expect(node(state, moduleId.duration, '建议排班调整').targetModuleId).toBe(moduleId.shifts)
       expect(node(state, moduleId.duration, '偏差超过 30 分钟').params).toEqual({ thresholdMinutes: 30 })
-      expect(node(state, moduleId.duration, '记忆').tables).toEqual([tableId.breeds, tableId.dogDurations])
+      expect(node(state, moduleId.duration, '资料').tables).toEqual([tableId.breeds, tableId.dogDurations])
       const edges = versionOf(workflowOf(state, moduleId.duration)!).edges.map((edge) => `${edge.from}>${edge.to}`)
       for (const edge of ['booking-changed>pet-files', 'pet-files>estimate', 'estimate>set-duration', 'set-duration>suggest-shifts', 'set-duration>record-actual', 'record-actual>deviation', 'deviation>propose-rule', 'review>deviation']) {
         expect(edges, edge).toContain(edge)
@@ -469,7 +491,7 @@ const facts: Fact[] = [
   ],
   [
     'B-22 (s2)',
-    '预计 vs 实际 per appointment with markers; 豆豆 3 h 20 · 大福 4 h 10 · 雪球 2 h 10 · Max 3 h 05 (麦芽 3 h 40 · 奶茶 3 h 50 · Lucky 3 h 45); 金毛 实测 约 3 h 45（5 只，3 h 20 – 4 h 10）with 适用 still 4 h（你的经验）, 比熊 约 2 h 10, 边牧 约 3 h 05; unseen breeds 尚无数据; bookings still on the breed rows; 运行记录 lists the two weeks’ runs',
+    '预计 vs 实际 per appointment with markers; 豆豆 3 h 20 · 大福 4 h 10 · 雪球 2 h 10 · Max 3 h 05 (麦芽 3 h 40 · 奶茶 3 h 50 · Lucky 3 h 45); 金毛 实测 约 3 h 45（5 只，3 h 20 – 4 h 10）with 适用 still 4 h（你的经验）, 比熊 约 2 h 10, 边牧 约 3 h 05; unseen breeds 尚无数据; bookings still on the breed rows; 更新记录 lists the two weeks’ runs',
     () => {
       const state = at('s2')
       expect(state.storyTime).toBe('2026-11-21T10:00')
@@ -491,7 +513,7 @@ const facts: Fact[] = [
         [hours(4), basis.breed],
         [hours(4), basis.breed],
       ])
-      // 运行记录: a run after each of the ten visits, and the two Monday reviews.
+      // 更新记录: a run after each of the ten visits, and the two Monday reviews.
       const runs = runsOf(state, moduleId.duration)
       expect(runs.map((run) => run.trigger)).toEqual(['module', 'module', 'module', 'module', 'module', 'schedule', 'module', 'module', 'module', 'schedule', 'module', 'module'])
       expect(runs.filter((run) => run.trigger === 'schedule').map((run) => run.at)).toEqual(['2026-11-09T18:00', '2026-11-16T18:00'])
@@ -545,7 +567,7 @@ const facts: Fact[] = [
   ],
   [
     'B-24 (s4)',
-    'a deferred proposal to add the condition 第一次来的狗 +30 分钟, with the new node and its edges; 批准 makes version 2 current; 历史 shows versions 1 and 2 with reasons; 运行记录 names the version per run; a first-visit dog’s appointment has its +30 分钟 and the node that decides it',
+    'a deferred proposal to add the condition 第一次来的狗 +30 分钟, with the new node and its edges; 批准 makes version 2 current; 历史 shows versions 1 and 2 with reasons; 更新记录 names the version per run; a first-visit dog’s appointment has its +30 分钟 and the node that decides it',
     () => {
       const pending = at('s4')
       expect(awaitingCount(pending)).toBe(1)
@@ -585,7 +607,7 @@ const facts: Fact[] = [
       const state = at('s5')
       const topic = state.topics.find((each) => each.title['zh-CN'] === '服务时长规则')!
       expect(topic.id).toBe('duration-rule')
-      for (const told of ['长毛大型 4 小时，短毛小型 2 小时，其他 3 小时', '品种表改成了 3 小时 45 分', '豆豆和大福改按自己的记录排', '工作流没有变', '第一次来的狗 +30 分钟', '版本 2']) {
+      for (const told of ['长毛大型 4 小时，短毛小型 2 小时，其他 3 小时', '品种表改成了 3 小时 45 分', '豆豆和大福改按自己的记录排', '流程没有变', '第一次来的狗 +30 分钟', '版本 2']) {
         expect(topic.summary?.['zh-CN'], told).toContain(told)
       }
       expect(topic.summary?.en).toContain('version 2')
@@ -750,7 +772,7 @@ describe('the `long` and `empty` variants exist for every resource (R-04)', () =
     for (const conversation of long.conversations) expect(conversation.messages.length, conversation.id).toBe(60)
     expect(long.conversations[0].messages.at(-1)?.text.en).toHaveLength(2000)
     expect(new Set(long.conversations.map((conversation) => conversation.id)).size).toBe(long.conversations.length)
-    // The workflow editor: a 25-node workflow. 运行记录: 30 runs.
+    // The workflow editor: a 25-node workflow. 更新记录: 30 runs.
     for (const workflow of long.workflows) expect(versionOf(workflow).nodes.length, workflow.id).toBeGreaterThanOrEqual(25)
     expect(runsOf(long, moduleId.appointments)).toHaveLength(30)
     // settings.accounts: a connector feeding eight modules. settings.ai-modes: a row capping 12 actions.
@@ -765,7 +787,7 @@ describe('the `long` and `empty` variants exist for every resource (R-04)', () =
     for (const table of empty.memory) expect(table.rows, table.id).toEqual([])
     expect([empty.runs, empty.proposals, empty.conversations, empty.topics]).toEqual([[], [], [], []])
     expect(empty.modules.map((module) => module.id)).toEqual(at(ref).modules.map((module) => module.id))
-    for (const workflow of empty.workflows) expect(versionOf(workflow).nodes.map((each) => each.label['zh-CN']), workflow.id).toEqual(['手动触发', '来源：未连接', '输出'])
+    for (const workflow of empty.workflows) expect(versionOf(workflow).nodes.map((each) => each.label['zh-CN']), workflow.id).toEqual(['手动开始', '来源：未连接', '内容'])
     for (const kind of taskKinds) expect(actionsOfKind(empty, kind), kind).toEqual([])
   })
 })

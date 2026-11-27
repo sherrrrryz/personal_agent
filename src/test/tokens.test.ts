@@ -107,8 +107,10 @@ const STOCK: Record<string, { light: Stock; dark: Stock }> = {
   'sidebar-ring': { light: n400, dark: n500 },
 }
 
-/** Colour roles of ours beside shadcn/ui's: the frosted surface and its small shadow (D-47). */
+/** Colour roles of ours beside shadcn/ui's: the frosted surface and its small shadow (D-47) … */
 const FROSTED = ['surface-frosted', 'surface-frosted-shadow']
+/** … and the canvas the floating sidebar and the cards stand on (D-50). */
+const OURS = [...FROSTED, 'canvas']
 
 /** The roles `docs/design/TOKENS.md` § Changed from stock lists: the owner's colour changes (D-43). */
 function changedRoles(): Set<string> {
@@ -124,7 +126,7 @@ describe('stock theme (D-43)', () => {
   })
 
   it('has every shadcn/ui role, and beside them only the two colours of the frosted surface (D-47)', () => {
-    expect(roles('light').sort()).toEqual([...Object.keys(STOCK), ...FROSTED].map((role) => `color.${role}`).sort())
+    expect(roles('light').sort()).toEqual([...Object.keys(STOCK), ...OURS].map((role) => `color.${role}`).sort())
   })
 
   it('the frosted surface (D-47) has a colour and a shadow colour in both modes, a blur and a shadow blur', () => {
