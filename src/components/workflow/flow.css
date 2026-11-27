@@ -13,3 +13,19 @@
   --xy-edge-stroke-selected: var(--foreground);
   --xy-handle-background-color: var(--muted-foreground);
 }
+
+/*
+ * `mode: diff`: a connector the comparison names is drawn dashed (added) or dotted (changed),
+ * so it is told from the others by its line, not by a colour. The word beside
+ * it (新 · 已更新) is the connector's label, set by the canvas.
+ */
+.react-flow__edge.workflow-edge-added .react-flow__edge-path,
+.react-flow__edge.workflow-edge-changed .react-flow__edge-path {
+  stroke: var(--foreground);
+}
+.react-flow__edge.workflow-edge-added .react-flow__edge-path {
+  stroke-dasharray: 6 4;
+}
+.react-flow__edge.workflow-edge-changed .react-flow__edge-path {
+  stroke-dasharray: 2 3;
+}

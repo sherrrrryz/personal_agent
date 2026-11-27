@@ -35,6 +35,7 @@ const messages: Translation<typeof en> = {
 
   'node.name': '{kind}：{label}',
   'node.name.mode': '{kind}：{label}，{mode}',
+  'node.name.diff': '{name}，{change}',
   'node.connectsTo': '接到：{targets}',
   'node.separator': '、',
   'node.capped': '受上限限制',

@@ -12,12 +12,13 @@ import { useId, type ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import { focusRing } from '@/components/actions/focus-ring'
-import { BehaviourModeBadge } from '@/components/data-display'
+import { BehaviourModeBadge, ChangeMarker } from '@/components/data-display'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useT } from '@/i18n'
 import type { BehaviourMode } from '@/lib/vocab'
+import { cn } from '@/lib/utils'
 
-import type { WorkflowDiff, WorkflowNodeKind } from './node-kinds'
+import { diffChange, type WorkflowDiff, type WorkflowNodeKind } from './node-kinds'
 
 const kindIcon: Record<WorkflowNodeKind, LucideIcon> = {
   trigger: ZapIcon,
@@ -29,6 +30,11 @@ const kindIcon: Record<WorkflowNodeKind, LucideIcon> = {
   memory: BrainIcon,
 }
 
+// `mode: diff` (spec part 3 § Workflow editor, "Diff"): a node the comparison
+// names is told three ways — the marker's word, a border of its own **style**
+// (dashed = added, dotted = changed; never colour alone), and 变更摘要 above
+// the view, which is the editor's.
+const diffBorder = { added: 'border-2 border-dashed border-foreground', changed: 'border-2 border-dotted border-foreground', none: undefined } as const
 export type WorkflowNodeLink = { href: string; label: string }
 
 export type WorkflowNodeProps = {
@@ -46,7 +52,7 @@ export type WorkflowNodeProps = {
   /** The nodes it leads to, by name. Connectors are drawn, never focusable: this line is how they are read. */
   connectsTo?: readonly string[]
   selected?: boolean
-  /** Carried for package C6 (`data-diff`); nothing is drawn for it here. */
+  /** What a comparison says about it: a `ChangeMarker` beside the kind and a border style of its own. */
   diff?: WorkflowDiff
   /** One control beside the heading — 步骤列表 puts the button that opens the inspector here. */
   action?: ReactNode
@@ -81,7 +87,7 @@ export function WorkflowNode({
     <Card
       size="sm"
       // Selected is told by the heavier ring and by the word below, never by colour alone.
-      className={selected ? 'ring-2 ring-foreground' : undefined}
+      className={cn(selected && 'ring-2 ring-foreground', diffBorder[diff])}
       data-slot="workflow-node"
       data-kind={kind}
       data-selected={selected || undefined}
@@ -92,6 +98,7 @@ export function WorkflowNode({
           <Icon aria-hidden="true" className="size-4 shrink-0" />
           <span data-slot="workflow-node-kind">{t(`kind.${kind}`)}</span>
           {selected && <span className="sr-only">{t('node.selected')}</span>}
+          {diff !== 'none' && <ChangeMarker kind={diffChange[diff]} />}
         </CardDescription>
         <CardTitle className="wrap-anywhere">{label}</CardTitle>
         {action != null && <CardAction>{action}</CardAction>}

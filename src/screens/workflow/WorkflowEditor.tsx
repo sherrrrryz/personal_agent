@@ -70,7 +70,8 @@ function Loaded({ module, basePath, workflow, slots }: { module: Module; basePat
   const [search] = useSearchParams()
   const deepLink = search.get(NODE_PARAM)
 
-  const [shown, setShown] = useState<EditorShown>(shownCurrent)
+  // A change that waits for her approval is what the editor opens on: the comparison, with 批准 / 拒绝 (B-24).
+  const [shown, setShown] = useState<EditorShown>(() => (workflow.proposed && slots.length > 0 ? { version: 'proposed', compareTo: null } : shownCurrent))
   const [kind, setKind] = useState<ViewKind>('canvas')
   const [selectedId, setSelectedId] = useState<string | null>(deepLink)
   // The inspector: the node it is for, whether it is open, and a count so that opening a node again starts clean.
@@ -82,7 +83,7 @@ function Loaded({ module, basePath, workflow, slots }: { module: Module; basePat
   const version = proposed ?? versionOf(workflow, typeof shown.version === 'number' ? shown.version : workflow.current)
   const number = 'n' in version ? version.n : null
   const readOnly = number !== workflow.current
-  const comparing = shown.compareTo !== null || shown.version === 'proposed'
+  const comparing = shown.compareTo !== null || proposed !== undefined
 
   const { nodes, edges } = useMemo<{ nodes: WorkflowCanvasNode[]; edges: WorkflowCanvasEdge[] }>(() => {
     const diff = comparing ? slots.find((slot) => slot.diffOf)?.diffOf?.(workflow, shown) : undefined

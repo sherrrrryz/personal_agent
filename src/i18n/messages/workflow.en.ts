@@ -37,6 +37,7 @@ const messages = {
 
   'node.name': '{kind}: {label}',
   'node.name.mode': '{kind}: {label}, {mode}',
+  'node.name.diff': '{name}, {change}',
   'node.connectsTo': 'Leads to: {targets}',
   'node.separator': ', ',
   'node.capped': 'Held back by your limit',

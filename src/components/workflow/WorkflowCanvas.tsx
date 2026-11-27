@@ -9,7 +9,7 @@ import {
   type OnNodesChange,
 } from '@xyflow/react'
 import { MaximizeIcon, ZoomInIcon, ZoomOutIcon } from 'lucide-react'
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 
 // The library's own stylesheet, from the package (D-16) — then ours, which only points its variables at tokens.
 import '@xyflow/react/base.css'
@@ -18,10 +18,10 @@ import './flow.css'
 import { Button } from '@/components/actions'
 import { focusRing } from '@/components/actions/focus-ring'
 import { useT } from '@/i18n'
-import { behaviourMode } from '@/lib/vocab'
+import { behaviourMode, changeKind } from '@/lib/vocab'
 
 import { rankLayout, type Size } from './layout'
-import type { WorkflowDiff } from './node-kinds'
+import { diffChange, type WorkflowDiff } from './node-kinds'
 import { WorkflowHandle } from './WorkflowHandle'
 import { WorkflowNode, type WorkflowNodeProps } from './WorkflowNode'
 
@@ -34,8 +34,9 @@ export type WorkflowCanvasProps = {
   edges: readonly WorkflowCanvasEdge[]
   /**
    * `view`: the workflow as it is. `diff`: a comparison — every node and edge
-   * carries its `diff`. The drawing of `diff` is package C6's; here the mode
-   * only reaches the DOM (`data-mode`, `data-diff`).
+   * carries its `diff`: a marked node shows a `ChangeMarker` and a border of
+   * its own style and ends its name with the change; a marked connector is
+   * dashed and carries the same word (`flow.css`).
    */
   mode?: 'view' | 'diff'
   /** The node shown as selected. */
@@ -123,6 +124,16 @@ function Canvas({ nodes, edges, mode = 'view', selectedId = null, revealId = nul
     [layoutKey],
   )
 
+  // In a comparison the node's name ends with what happened to it, and a marked connector carries the same word.
+  const diffWord = useCallback((diff: WorkflowDiff | undefined) => (diff && diff !== 'none' ? common(changeKind[diffChange[diff]].labelKey) : null), [common])
+  const withDiff = useCallback(
+    (name: string, diff: WorkflowDiff | undefined) => {
+      const change = diffWord(diff)
+      return change ? t('node.name.diff', { name, change }) : name
+    },
+    [diffWord, t],
+  )
+
   const flowNodes = useMemo<FlowNode[]>(
     () =>
       nodes.map((node) => {
@@ -136,17 +147,19 @@ function Canvas({ nodes, edges, mode = 'view', selectedId = null, revealId = nul
           data: { ...node, connectsId },
           selected: node.id === selectedId,
           className: `rounded-xl ${focusRing}`,
-          ariaLabel:
+          ariaLabel: withDiff(
             node.mode === undefined
               ? t('node.name', { kind, label: node.label })
               : t('node.name.mode', { kind, label: node.label, mode: common(behaviourMode[node.mode].nameKey) }),
+            node.diff,
+          ),
           domAttributes: {
             'aria-describedby': node.connectsTo?.length ? `${describedBy(flowId)} ${connectsId}` : describedBy(flowId),
             'aria-current': node.id === selectedId ? ('true' as const) : undefined,
           },
         }
       }),
-    [nodes, positions, sizes, selectedId, flowId, t, common],
+    [nodes, positions, sizes, selectedId, flowId, t, common, withDiff],
   )
 
   const flowEdges = useMemo<Edge[]>(
@@ -159,8 +172,9 @@ function Canvas({ nodes, edges, mode = 'view', selectedId = null, revealId = nul
         focusable: false,
         selectable: false,
         className: edge.diff && edge.diff !== 'none' ? `workflow-edge-${edge.diff}` : undefined,
+        label: diffWord(edge.diff) ?? undefined,
       })),
-    [edges],
+    [edges, diffWord],
   )
 
   // Once laid out — and again when the layout changes: the whole flow in view, or the node asked for in the middle.
