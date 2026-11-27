@@ -45,7 +45,8 @@ export function useDevice(announce: (message: string) => void) {
   function jump(to: SceneId) {
     runtime.actions.jumpToScene(to)
     const elsewhere = routeAfterJump(location.pathname, runtime.getState())
-    if (elsewhere) void navigate(elsewhere)
+    // In place of the open entry (D-53): a scene jump is not a step she can go back along.
+    if (elsewhere) void navigate(elsewhere, { replace: true })
     else clearAddress(['scene', 'preview'])
     announce(t('device.jumped', { scene: sceneNames[to][locale] }))
   }
