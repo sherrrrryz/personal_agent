@@ -185,7 +185,8 @@ holds any of it.
   overlay). Contrast over it is not measured (D-43).
 - **Where it is used** (the admission test's "two real places"): the shell's
   header and chat bar row; `DropdownMenu`, `Select`'s list, `Dialog`,
-  `AlertDialog`, `Sheet`. The two colours are mapped to Tailwind keys
+  `AlertDialog`, `Sheet`. Not the wide `Dialog` (功能设置): it is solid, the
+  kit's opaque `bg-popover` (D-52). The two colours are mapped to Tailwind keys
   (`--color-surface-frosted…`) only because every colour role is; do not
   write `bg-surface-frosted` — use the class.
 

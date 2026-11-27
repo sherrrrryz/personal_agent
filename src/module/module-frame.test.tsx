@@ -264,6 +264,8 @@ describe('ModuleFrame — the four views (R-14)', () => {
     open()
     const settings = await openSettings()
     expect(settings).toHaveAttribute('data-size', 'wide')
+    // A solid window, not frosted (owner: "把居中大窗口背景变为白色实色", D-52).
+    expect(settings).not.toHaveClass('surface-frosted')
     // Outside the app no screen hands the frame its parts: the two headings and their links stay.
     expect(within(settings).getAllByRole('heading', { level: 3 })).toHaveLength(2)
   })
