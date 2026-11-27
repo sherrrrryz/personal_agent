@@ -35,7 +35,7 @@ export function ChatBar() {
 }
 
 /** The panel that is open: which conversation, and the screen it was opened on. */
-type OpenPanel = { conversationId: string; pathname: string; screen: string }
+type OpenPanel = { conversationId: string; pathname: string; screen: string; epoch: number }
 
 function ScreenBar({ screen }: { screen: ChatScreen }) {
   const t = useT('chat')
@@ -47,8 +47,11 @@ function ScreenBar({ screen }: { screen: ChatScreen }) {
   const region = useRef<HTMLElement>(null)
   const composer = useRef<HTMLTextAreaElement>(null)
 
-  // The panel belongs to the screen it was opened on, and to a conversation the scene still has.
-  const conversation = panel && panel.pathname === screen.pathname ? findConversation(state, panel.conversationId) : undefined
+  // The panel belongs to the screen it was opened on and to the story as it stood then: a scene jump
+  // (a new `epoch`) closes it — conversation ids repeat between scenes, so the id alone would reopen
+  // the panel on another scene's conversation and send the next message into that one.
+  const conversation =
+    panel && panel.pathname === screen.pathname && panel.epoch === state.epoch ? findConversation(state, panel.conversationId) : undefined
   const open = panel && conversation ? panel : null
 
   // Offered while nothing is typed; a prompt already asked in the open conversation is not offered again.
@@ -80,7 +83,7 @@ function ScreenBar({ screen }: { screen: ChatScreen }) {
     }
     if (!open) {
       const name = screenName(screen.module?.name[locale] ?? '', (module, view) => t('panel.screen.view', { module, view }))
-      setPanel({ conversationId: sent.conversationId, pathname: screen.pathname, screen: name || t('panel.screen.unnamed') })
+      setPanel({ conversationId: sent.conversationId, pathname: screen.pathname, screen: name || t('panel.screen.unnamed'), epoch: state.epoch })
     }
     // Focus stays in the composer: the panel is a disclosure, the log announces what arrives.
     composer.current?.focus()
