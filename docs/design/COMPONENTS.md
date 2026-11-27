@@ -222,7 +222,8 @@ string literal, and checks each prop below.
   names the scroller's viewport "Messages" by default — `ChatMessageList`
   passes `aria-label` (the log's own name) on `MessageScrollerViewport`.
 - **Kit files a family may compose directly (D-45):** `bubble.tsx`,
-  `message.tsx` and `message-scroller.tsx` are the parts of the kit's Chat.
+  `message.tsx`, `message-scroller.tsx` and `trace.tsx` (the steps of a
+  reply) are the parts of the kit's Chat.
   They are composed inside `ChatMessageList` only and have no registry row or
   re-export of their own: outside `src/components/chat/` a conversation is
   shown with `ChatMessageList`.

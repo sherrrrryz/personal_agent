@@ -222,16 +222,19 @@ for reading.
 | Matrix | `@playwright/test` 1.65.1 (Chromium only) · `@axe-core/playwright` 4.14.1 — dev only |
 | Lint and types | `oxlint` 1.95.0 · `@types/node` 24.19.4 · `@types/react` 19.3.3 · `@types/react-dom` 19.3.0 |
 
-**Kit files installed** (35, in `src/components/ui/`): alert-dialog, alert,
+**Kit files installed** (36, in `src/components/ui/`): alert-dialog, alert,
 avatar, badge, breadcrumb, bubble, button, card, collapsible, dialog,
 dropdown-menu, empty, field, input-group, input, item, label,
 message-scroller, message, progress, radio-group, select, separator, sheet,
 sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea,
-toggle-group, toggle, tooltip. `bubble`, `message` and `message-scroller`
+toggle-group, toggle, tooltip, trace. `bubble`, `message` and `message-scroller`
 were added on 2026-11-27 with `shadcn add` (CLI 4.23.1, same `components.json`)
 for the chat (D-45) — the parts of the kit's Chat
 (<https://ui.shadcn.com/docs/ai-elements/base/chat>); the Vercel AI SDK and
-that page's `createChat` helper are not installed. Six carry the patches of
+that page's `createChat` helper are not installed. `trace` was added the same
+day, the same way, for the steps of a reply (D-45; it imports only `cn`,
+`collapsible` and `lucide-react` — no new package; the CLI offered to rewrite
+`collapsible.tsx` without its `"use client"` line and was declined). Six carry the patches of
 `COMPONENTS.md` § Kit patches; the rest are as the CLI wrote them. Kit
 components deliberately not installed: `COMPONENTS.md` § Kit components
 deliberately not used.

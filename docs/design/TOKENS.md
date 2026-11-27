@@ -32,7 +32,9 @@ HOW TO BUILD THIS DOC
   (`:root` — primitives and the light semantic values; `.dark` — the dark
   values; a generated `@theme` block — the breakpoints, as literals), and
   `src/tokens/generated/breakpoints.ts` (the same breakpoints as constants,
-  for code that builds a media query); React Native → not in use (D-01);
+  for code that builds a media query), and `src/tokens/generated/motion.ts`
+  (the semantic `motion.*` tokens as milliseconds, nested as they are named —
+  `motion.reply.beat` — for code that sets a timer); React Native → not in use (D-01);
   ~~Figma → variables, by `/figma-mirror`~~ (not in use, D-04).
 - **Format facts that shape the source** (DTCG 2025.10): set `$type`
   explicitly on the token or its group; a colour is an object with a colour
@@ -115,11 +117,15 @@ history of this file.
 | Semantic | `border.width.focus` → `border.width.2` | Width of the forced-colours focus outline |
 | Semantic | `radius.base` → `radius.lg`, and `radius.step.sm … 4xl` | The steps are the base × 0.6 · 0.8 · 1 · 1.4 · 1.8 · 2.2 · 2.6 (`pa.scale`) — shadcn/ui's own formula |
 | Semantic | `font.family.sans` → `font.stack.sans` | All text, both locales |
+| Primitive | `duration.120` · `.300` · `.500` · `.1200` (ms) | Lengths of time, `$type: duration`, `{ value, unit: "ms" }`; named by their value. Added by package K1 (D-45) — the first motion values of our own |
+| Semantic | `motion.simulated.delay` → `duration.120` | How long a faked read and a faked run take (`SIMULATED_DELAY` in `src/runtime/store.ts`) |
+| Semantic | `motion.reply.beat` → `duration.500` · `motion.reply.write` → `duration.1200` · `motion.reply.settle` → `duration.300` | The replay of an AI reply (`components/chat.md` § The replay of a reply): the thinking state and each step · a text being written out · the pause before each thing the text carries. Read by the runtime, `ChatMessageList` and the onboarding interview from `motion.ts`; no mode |
 
 **Not generated from `tokens/`:** Tailwind's shipped spacing, type,
 line-height, font-weight, shadow, blur, opacity, z-index and motion scales
 and its colour palette are used through stock utilities as shipped (D-05,
-D-43). The breakpoints `sm`, `xl` and `2xl` are Tailwind's shipped ones and
+D-43) — a transition or an animation in a class is still Tailwind's or the
+kit's; the `motion.*` tokens above time what our own code waits for. The breakpoints `sm`, `xl` and `2xl` are Tailwind's shipped ones and
 are not for our code: only `md` and `lg` are tokens (`RESPONSIVE.md` §
 Breakpoints).
 

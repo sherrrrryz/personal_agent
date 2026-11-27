@@ -14,19 +14,22 @@ tokens/
     color.json       color.neutral.0 … 950 · color.white-alpha.10, .15 · color.red.400, .600 · color.blue.700 · color.system.highlight
     dimension.json   border.width.2 · radius.lg · breakpoint.md, .lg
     font.json        font.stack.sans
+    motion.json      duration.120, .300, .500, .1200 (ms)
   semantic/    aliases of primitives, named for their purpose; never a raw value
     color.json       shadcn/ui's colour roles, light (default), stock values (D-43) · color.focus.forced
     color.dark.json  the same roles, dark — one entry for every role
     dimension.json   border.width.focus · radius.base, radius.step.*
     font.json        font.family.sans
+    motion.json      motion.simulated.delay · motion.reply.beat, .write, .settle
 ```
 
 - **The tier is the folder, the mode is the file.** A semantic token points
   at a primitive of the same `$type`; a token that varies by mode has an entry
   in `<type>.json` and in `<type>.dark.json`.
 - **Build:** `npm run tokens:build` (`scripts/build-tokens.mjs`, Style
-  Dictionary) writes `src/tokens/generated/tokens.css` and
-  `src/tokens/generated/breakpoints.ts`. Never edit those by hand; commit them
+  Dictionary) writes `src/tokens/generated/tokens.css`,
+  `src/tokens/generated/breakpoints.ts` and `src/tokens/generated/motion.ts`
+  (the `motion.*` tokens in milliseconds, for timers). Never edit those by hand; commit them
   with the source change. The build fails on a broken tier rule or a missing
   mode, and `npm test` fails when the generated files are stale. (Contrast
   is not tested — the requirement is withdrawn by D-43.)

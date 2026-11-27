@@ -55,6 +55,8 @@ platform/version it was observed.>
 | After a scene jump a click on 页面 · 工作流 · 记忆 does nothing | [§8](#8-tooling-and-the-shell) |
 | A conversation gets taller and taller by itself after she sends a message, or an answer is cut at its beginning | [§5](#5-ui-kit) |
 | Cells that should line up across columns are staggered | [§2](#2-layout-and-reflow) |
+| A line of a kit part ends in an ellipsis although our class says it may wrap | [§5](#5-ui-kit) |
+| A test of the built CSS says a utility has no rule, and the rule is there | [§6](#6-token-pipeline) |
 
 ## 1. Text scaling
 
@@ -195,7 +197,31 @@ she reads first — had scrolled away when it was complete (the flow
 `panel-open` asserts that it has not). Detail: `components/chat.md`
 § Pitfalls. Observed with Chromium and `@shadcn/react` 0.3.1, task 1, K1.
 
+### A line of a kit part ends in an ellipsis although our class says it may wrap
+
+**Rule:** to undo a kit part's `truncate`, pass a class of the same merge group — `text-clip` — not `whitespace-normal` or `overflow-visible`.
+
+Kit files merge classes with `cn`, which removes an earlier class only when a
+later one belongs to the same group. `truncate` sits in the text-overflow
+group: `whitespace-normal overflow-visible` leaves it in the class list, the
+element then has both, and which rule wins is the order of the built
+stylesheet — and a test that looks for `truncate` in a conversation fails.
+`text-clip wrap-anywhere` removes it. Met on the kit's `TraceTitle` (the
+steps of a reply). Observed with `cn` 0.5.2, task 1, K1; detail:
+`components/chat.md` § Pitfalls.
+
 ## 6. Token pipeline
+
+### A test of the built CSS says a utility has no rule, and the rule is there
+
+**Rule:** look for a class as the start of a selector list too (`.name {` or `.name, `) — `hasRule` in `src/test/css-build.test.ts` does.
+
+A utility with an opacity modifier (`text-muted-foreground/70`, in the kit's
+`trace.tsx`) shares its fallback declaration with the plain utility, so the
+unminified build writes `.text-muted-foreground, .text-muted-foreground\/70 {`
+and a search for `.text-muted-foreground {` finds nothing. Adding a kit file
+can therefore break that test without any rule being lost. Observed with
+Tailwind 4.3.5, task 1, K1.
 
 ## 7. Figma mirror
 

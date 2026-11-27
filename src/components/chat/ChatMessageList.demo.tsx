@@ -4,6 +4,7 @@ import { Button, ToggleGroup, ToggleGroupItem } from '@/components/actions'
 import { DemoGroup } from '@/components/actions/demo-parts'
 import { Stack } from '@/components/layout'
 import { useT } from '@/i18n'
+import { motion } from '@/tokens/generated/motion'
 
 import { ChatMessageList, type ChatMessage } from './ChatMessageList'
 
@@ -34,7 +35,7 @@ export default function ChatMessageListDemo() {
   const [retried, setRetried] = useState<'failed' | 'streaming' | 'done'>('failed')
   useEffect(() => {
     if (retried !== 'streaming') return
-    const timer = window.setTimeout(() => setRetried('done'), 1500)
+    const timer = window.setTimeout(() => setRetried('done'), motion.reply.write)
     return () => window.clearTimeout(timer)
   }, [retried])
 
@@ -46,6 +47,8 @@ export default function ChatMessageListDemo() {
       author: 'ai',
       text: t('demo.list.ai1'),
       at: at(30),
+      // What it did before answering: folded away under the count, opened by her.
+      steps: [t('demo.list.step1'), t('demo.list.step2')],
       attachments: [{ title: t('demo.list.attachmentTitle'), body: t('demo.list.attachmentBody') }],
     },
     { id: 'u2', author: 'user', text: t('demo.list.user2'), at: at(32) },
@@ -100,6 +103,12 @@ export default function ChatMessageListDemo() {
           {t('demo.list.add')}
         </Button>
       </div>
+      <DemoGroup caption={t('demo.list.workingCaption')}>
+        <ChatMessageList
+          label={t('demo.list.working')}
+          messages={[asked, { id: 'a1', author: 'ai', text: '', status: 'streaming', phase: 'working', steps: [t('demo.list.step1'), t('demo.list.step2')] }]}
+        />
+      </DemoGroup>
       <DemoGroup caption={t('demo.list.streamingCaption')}>
         <ChatMessageList
           label={t('demo.list.streaming')}
