@@ -13,7 +13,7 @@ import {
 import { useT } from '@/i18n'
 import { cn } from '@/lib/utils'
 
-import { overlaySurface, rootProps, type OverlayControl } from './overlay-control'
+import { overlayScroll, overlaySurface, rootProps, type OverlayControl } from './overlay-control'
 
 export type DialogProps = OverlayControl & {
   /** The heading; it names the dialog. */
@@ -25,7 +25,8 @@ export type DialogProps = OverlayControl & {
   /**
    * `default`: the kit's own measure, for a short task. `wide`: a large window
    * in the middle of the screen for a whole working surface (功能设置, D-52);
-   * what does not fit scrolls inside it.
+   * what does not fit scrolls inside it, and its background is solid: the
+   * kit's own `bg-popover`, not frosted (D-52).
    */
   size?: 'default' | 'wide'
   children?: ReactNode
@@ -33,6 +34,8 @@ export type DialogProps = OverlayControl & {
 
 // The kit's `sm:max-w-sm` gives way to a wider measure; under `sm` the kit's own inset holds.
 const sizeClass = { default: '', wide: 'max-h-11/12 sm:max-w-4xl xl:max-w-6xl' } as const
+// The default dialog is frosted (D-47); the wide one keeps the kit's opaque background (D-52).
+const surfaceClass = { default: overlaySurface, wide: overlayScroll } as const
 
 /**
  * A task that interrupts the page: focus moves in, stays in, and returns to
@@ -44,7 +47,7 @@ export function Dialog({ trigger, title, description, footer, size = 'default', 
     <KitDialog {...rootProps(control)}>
       {trigger && <DialogTrigger render={trigger} />}
       {/* The kit's own close button, named in the user's language. */}
-      <DialogContent closeLabel={t('overlay.close')} className={cn(overlaySurface, sizeClass[size])} data-size={size}>
+      <DialogContent closeLabel={t('overlay.close')} className={cn(surfaceClass[size], sizeClass[size])} data-size={size}>
         <DialogHeader>
           <DialogTitle className="wrap-anywhere">{title}</DialogTitle>
           {description != null && <DialogDescription className="wrap-anywhere">{description}</DialogDescription>}

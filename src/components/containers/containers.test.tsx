@@ -139,6 +139,23 @@ describe('Dialog', () => {
     await gone('dialog')
     await waitFor(() => expect(trigger).toHaveFocus())
   })
+
+  it('default is frosted (D-47); wide is solid — the kit’s opaque background, no frost — and still scrolls inside (D-52)', async () => {
+    const { rerender } = render(
+      <App>
+        <Dialog open title="连接你的日历" />
+      </App>,
+    )
+    expect(await screen.findByRole('dialog')).toHaveClass('surface-frosted', 'bg-popover')
+    rerender(
+      <App>
+        <Dialog open size="wide" title="功能设置" />
+      </App>,
+    )
+    const wide = await screen.findByRole('dialog', { name: '功能设置' })
+    expect(wide).not.toHaveClass('surface-frosted')
+    expect(wide).toHaveClass('bg-popover', 'max-h-11/12', 'overflow-y-auto')
+  })
 })
 
 describe('AlertDialog', () => {
