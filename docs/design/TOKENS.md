@@ -125,8 +125,7 @@ history of this file.
 | Semantic | `color.surface-frosted`, `color.surface-frosted-shadow` (light and dark) · `surface.frosted.blur`, `surface.frosted.shadow.blur` | The frosted surface (D-47): ours, not shadcn/ui's — § Frosted surface |
 | Semantic | `color.canvas` → `color.warm.100` (light) · `color.warm.950` (dark) | The app's backdrop (D-50): the floating sidebar and the cards stand on it; a step darker than `card` in light, the page colour in dark (raised surfaces get lighter). Ours, not shadcn/ui's. Used once, by `SidebarProvider` (`bg-canvas`) |
 | Primitive | `color.peach.50`, `.950` · `color.lilac.50`, `.950` (D-52) | The two ends of the onboarding backdrop gradient, light and dark (§ Backdrop) |
-| Primitive | `texture.grain.fine` (D-52) | A tile of grain, an SVG noise as a CSS `url()` — a string token (§ Backdrop) |
-| Semantic | `color.backdrop-from`, `color.backdrop-via`, `color.backdrop-to` (light and dark) · `surface.backdrop.grain` | The onboarding backdrop (D-52): ours, not shadcn/ui's — § Backdrop |
+| Semantic | `color.backdrop-from`, `color.backdrop-via`, `color.backdrop-to` (light and dark) | The onboarding backdrop (D-52): ours, not shadcn/ui's — § Backdrop |
 | Primitive | `duration.120` · `.300` · `.500` · `.1200` (ms) | Lengths of time, `$type: duration`, `{ value, unit: "ms" }`; named by their value. Added by package K1 (D-45) — the first motion values of our own |
 | Semantic | `motion.simulated.delay` → `duration.120` | How long a faked read and a faked run take (`SIMULATED_DELAY` in `src/runtime/store.ts`) |
 | Semantic | `motion.reply.beat` → `duration.500` · `motion.reply.write` → `duration.1200` · `motion.reply.settle` → `duration.300` | The replay of an AI reply (`components/chat.md` § The replay of a reply): the thinking state and each step · a text being written out · the pause before each thing the text carries. Read by the runtime, `ChatMessageList` and the onboarding interview from `motion.ts`; no mode |
@@ -173,7 +172,7 @@ holds any of it.
   point the role at it in both mode files); more blur = point
   `surface.frosted.blur` at a larger `blur.*` step.
 - **The class:** `surface-frosted` in `src/index.css`, the only reader of the
-  four tokens (`src/test/tokens.test.ts` pins that). It is **unlayered**, so
+  three tokens (`src/test/tokens.test.ts` pins that). It is **unlayered**, so
   it replaces a kit surface's own `bg-popover` and `shadow-*` from our wrapper
   without the kit file being edited; a ring the kit draws on the same element
   stays. Write it beside the surface's stock background (`bg-background` on
@@ -192,8 +191,8 @@ holds any of it.
 
 ## Backdrop
 
-The onboarding page stands on a light gradient with a grain (D-52) — dark in
-dark mode. **One set of tokens, one class**, as for the frosted surface: to
+The onboarding page stands on a light gradient (D-52) — dark in dark mode.
+The grain it first had was removed on the owner's word ("去掉背景的颗粒效果"). **One set of tokens, one class**, as for the frosted surface: to
 change the look, change a value here and run `npm run tokens:build`.
 
 | Token (semantic) | Light → primitive | Dark → primitive | CSS | What it is |
@@ -201,13 +200,11 @@ change the look, change a value here and run `npm run tokens:build`.
 | `color.backdrop-from` | `color.peach.50` | `color.peach.950` | `--backdrop-from` | The gradient at the top start corner |
 | `color.backdrop-via` | `color.warm.50` | `color.warm.950` | `--backdrop-via` | The middle |
 | `color.backdrop-to` | `color.lilac.50` | `color.lilac.950` | `--backdrop-to` | The bottom end corner |
-| `surface.backdrop.grain` | `texture.grain.fine` | — (no mode) | `--surface-backdrop-grain` | A 160 px tile of grey specks over the gradient, as a CSS `url()` (an SVG `feTurbulence`) |
 
 - **Other colours:** point the three roles at other primitives, in both mode
-  files. **Stronger or weaker grain:** the `opacity` of the `rect` in the
-  SVG of `texture.grain.fine`; coarser or finer: its `baseFrequency`.
+  files.
 - **The class:** `surface-backdrop` in `src/index.css`, the only reader of the
-  four tokens (`src/test/tokens.test.ts` pins that). Put it on the element
+  three tokens (`src/test/tokens.test.ts` pins that). Put it on the element
   that scrolls, beside `bg-background` — the fallback — so the backdrop stays
   put while the page moves over it. Under `prefers-reduced-transparency:
   reduce` and `forced-colors: active` it is the plain stock background.
@@ -298,10 +295,9 @@ pairs" binds nothing in this project.
 
 - **A blended grain disappears on a light background.** `soft-light` and
   `overlay` leave a colour near white almost untouched, so a grey noise tile
-  blended that way shows on the dark backdrop and not on the light one. The
-  grain (§ Backdrop) is therefore drawn with the normal blend, as grey specks
-  whose opacity follows the noise — they darken light and lighten dark about
-  as much.
+  blended that way shows on a dark backdrop and not on a light one. If a
+  grain comes back (D-52 had one at first), draw it with the normal blend, as
+  grey specks whose opacity follows the noise.
 - **A primitive named like a Tailwind theme key collides with it.** Tailwind
   emits `--radius-sm`, `--breakpoint-md` and the rest of its theme as custom
   properties of the same names; a primitive `radius.sm` written to CSS as

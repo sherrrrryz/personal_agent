@@ -14,8 +14,7 @@ const messages = {
   'profession.title': 'Tell me about your work',
   'profession.description': 'Four questions. From your answers I propose the features your workspace starts with.',
   'profession.log': 'Interview',
-  'profession.continue': 'Continue',
-  'profession.continue.note': 'Answer the questions above to continue.',
+  'profession.next': 'Next',
 
   // Step 2 — the proposed module set.
   'modules.title': 'Your features',

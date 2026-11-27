@@ -39,7 +39,7 @@
     },
     "backdrop-from": {
       "$value": "{color.peach.50}",
-      "$description": "Start of the onboarding backdrop (D-52): a light gradient from the top start corner (from → via → to), under a grain (surface.backdrop.grain). Used only by the `surface-backdrop` class in src/index.css. Text never sits on it directly but in the page's own surfaces and the frosted bars."
+      "$description": "Start of the onboarding backdrop (D-52): a light gradient from the top start corner (from → via → to). Used only by the `surface-backdrop` class in src/index.css. Text never sits on it directly but in the page's own surfaces and the frosted bars."
     },
     "backdrop-via": {
       "$value": "{color.warm.50}",

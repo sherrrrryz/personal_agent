@@ -1,10 +1,10 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 
 import { Button } from '@/components/actions'
 import { ChatComposer, ChatMessageList, type ChatMessage } from '@/components/chat'
-import { Inline, Page, Stack } from '@/components/layout'
+import { Page } from '@/components/layout'
 import { interview, interviewMessages, longInterview } from '@/fixtures'
 import { useLocale, useT, type Locale } from '@/i18n'
 import { prefersReducedMotion } from '@/lib/reduced-motion'
@@ -20,7 +20,12 @@ function answerId(index: number): string {
   return `interview-${interview.questions[index].id}-answer`
 }
 
-function shown(messages: Message[], said: Record<number, string>, locale: Locale): ChatMessage[] {
+/** What a message of the interview carries: the AI's closing summary carries 下一步 (D-52). */
+type InterviewAttachment = 'next'
+
+const summaryId = 'interview-summary'
+
+function shown(messages: Message[], said: Record<number, string>, locale: Locale): ChatMessage<InterviewAttachment>[] {
   const own = new Map(Object.entries(said).map(([index, text]) => [answerId(Number(index)), text]))
   return messages.map((message) => ({
     id: message.id,
@@ -28,13 +33,14 @@ function shown(messages: Message[], said: Record<number, string>, locale: Locale
     text: own.get(message.id) ?? message.text[locale],
     at: message.at,
     status: message.status,
+    attachments: message.id === summaryId ? (['next'] as const) : undefined,
   }))
 }
 
 /**
  * `onboarding.profession` — step 1 (D-30): the AI asks four things in turn,
  * her scripted answer types itself into the composer and she sends it
- * (D-48), and the AI closes with a summary; then 继续. Each question arrives
+ * (D-48), and the AI closes with a summary that carries 下一步 (D-52). Each question arrives
  * as a reply does everywhere (D-45): a thinking state, then its text written
  * out. The states follow 状态预览 from the address: 加载中 is a
  * reply still arriving, 出错 a reply that failed (retry in the list), 超长内容
@@ -51,7 +57,6 @@ export function ProfessionStep() {
   // After she sends: the AI thinks for a beat, then its next question is written out.
   const [reply, setReply] = useState<'idle' | 'thinking' | 'writing' | 'failed'>('idle')
   const [draft, setDraft] = useState('')
-  const noteId = useId()
   const bar = useOnboardingBar()
 
   const long = preview === 'long'
@@ -135,37 +140,20 @@ export function ProfessionStep() {
     )
   }
 
-  // The composer and 继续, in a floating frosted panel as wide as the page's reading measure.
+  // The composer, in a floating frosted panel as wide as the page's reading measure.
   const composer = (
     <div className={`${shellPanelClass} mx-auto max-w-prose p-3`} data-onboarding-panel="">
-      <Stack gap="md">
-        <ChatComposer
-          placement="onboarding"
-          value={draft}
-          onValueChange={(text) => {
-            cancelAnimationFrame(frame.current)
-            setDraft(text)
-          }}
-          onSend={send}
-          sending={arriving}
-          disabled={done}
-        />
-        <Inline gap="sm">
-          <Button
-            disabled={!done}
-            focusableWhenDisabled
-            aria-describedby={done ? undefined : noteId}
-            onClick={() => navigate(to(onboardingPaths.modules))}
-          >
-            {t('profession.continue')}
-          </Button>
-          {!done && (
-            <p id={noteId} className="text-sm text-muted-foreground">
-              {t('profession.continue.note')}
-            </p>
-          )}
-        </Inline>
-      </Stack>
+      <ChatComposer
+        placement="onboarding"
+        value={draft}
+        onValueChange={(text) => {
+          cancelAnimationFrame(frame.current)
+          setDraft(text)
+        }}
+        onSend={send}
+        sending={arriving}
+        disabled={done}
+      />
     </div>
   )
 
@@ -183,7 +171,21 @@ export function ProfessionStep() {
       }
     >
       {/* The page scrolls here, not the list: its own following is off, the step brings the end into view (above). */}
-      <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('thinking')} />
+      <ChatMessageList
+        messages={messages}
+        label={t('profession.log')}
+        follow={false}
+        userBubble="outline"
+        onRetry={() => setReply('thinking')}
+        // The AI's closing summary carries 下一步 (D-52): it is there once the summary is whole.
+        renderAttachment={(attachment) =>
+          attachment === 'next' ? (
+            <div className="flex">
+              <Button onClick={() => navigate(to(onboardingPaths.modules))}>{t('profession.next')}</Button>
+            </div>
+          ) : null
+        }
+      />
       {/* The composer floats in the layout's bottom bar (D-52) while the interview scrolls beneath it. */}
       {bar ? createPortal(composer, bar) : composer}
       <div ref={end} />

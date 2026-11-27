@@ -128,7 +128,7 @@ for (const width of widths) {
         await page.getByRole('button', { name: '发送', exact: true }).click()
       }
       await expect(page.getByText('我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
-      await page.getByRole('button', { name: '继续' }).click()
+      await page.getByRole('log', { name: '职业访谈' }).getByRole('button', { name: '下一步' }).click()
       await expect(page.getByRole('heading', { level: 1, name: '你的功能' })).toBeVisible()
       await check(page, 'onboarding.modules', problems)
       await page.getByRole('button', { name: '确认并生成' }).click()

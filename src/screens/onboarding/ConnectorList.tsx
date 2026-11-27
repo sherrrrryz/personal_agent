@@ -107,7 +107,8 @@ function Connectors({ variant, onRetry }: { variant: Variant; onRetry: () => voi
     const feeds = dependentModules(state, account.id)
     const stops = feeds.map((module) => module.name[locale]).join(t('connectors.separator'))
     return (
-      <Item key={account.id} variant="outline" data-account={account.id} data-status={status}>
+      // On the onboarding gradient each row is a card (D-52); in settings it stays the kit's outline row.
+      <Item key={account.id} variant={variant === 'onboarding' ? 'card' : 'outline'} data-account={account.id} data-status={status}>
         <ItemContent>
           <ItemTitle>
             {name}

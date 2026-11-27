@@ -47,6 +47,14 @@ function open(path: string, options: { search?: string; storage?: ReturnType<typ
   return { runtime, router, ...view }
 }
 
+/** 下一步, inside the AI's closing summary in the conversation (D-52). */
+const nextButton = () => {
+  const log = screen.queryByRole('log', { name: '职业访谈' })
+  const button = log ? within(log).queryByRole('button', { name: '下一步' }) : null
+  // It is part of the AI's message, not a control under the conversation.
+  return button?.closest('[data-author]')?.getAttribute('data-author') === 'ai' ? button : null
+}
+
 const heading = (name: string) => screen.findByRole('heading', { level: 1, name })
 const rows = () => within(screen.getByRole('list', { name: '职业功能' })).getAllByRole('listitem')
 
@@ -59,8 +67,8 @@ async function sendScripted(answer: string) {
 async function interview() {
   setMediaQuery('(prefers-reduced-motion: reduce)', true)
   for (const answer of answers) await sendScripted(answer)
-  // The summary has arrived: 继续 is available.
-  await waitFor(() => expect(screen.getByRole('button', { name: '继续' })).not.toHaveAttribute('aria-disabled', 'true'))
+  // The summary has arrived, and with it 下一步, inside the AI's message (D-52).
+  await waitFor(() => expect(nextButton()).toBeInTheDocument())
 }
 
 afterEach(() => {
@@ -77,13 +85,15 @@ describe('onboarding, the first run (B-14)', () => {
     expect(router.state.location.pathname).toBe('/onboarding/profession')
     expect(screen.getByText('第 1 步，共 3 步')).toBeInTheDocument()
     expect(screen.getByText('你好，我先了解一下你的工作。你是做什么的？')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '继续' })).toHaveAttribute('aria-disabled', 'true')
+    // No 下一步 yet, and no 继续 or note under the conversation (D-52).
+    expect(screen.queryByRole('button', { name: '下一步' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '继续' })).toBeNull()
     expect(await axe(container)).toHaveNoViolations()
 
     // Her four scripted answers; the AI closes naming the four modules.
     await interview()
     expect(await screen.findByText(/我建议从四个功能开始：预约、顾客与宠物、商品与库存、排班。/)).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: '继续' }))
+    await userEvent.click(nextButton()!)
 
     // Step 2: the four proposed modules, one line each.
     await heading('你的功能')
@@ -164,8 +174,12 @@ describe('onboarding, the first run (B-14)', () => {
     open('/onboarding/profession', { search: '?preview=long' })
     await heading('先聊聊你的工作')
     expect(screen.getByRole('log', { name: '职业访谈' }).querySelectorAll('[data-author]')).toHaveLength(40)
-    expect(screen.getByRole('button', { name: '继续' })).not.toHaveAttribute('aria-disabled', 'true')
+    expect(nextButton()).toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: '你的回答' })).toBeDisabled()
+    // Her bubbles are the kit's bubble on the page's own background — white in light mode (D-52).
+    const mine = screen.getByRole('log', { name: '职业访谈' }).querySelectorAll('[data-author=user] [data-slot=bubble]')
+    expect(mine.length).toBeGreaterThan(0)
+    for (const bubble of mine) expect(bubble).toHaveAttribute('data-variant', 'outline')
   })
 
   it('step 2 in its states: generating, failed with 重试 and 上一步, empty with the reason, twelve modules', async () => {
@@ -232,7 +246,7 @@ describe('onboarding, re-entry from settings (B-15)', () => {
   it('finishing step 2 applies the set and returns; a module added there renders the stub pattern', async () => {
     const { router, runtime } = open(reentryPath, { search: '?scene=s2' })
     await interview()
-    await userEvent.click(await screen.findByRole('button', { name: '继续' }))
+    await userEvent.click(nextButton()!)
     await heading('你的功能')
     expect(router.state.location.search).toBe('?from=settings')
 
@@ -280,7 +294,10 @@ describe('onboarding, re-entry from settings (B-15)', () => {
     expect(page.querySelector('[data-agent-avatar-slot]')).toHaveAttribute('aria-hidden', 'true')
     const bar = page.querySelector(':scope > [data-onboarding-bar]') as HTMLElement
     expect(within(bar).getByRole('textbox', { name: '你的回答' })).toBeInTheDocument()
-    expect(within(bar).getByRole('button', { name: '继续' })).toBeInTheDocument()
+    // Only 发送 in the bar: 继续 and its note are gone, and so is the visible key hint (D-52).
+    expect(within(bar).getAllByRole('button').map((button) => button.getAttribute('aria-label'))).toEqual(['发送'])
+    expect(within(bar).getByRole('textbox', { name: '你的回答' })).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
+    expect(within(bar).getByText('按 Enter 发送，按 Shift+Enter 换行。')).toHaveClass('sr-only')
 
     // Step 2 has no composer: the bottom bar is empty (and hidden, so it takes no room); the slot is still there.
     await act(() => router.navigate('/onboarding/modules'))

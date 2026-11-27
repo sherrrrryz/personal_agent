@@ -90,7 +90,7 @@ title rather than shrinking them.
 **The onboarding page (D-52)** is outside the shell (a bare route), so its
 layout, `src/screens/onboarding/OnboardingLayout.tsx`, brings its own chrome
 in the same pattern as the shell's bars. Its root is the element that scrolls
-(`[data-onboarding]`, `h-svh`), drawn with the grainy gradient
+(`[data-onboarding]`, `h-svh`), drawn with the gradient
 `surface-backdrop` (`../TOKENS.md` § Backdrop). Over it, fixed:
 
 - **The top bar** (`[data-onboarding-header]`): a transparent row (`p-2`,
@@ -99,8 +99,10 @@ in the same pattern as the shell's bars. Its root is the element that scrolls
   label is the step in words (第 1 步，共 3 步) at the end.
 - **The bottom bar** (`[data-onboarding-bar]`): an empty transparent row
   (`empty:hidden`, so it takes no room) that a step fills through a portal
-  (`useOnboardingBar` in `paths.ts`); the interview puts its composer and
-  继续 there, in a floating panel as wide as `Page`'s `prose` measure.
+  (`useOnboardingBar` in `paths.ts`); the interview puts its composer there,
+  in a floating panel as wide as `Page`'s `prose` measure. There is no 继续
+  under the conversation: the AI's closing summary carries 下一步 in its
+  message (`renderAttachment`), once the summary is whole.
 - **The ⋯ button** (`AppearanceMenu`, `[data-onboarding-fab]`): round,
   frosted, at the bottom end corner; a `DropdownMenu` of 语言 and 外观. At
   1024 px it stays clear of the bottom panel (which is `prose` wide and

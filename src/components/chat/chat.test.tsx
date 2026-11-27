@@ -39,12 +39,19 @@ describe('ChatComposer', () => {
     expect(hidesLabel(screen.getByRole('textbox', { name: '你的回答' }))).toBe(false)
     expect(bar).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
     expect(screen.getByRole('textbox', { name: '回复' })).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
-    expect(screen.getByRole('textbox', { name: '你的回答' })).toBeInTheDocument()
+    // In the interview too, on the owner's word (D-52): described, not drawn.
+    expect(screen.getByRole('textbox', { name: '你的回答' })).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
     expect(screen.getByRole('textbox', { name: '关于本周排班' })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: '发送' })).toHaveLength(4)
-    // In the bar the hint is kept for assistive technology only: one row less above `main`.
+    // In the bar (one row less above `main`) and the interview (D-52) the hint is kept for assistive
+    // technology only; only a dedicated chat draws it.
     const hints = screen.getAllByText('按 Enter 发送，按 Shift+Enter 换行。')
-    expect(hints.filter((hint) => hint.classList.contains('sr-only'))).toHaveLength(2)
+    expect(hints.filter((hint) => hint.classList.contains('sr-only'))).toHaveLength(3)
+    // Only the interview drops the field's focus border and ring (D-52).
+    const noBorder = (box: HTMLElement) => box.closest('form')?.className.includes(':focus-visible)]:ring-0')
+    expect(noBorder(screen.getByRole('textbox', { name: '你的回答' }))).toBe(true)
+    expect(noBorder(bar)).toBe(false)
+    expect(noBorder(screen.getByRole('textbox', { name: '回复' }))).toBe(false)
     expect(await axe(container)).toHaveNoViolations()
   })
 

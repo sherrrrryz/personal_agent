@@ -37,7 +37,6 @@
   --primitive-duration-300: 300ms;
   --primitive-duration-500: 500ms;
   --primitive-duration-1200: 1200ms;
-  --primitive-texture-grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.3 0 0 0 0 0.3 2 0 0 0 -0.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.24'/%3E%3C/svg%3E");
 
   /* semantic — light (default) */
   --background: var(--primitive-color-warm-0);
@@ -90,7 +89,6 @@
   --font-family-sans: var(--primitive-font-stack-sans);
   --surface-frosted-blur: var(--primitive-blur-md);
   --surface-frosted-shadow-blur: var(--primitive-blur-sm);
-  --surface-backdrop-grain: var(--primitive-texture-grain-fine);
   --motion-simulated-delay: var(--primitive-duration-120);
   --motion-reply-beat: var(--primitive-duration-500);
   --motion-reply-write: var(--primitive-duration-1200);

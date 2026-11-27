@@ -12,7 +12,8 @@ export type ChatComposerProps = {
   /**
    * Where it stands. `bar`: the shell's chat bar — as low as it gets, the key
    * hint kept for assistive technology only. `thread`: a dedicated chat.
-   * `onboarding`: the interview — room for a longer answer.
+   * `onboarding`: the interview — room for a longer answer, the key hint kept
+   * for assistive technology only and no focus border around the field (D-52).
    */
   placement?: ChatComposerPlacement
   /**
@@ -45,11 +46,20 @@ export type ChatComposerProps = {
 const sixLines = '[&_textarea]:max-h-40 md:[&_textarea]:max-h-34'
 // In the bar the label is not drawn (D-49): it stays the control's name, out of
 // sight. Reached through the wrapper because `Field` always draws its label.
+// In the onboarding interview the field draws no focus border or ring when its text has focus
+// (D-52, owner: "聊天框选中后的边框不好看，不要"): the caret says where she types. Reached through
+// the wrapper because `InputGroup` takes no class; more specific than the kit's own `has-[…]` rule.
+const noFocusBorder =
+  '[&_[data-slot=input-group]:has([data-slot=input-group-control]:focus-visible)]:border-input [&_[data-slot=input-group]:has([data-slot=input-group-control]:focus-visible)]:ring-0'
 const sizeClass: Record<ChatComposerPlacement, string> = {
   bar: `${sixLines} [&_textarea]:min-h-8 [&_label]:sr-only`,
   thread: `${sixLines} [&_textarea]:min-h-8`,
-  onboarding: `${sixLines} [&_textarea]:min-h-24`,
+  onboarding: `${sixLines} [&_textarea]:min-h-24 ${noFocusBorder}`,
 }
+
+// Where the key hint (Enter sends, Shift+Enter a new line) is drawn under the field. Elsewhere it is
+// kept for assistive technology only: in the bar for room, in the interview on the owner's word (D-52).
+const visibleHint: Record<ChatComposerPlacement, boolean> = { bar: false, thread: true, onboarding: false }
 
 // The send button with nothing to send: faded like the kit's disabled button
 // (which fades only on the `disabled` attribute), but not while it is busy.
@@ -125,7 +135,7 @@ export function ChatComposer({
     <form data-slot="chat-composer" data-placement={placement} onSubmit={onSubmit} className={`${formClass} ${sizeClass[placement]}`}>
       <Field
         label={label ?? t(`composer.label.${placement}`)}
-        description={placement === 'bar' ? undefined : t('composer.hint')}
+        description={visibleHint[placement] ? t('composer.hint') : undefined}
         disabled={disabled}
       >
         <InputGroup align="block" end={sendButton}>
@@ -140,11 +150,11 @@ export function ChatComposer({
             onChange={(event) => setText(event.target.value)}
             onKeyDown={onKeyDown}
             enterKeyHint="send"
-            aria-describedby={placement === 'bar' ? hintId : undefined}
+            aria-describedby={visibleHint[placement] ? undefined : hintId}
           />
         </InputGroup>
       </Field>
-      {placement === 'bar' && (
+      {!visibleHint[placement] && (
         <p id={hintId} className="sr-only">
           {t('composer.hint')}
         </p>

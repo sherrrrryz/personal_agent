@@ -155,19 +155,15 @@
 /*
  * Backdrop (D-52) — the one place where the onboarding page's background is
  * written: a light gradient (tokens/semantic: color.backdrop-from, -via, -to;
- * dark in color.dark.json) under a grain (surface.backdrop.grain, a tile of
- * mid-grey specks that darken the light gradient and lighten the dark one, so
- * one tile serves both modes). On the element
- * that scrolls, the backdrop stays put while the page moves over it.
- * `bg-background` beside the class is the fallback.
+ * dark in color.dark.json). On the element that scrolls, the backdrop stays
+ * put while the page moves over it. `bg-background` beside the class is the
+ * fallback. The grain it had at first was removed on the owner's word.
  *
  * Under `prefers-reduced-transparency: reduce` and `forced-colors: active`
  * the backdrop goes back to the stock background, plain.
  */
 .surface-backdrop {
-  background-image:
-    var(--surface-backdrop-grain),
-    linear-gradient(to bottom right, var(--backdrop-from), var(--backdrop-via), var(--backdrop-to));
+  background-image: linear-gradient(to bottom right, var(--backdrop-from), var(--backdrop-via), var(--backdrop-to));
 }
 
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {

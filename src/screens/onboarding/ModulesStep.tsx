@@ -73,7 +73,7 @@ function ModulesStepBody({ onRetry }: { onRetry: () => void }) {
         error={t('modules.error.body')}
         onRetry={onRetry}
       >
-        <ModuleSet modules={modules} />
+        <ModuleSet modules={modules} rows="card" />
       </DataState>
       <Stack gap="sm">
         {/* The primary action first in the page's order; 上一步 follows it. */}

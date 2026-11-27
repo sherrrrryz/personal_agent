@@ -27,17 +27,26 @@ export function ItemGroup({ children, ...rest }: ItemGroupProps) {
   )
 }
 
-export type ItemProps = Bare<ComponentProps<typeof KitItem>>
+type KitItemProps = Bare<ComponentProps<typeof KitItem>>
+
+export type ItemProps = Omit<KitItemProps, 'variant'> & {
+  /**
+   * The kit's three, and `card` (D-52): the kit's `outline` row filled with
+   * the card surface — white in light mode — so it reads as a card on a
+   * backdrop that shows through a transparent row (the onboarding gradient).
+   */
+  variant?: KitItemProps['variant'] | 'card'
+}
 
 /**
  * One record as a row: media, a title and a description, actions. With
  * `render` set to a link the whole row is that link — then nothing inside it
  * is interactive. At least the target size high; its text wraps.
  */
-export function Item({ children, ...rest }: ItemProps) {
+export function Item({ children, variant, ...rest }: ItemProps) {
   const inGroup = useContext(InGroup)
   const item = (
-    <KitItem {...rest} className="text-start">
+    <KitItem {...rest} variant={variant === 'card' ? 'outline' : variant} className={variant === 'card' ? 'bg-card text-start' : 'text-start'}>
       <InGroup value={false}>{children}</InGroup>
     </KitItem>
   )

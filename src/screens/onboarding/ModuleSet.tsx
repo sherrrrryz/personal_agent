@@ -91,7 +91,16 @@ function ModuleDialog({
  * first in settings (`confirmRemoval`). Every change goes to the runtime at
  * once, so the sidebar — where there is one — follows.
  */
-export function ModuleSet({ modules, confirmRemoval = false }: { modules: Module[]; confirmRemoval?: boolean }) {
+export function ModuleSet({
+  modules,
+  confirmRemoval = false,
+  rows = 'outline',
+}: {
+  modules: Module[]
+  confirmRemoval?: boolean
+  /** `card`: each row filled with the card surface, on the onboarding gradient (D-52). */
+  rows?: 'outline' | 'card'
+}) {
   const t = useT('onboarding')
   const { locale } = useLocale()
   const actions = useActions()
@@ -124,7 +133,7 @@ export function ModuleSet({ modules, confirmRemoval = false }: { modules: Module
           {modules.map((module) => {
             const name = module.name[locale]
             return (
-              <Item key={module.id} variant="outline">
+              <Item key={module.id} variant={rows}>
                 <ItemContent>
                   <ItemTitle>{name}</ItemTitle>
                   <ItemDescription>{module.description[locale]}</ItemDescription>

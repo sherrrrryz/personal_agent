@@ -158,14 +158,14 @@ describe('stock theme (D-43)', () => {
     )
   })
 
-  it('the backdrop (D-52) is opaque in both modes and has one grain; the class in src/index.css reads all four', () => {
+  it('the backdrop (D-52) is opaque in both modes, has no grain, and the class in src/index.css reads all three', () => {
     for (const role of BACKDROP)
       for (const mode of ['light', 'dark'] as const)
         expect(resolveRawColor(`color.${role}`, mode, tokens).alpha, `color.${role} (${mode}) is opaque`).toBe(1)
-    const grain = semantic.filter((token) => token.path === 'surface.backdrop.grain')
-    expect(grain.map((token) => [token.mode, token.value])).toEqual([['light', '{texture.grain.fine}']])
+    // The grain was removed on the owner's word (D-52 amendment).
+    expect(tokens.filter((token) => token.path.startsWith('texture.') || token.path.startsWith('surface.backdrop'))).toEqual([])
     const backdrop = indexCss.slice(indexCss.indexOf('.surface-backdrop {'))
-    for (const name of ['--surface-backdrop-grain)', '--backdrop-from)', '--backdrop-via)', '--backdrop-to)'])
+    for (const name of ['--backdrop-from)', '--backdrop-via)', '--backdrop-to)'])
       expect(backdrop, name).toContain(`var(${name}`)
   })
 

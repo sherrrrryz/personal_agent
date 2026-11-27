@@ -40,14 +40,12 @@ export const SOURCES = {
     'tokens/primitive/dimension.json',
     'tokens/primitive/font.json',
     'tokens/primitive/motion.json',
-    'tokens/primitive/texture.json',
   ],
   semantic: [
     'tokens/semantic/color.json',
     'tokens/semantic/dimension.json',
     'tokens/semantic/font.json',
     'tokens/semantic/motion.json',
-    'tokens/semantic/texture.json',
   ],
   dark: ['tokens/semantic/color.dark.json'],
 }

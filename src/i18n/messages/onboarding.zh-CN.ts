@@ -11,8 +11,7 @@ const messages: Translation<typeof en> = {
   'profession.title': '先聊聊你的工作',
   'profession.description': '四个问题。我会根据你的回答，建议工作台一开始有哪些功能。',
   'profession.log': '职业访谈',
-  'profession.continue': '继续',
-  'profession.continue.note': '回答完上面的问题后可以继续。',
+  'profession.next': '下一步',
 
   'modules.title': '你的功能',
   'modules.description': '这是我打算为你生成的功能。生成前可以重命名、移除或添加。',

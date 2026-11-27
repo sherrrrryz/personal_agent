@@ -13,7 +13,7 @@ import { useOnboardingBars } from './use-onboarding-bars'
  * What surrounds the three steps (D-52). Onboarding is outside the shell, so
  * this is all the chrome there is, laid over a page of its own that scrolls:
  *
- * - the backdrop — a light gradient with a grain (`surface-backdrop`), dark in
+ * - the backdrop — a light gradient (`surface-backdrop`), dark in
  *   dark mode;
  * - a small top bar floating over the page's start, frosted like the shell's
  *   bars (D-47, `shellPanelClass`): the product's name in capitals at the

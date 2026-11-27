@@ -86,6 +86,12 @@ export type ChatMessageListProps<Attachment = unknown> = {
   userName?: string
   /** What the AI is called beside its messages. Default: "AI". */
   aiName?: string
+  /**
+   * Her bubbles: `muted` (default), the kit's grey; `outline`, the kit's
+   * bubble on the page's own background — white in light mode (D-52: the
+   * onboarding interview, over its gradient).
+   */
+  userBubble?: 'muted' | 'outline'
   /** While `empty`: the kit's `Empty` in the surface's own words. */
   empty?: ReactNode
   /** While `error`: title and reason in the surface's own words. */
@@ -136,6 +142,7 @@ export function ChatMessageList<Attachment = unknown>({
   label,
   userName,
   aiName,
+  userBubble = 'muted',
   empty,
   errorTitle,
   error,
@@ -221,7 +228,7 @@ export function ChatMessageList<Attachment = unknown>({
                           )}
                           {mine ? (
                             message.text !== '' && (
-                              <Bubble align="end" variant="muted">
+                              <Bubble align="end" variant={userBubble}>
                                 <BubbleContent render={<p />} className={textClass}>
                                   {message.text}
                                 </BubbleContent>
