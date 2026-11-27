@@ -15,7 +15,11 @@ export type ChatComposerProps = {
    * `onboarding`: the interview — room for a longer answer.
    */
   placement?: ChatComposerPlacement
-  /** The visible label; it names the text control. Default: the placement's own. */
+  /**
+   * The label; it names the text control. Default: the placement's own. Visible
+   * in `thread` and `onboarding`; in `bar` it is kept for assistive technology
+   * only (D-49) — there the placeholder says what the control is for.
+   */
   label?: string
   /** Shown while nothing is typed. Never the label; keep it shorter than the narrowest line. */
   placeholder?: string
@@ -39,8 +43,10 @@ export type ChatComposerProps = {
 // hence two maxima (six lines and the control's padding) — then scrolls inside.
 // Reached through the wrapper because `Textarea` takes no class.
 const sixLines = '[&_textarea]:max-h-40 md:[&_textarea]:max-h-34'
+// In the bar the label is not drawn (D-49): it stays the control's name, out of
+// sight. Reached through the wrapper because `Field` always draws its label.
 const sizeClass: Record<ChatComposerPlacement, string> = {
-  bar: `${sixLines} [&_textarea]:min-h-8`,
+  bar: `${sixLines} [&_textarea]:min-h-8 [&_label]:sr-only`,
   thread: `${sixLines} [&_textarea]:min-h-8`,
   onboarding: `${sixLines} [&_textarea]:min-h-24`,
 }

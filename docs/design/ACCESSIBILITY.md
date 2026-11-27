@@ -76,7 +76,9 @@ The visible mark may be smaller than the target; the hit area may not.
 ## Understandable
 
 - Every input has a visible label that is also its accessible name; a
-  placeholder is not a label (WCAG 3.3.2, 2.5.3).
+  placeholder is not a label (WCAG 3.3.2, 2.5.3). One exception, on the
+  owner's word (D-49): the chat bar's text control keeps its label as its
+  name but does not draw it.
 - Errors are identified in text, next to the field, with how to fix them
   (WCAG 3.3.1, 3.3.3) — never by colour alone.
 - Nothing changes context on focus or on input without warning (WCAG 3.2.1, 3.2.2).

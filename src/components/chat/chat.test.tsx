@@ -29,8 +29,13 @@ describe('ChatComposer', () => {
       </>,
     )
     const bar = screen.getByRole('textbox', { name: '问 AI' })
-    // The label is visible text, wired to the control; the key hint describes it in every placement.
+    // The label is text wired to the control; the key hint describes it in every placement.
     expect(screen.getByText('问 AI').tagName).toBe('LABEL')
+    // In the bar the label is not drawn (D-49): the composer hides its own label there, and only there.
+    const hidesLabel = (box: HTMLElement) => box.closest('form')?.className.includes('[&_label]:sr-only')
+    expect(hidesLabel(bar)).toBe(true)
+    expect(hidesLabel(screen.getByRole('textbox', { name: '回复' }))).toBe(false)
+    expect(hidesLabel(screen.getByRole('textbox', { name: '你的回答' }))).toBe(false)
     expect(bar).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
     expect(screen.getByRole('textbox', { name: '回复' })).toHaveAccessibleDescription('按 Enter 发送，按 Shift+Enter 换行。')
     expect(screen.getByRole('textbox', { name: '你的回答' })).toBeInTheDocument()
