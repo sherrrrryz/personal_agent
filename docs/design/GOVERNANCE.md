@@ -78,11 +78,13 @@ A soft ceiling that makes growth visible. Crossing it is allowed only with a
 
 | Kind | Now | Ceiling |
 | --- | --- | --- |
-| Primitive colours | `<n>` | `<n>` |
-| Semantic colours | `<n>` | `<n>` |
-| Type styles | `<n>` | `<n>` |
-| Spacing steps | `<n>` | `<n>` |
-| Components in `COMPONENTS.md` | `<n>` | `<n>` |
+| Primitive colours | 18 | `<n>` |
+| Semantic colours | 32 (31 with a dark value) | `<n>` |
+| Type styles | 0 of our own — Tailwind's shipped scale; one `font.family` token | `<n>` |
+| Spacing steps | 0 of our own — Tailwind's shipped scale; 9 radius and border-width tokens | `<n>` |
+| Components in `COMPONENTS.md` | 63 rows (54 components, 2 chat surfaces, 7 blocks) | `<n>` |
+
+"Now" was counted at the close-out of task 1 (2026-11-26) from `tokens/` and the twelve family files. No ceiling is set yet: the stock shadcn/ui theme is the only theme and tasks 2 and 3 are not done (D-43).
 
 The reviewer reports the delta on every task-5 review.
 

@@ -136,20 +136,22 @@ and the accessibility-contract columns (`ACCESSIBILITY.md` § Per-component
 contract) for its components, and has one writer: the package that builds the
 family.
 
-| Family | File | Code | Holds |
-| --- | --- | --- | --- |
-| Layout primitives | [components/layout.md](components/layout.md) | `src/components/layout/` | `Page`, `Stack`, `Inline`, `Grid`, `Section` |
-| Actions | [components/actions.md](components/actions.md) | `src/components/actions/` | Buttons and toggles |
-| Inputs | [components/inputs.md](components/inputs.md) | `src/components/inputs/` | Fields and form controls |
-| Navigation | [components/navigation.md](components/navigation.md) | `src/components/navigation/` | Sidebar, breadcrumb, tabs, menus, theme and locale switches |
-| Containers and overlays | [components/containers.md](components/containers.md) | `src/components/containers/` | Dialogs, sheets, cards, collapsibles, tooltips |
-| Feedback and status | [components/feedback.md](components/feedback.md) | `src/components/feedback/` | Badges, alerts, toasts, loading and empty states |
-| Data display | [components/data-display.md](components/data-display.md) | `src/components/data-display/` | Tables, items, avatars, markers |
-| Chat | [components/chat.md](components/chat.md) | `src/components/chat/` | Composer, message list, persistence switch |
-| Blocks | [components/blocks.md](components/blocks.md) | `src/block-renderer/`, `src/blocks/<name>/` | The block renderer and the text, empty and proposal blocks |
-| Data blocks | [components/data-blocks.md](components/data-blocks.md) | `src/blocks/<name>/` | The summary, list, table and schedule blocks |
-| Module frame | [components/module.md](components/module.md) | `src/module/` | The frame every module page sits in |
-| Workflow | [components/workflow.md](components/workflow.md) | `src/components/workflow/` | The node canvas of the workflow editor |
+| Family | File | Code | Holds | Rows |
+| --- | --- | --- | --- | --- |
+| Layout primitives | [components/layout.md](components/layout.md) | `src/components/layout/` | `Page`, `Stack`, `Inline`, `Grid`, `Section` | 5 |
+| Actions | [components/actions.md](components/actions.md) | `src/components/actions/` | Buttons and toggles | 3 |
+| Inputs | [components/inputs.md](components/inputs.md) | `src/components/inputs/` | Fields and form controls | 9 |
+| Navigation | [components/navigation.md](components/navigation.md) | `src/components/navigation/` | Sidebar, breadcrumb, tabs, menus, theme and locale switches | 9 |
+| Containers and overlays | [components/containers.md](components/containers.md) | `src/components/containers/` | Dialogs, sheets, cards, collapsibles, tooltips | 7 |
+| Feedback and status | [components/feedback.md](components/feedback.md) | `src/components/feedback/` | Badges, alerts, toasts, loading and empty states | 8 |
+| Data display | [components/data-display.md](components/data-display.md) | `src/components/data-display/` | Tables, items, avatars, markers | 5 |
+| Chat | [components/chat.md](components/chat.md) | `src/components/chat/` | Composer, message list, persistence switch | 5 |
+| Blocks | [components/blocks.md](components/blocks.md) | `src/block-renderer/`, `src/blocks/<name>/` | The block renderer and the text, empty and proposal blocks | 4 |
+| Data blocks | [components/data-blocks.md](components/data-blocks.md) | `src/blocks/<name>/` | The summary, list, table and schedule blocks | 4 |
+| Module frame | [components/module.md](components/module.md) | `src/module/` | The frame every module page sits in | 1 |
+| Workflow | [components/workflow.md](components/workflow.md) | `src/components/workflow/` | The node canvas of the workflow editor | 3 |
+
+**Counts (task 1 close-out, 2026-11-26):** 63 registry rows — 54 components, the two chat surfaces (`chat.recent`, `chat.thread`) and 7 blocks (`block.text`, `block.empty`, `block.proposal`, `block.summary`, `block.list`, `block.table`, `block.schedule`). A row is counted once, by the Component cell of the registry table; the parity test (`npm test`) keeps the rows and the code in step.
 
 **Row values.** Source: `kit` (used as is, re-exported) · `wrapped` (kit +
 token binding, as above) · `new` (built, spec cited) · `dependency` (a

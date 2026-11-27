@@ -47,6 +47,12 @@ platform/version it was observed.>
 | `npm run matrix -- '/chat/conv-1'` reports `route-not-found` for a route that is registered | [§8](#8-tooling-and-the-shell) |
 | A flow's Tab walk begins in the middle of the page | [§8](#8-tooling-and-the-shell) |
 | The page in `npm run dev` reloads by itself while nobody edits it | [§8](#8-tooling-and-the-shell) |
+| A panel, sheet or selection opened in one scene shows another object after a jump in 原型控制 | [§8](#8-tooling-and-the-shell) |
+| `axe` reports `label-content-name-mismatch` on a button that has a perfectly good name | [§5](#5-ui-kit) |
+| The keyboard pass reports that Tab leaves a modal sheet, or never reaches the page behind it | [§5](#5-ui-kit) |
+| In forced colours every sidebar item and button has a frame, and the current item or selected tab looks like the others | [§3](#3-theme-and-colour) |
+| A screen passes `--cells smoke` and fails `--cells full` | [§8](#8-tooling-and-the-shell) |
+| After a scene jump a click on 页面 · 工作流 · 记忆 does nothing | [§8](#8-tooling-and-the-shell) |
 
 ## 1. Text scaling
 
@@ -112,6 +118,17 @@ the third test of `flow panel-open` asserts it.
 
 ## 3. Theme and colour
 
+### In forced colours every sidebar item and button has a frame, and the current item or selected tab looks like the others
+
+**Rule:** record it, do not restyle it — the stock kit carries "current" and "selected" by a background fill (D-43); the state stays in `aria-current` / `aria-selected`, and the breadcrumb and the `h1` say where she is.
+
+Forced colours paints a transparent outline or border in a system colour, and
+the kit's controls carry one at rest (`outline-hidden`, `border-transparent`),
+so all of them are drawn framed; the fills that mark the current sidebar item
+and the selected tab are removed there. Focus still differs (the frame changes
+colour — the harness's forced-colours pass checks that). Seen in the C7
+passes run, task 1; a fix would be a restyle of kit controls, which D-43 rules out.
+
 ## 4. Elevation and blur
 
 ## 5. UI kit
@@ -130,6 +147,25 @@ withdrew it: stock shadcn/ui everywhere, a few colours changed later in
 kit's height as `min-h-*` and use `py-1` (`components/actions.md` §
 Pitfalls). And `min-h-target` sizes nothing any more — the target-size
 requirement is withdrawn by D-43 — so it is not a way to size a kit control.
+
+### `axe` reports `label-content-name-mismatch` on a button that has a perfectly good name
+
+**Rule:** when a button gets an `aria-label` that adds its object, the label must contain the button's visible word unchanged — pick the label by the same variant that picks the word (`connectors.reconnect.name.<variant>` in `ConnectorList`).
+
+The visible word was 重试 and the name 重新连接「微信」: clear to read, refused
+by `axe` (WCAG 2.5.3 — a voice user says the word she sees). It showed only
+under `?preview=error`, which `--cells smoke` does not open. Task 1, C7.
+
+### The keyboard pass reports that Tab leaves a modal sheet, or never reaches the page behind it
+
+**Rule:** in a test or a flow, wait a frame after a Tab that lands on the end of a kit dialog before pressing again or reading `document.activeElement`; do not "fix" the dialog.
+
+Base UI traps focus with two guard elements: the guard takes the focus and
+hands it back into the dialog on the next animation frame. Two Tab presses
+inside one frame — only a script can do it — walk out into the covered page.
+The harness waits for the guard and, for a route that opens on a modal
+(`…/appointments/<id>`, `?history=open`), walks the dialog only
+(`e2e/matrix/README.md` § Limits). Task 1, C7.
 
 ## 6. Token pipeline
 
@@ -188,6 +224,31 @@ Vite watches the whole project root. Other sessions' worktrees live under
 main checkout, which reads like a crash or a lost state. The patterns are
 absolute, not `**/.claude/**`: a worktree's own path contains `.claude/`, and
 the loose form would stop it watching itself. Found in task 1, wave 5.
+
+### A panel, sheet or selection opened in one scene shows another object after a jump in 原型控制
+
+**Rule:** component state that names a runtime object (a conversation, proposal, node or row id) must be dropped when the scene changes — remember `state.epoch` beside the id and treat a different epoch as "nothing open" (`src/chat/ChatBar.tsx`).
+
+Ids repeat between scenes: `conv-1` is one conversation in 第一晚 and another
+in 今天. A panel opened on 预约 reopened after the jump on the other
+scene's `conv-1`, the hero sentence went into it, and 接受 landed on a
+different module's workflow. Found by the keyboard flow in task 1, C5.
+
+### A screen passes `--cells smoke` and fails `--cells full`
+
+**Rule:** before calling a screen done, run its previews once: `npm run matrix -- '<route>' --preview error --cells smoke` (and `empty`, `loading`, `long`) — `smoke` alone never opens them.
+
+Only `--all --cells full` adds the previews a route lists, so a fault that
+exists only in a screen's error or empty state survives every per-package
+smoke run. In task 1 the one failure of the full run was of this kind.
+
+### After a scene jump a click on 页面 · 工作流 · 记忆 does nothing
+
+**Rule:** in a flow, close 原型控制's menu before clicking what it covers (`jump` in `e2e/flows/support.ts` does); by hand, click the button once more or press Escape.
+
+The menu stays open after a scene is chosen (the shell's design, so several
+scenes can be tried in a row) and lies over the view tabs at the right of
+the frame header. Listed for the owner at `G-1`. Task 1, C5.
 
 ## Categories worth checking early
 

@@ -4,6 +4,7 @@
 > Task type: 1 low-fi
 > Author: spec session `t1-spec` · Date: 2026-11-26
 > Spec review: `pass with notes` (pass 3 at `f810aad`, 2026-11-26, `.orchestration/reviews/task1-spec-review.md`; pass 1 and 2 `changes requested`, all blocking and should-fix findings closed) · Approved by: owner waiver D-41, 2026-11-26 — `G-SPEC` waived once; marked `approved` by the orchestration session on the passing review
+> **Superseded in part, 2026-11-26 (`docs/design/DECISIONS.md` D-43, D-44) — the text below is not rewritten.** D-43: stock shadcn/ui styling; every target-size and contrast requirement is withdrawn; tasks 2 and 3 are not done. D-44: acceptance is desktop only (1024 CSS px and up, default text size, light and dark, both locales) with the light done-check. A line here that names 44 px or 24 px targets, contrast ratios or pairs, 320, 768, root 24 px, 200 % zoom, the bottom sheet, compact navigation, 步骤列表 as the compact default, touch, or the placeholder theme is not a requirement.
 
 Part 3 of 3. It builds only from [lofi-prototype-system.md](lofi-prototype-system.md) ("part 1": base components, matrix harness, wave plan, frozen files, *component evidence*) and [lofi-prototype-shell.md](lofi-prototype-shell.md) ("part 2": runtime and its actions, scenes, shell, chat, blocks, `ModuleFrame`). Criteria here are `B-nn`; packages `C1…C7`, `I6`. No token and no kit file is added here.
 
@@ -201,3 +202,14 @@ A fix by C5 or C7 lands in the component, not in the screen (playbook step 6); a
 ## Review plan
 
 The final independent review runs after C7 over the whole task (`REVIEW.md` row 1) — not started by the lead on its own: after C7 the owner first looks at the running prototype, and the review and the `G-1` packet follow on the owner's word (D-42); the lead splits it by screen family if it will not fit 250K. Probe hardest: the canvas by keyboard and through the accessibility tree — order, names, focus return, no trap — and 步骤列表 as a true equivalent; node overlap at root 24 px; every wrapped control on real screens at 320 × root 24 px and 768 × 200%, both locales (D-06); dark mode on full screens with 超长内容; that stage 3 leaves the workflow at version 1 and stage 4 creates version 2; that every estimate on screen states its basis; the four states of every screen through 状态预览, including `settings`, `settings.ai-modes` and the chat surfaces; en text length on the frame header, onboarding actions and the memory table. The reviewer re-runs `npm run matrix -- --all`, runs Lighthouse on `notifications`, `profession.appointments` and the editor (D-35), and lists VoiceOver and real-touch passes as **not checked** unless it could drive them.
+
+## As built — where the prototype differs from the text above (recorded at close-out, package C7)
+
+Behaviour decided while the flows were built (package C5) and kept; `src/modules/notifications/base-modules.test.tsx` and the flows under `e2e/flows/` assert it.
+
+- **通知 keeps a decided item for the rest of that story day.** A deferred proposal she has decided stays on 通知 with its outcome (已接受 / 已拒绝 per part, and a line that sums it up and takes the focus); 待你确认 drops to 0 and the line of 重要的事 that only announced it is no longer listed. On the next scene it is gone. `Proposal.decidedAt` carries it (set by `resolveProposalPart` and `approveWorkflowChange`). This replaces "a decided proposal leaves the page".
+- **On 通知 the 来自 link of a workflow-change proposal goes to `/m/<id>/workflow`,** which opens on the change: one click from the proposal to the diff (B-24).
+- **A suggested prompt whose sub-module already exists is not offered again** (`suggestedPrompts`): after 接受 the hero sentence is no longer a chip.
+- **The in-place chat panel closes on a scene jump.** Ids repeat between scenes, so the panel remembers the runtime `epoch` it was opened in (`UI-PITFALLS.md` § 8).
+- **An appointment that carries the first-visit extra links to the node 第一次来的狗 +30 分钟** (`?node=first-visit`); every other appointment links to 估算时长.
+- **The retry button of an account whose connection failed in onboarding is named 重试「name」** (C7; its name used to be 重新连接「name」 over the visible word 重试, which `axe` refuses).
