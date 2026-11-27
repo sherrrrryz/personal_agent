@@ -163,16 +163,20 @@ describe('ChatMessageList', () => {
     const { container } = zh(<ChatMessageList messages={conversation} />)
     const log = screen.getByRole('log', { name: '对话记录' })
     expect(log).toHaveAttribute('aria-live', 'polite')
-    const items = within(log).getAllByRole('listitem')
+    const items = [...log.querySelectorAll<HTMLElement>('[data-author]')]
     expect(items).toHaveLength(2)
-    expect(items[0]).toHaveTextContent(/^你你.*明天有哪些预约？$/)
-    expect(items[1]).toHaveTextContent(/^AIAI.*明天有五个预约。$/)
-    // The avatar repeats the name beside it and is hidden from assistive technology.
-    expect(within(items[0]).getByText('你', { selector: '[data-slot="item-title"] span' })).toBeVisible()
-    expect(items[0].querySelector('[data-slot="avatar"]')).toHaveAttribute('aria-hidden', 'true')
+    expect(items[0]).toHaveTextContent(/^你.*明天有哪些预约？$/)
+    expect(items[1]).toHaveTextContent(/^AI.*明天有五个预约。$/)
+    // Who said it is text in the kit's message header, not only the side the bubble stands on.
+    expect(within(items[0]).getByText('你', { selector: '[data-slot="message-header"] span' })).toBeVisible()
     expect(items[0].querySelector('time')).toHaveAttribute('datetime', '2026-11-21T19:30:00+08:00')
-    expect(items[0].querySelector('[data-author="user"]')).not.toBeNull()
-    expect(items[1].querySelector('[data-author="ai"]')).not.toBeNull()
+    expect(items[0]).toHaveAttribute('data-author', 'user')
+    expect(items[1]).toHaveAttribute('data-author', 'ai')
+    // As the kit's Chat composes a turn: hers a bubble at the end that anchors the exchange, the AI's unframed at the start.
+    expect(items[0]).toHaveAttribute('data-scroll-anchor', 'true')
+    expect(items[0].querySelector('[data-slot="bubble"]')).toHaveAttribute('data-align', 'end')
+    expect(items[1]).toHaveAttribute('data-scroll-anchor', 'false')
+    expect(items[1].querySelector('[data-slot="bubble"]')).toHaveAttribute('data-variant', 'ghost')
     expect(await axe(container)).toHaveNoViolations()
   })
 
@@ -239,6 +243,9 @@ describe('ChatMessageList', () => {
     expect(status).toHaveTextContent('回答失败。')
     expect(status.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
     expect(await axe(container)).toHaveNoViolations()
+    // The kit's viewport is a named region in the tab order (it scrolls by keyboard); the retry follows it.
+    await userEvent.tab()
+    expect(screen.getByRole('region', { name: '对话记录' })).toHaveFocus()
     await userEvent.tab()
     expect(screen.getByRole('button', { name: '重试' })).toHaveFocus()
     await userEvent.keyboard('{Enter}')
@@ -251,12 +258,12 @@ describe('ChatMessageList', () => {
     zh(<ChatMessageList readOnly messages={failed} onRetry={() => undefined} />)
     expect(screen.getByRole('log')).toHaveAttribute('aria-live', 'off')
     expect(screen.getByText('回答失败。')).toBeInTheDocument()
-    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('button', { name: '重试' })).toBeNull()
   })
 
   it('without a retry handler a failed answer has no button', () => {
     zh(<ChatMessageList messages={[{ id: 'a9', author: 'ai', text: '', status: 'failed' }]} />)
-    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('button', { name: '重试' })).toBeNull()
   })
 
   it('long: sixty messages are all there, in order', () => {
@@ -266,7 +273,7 @@ describe('ChatMessageList', () => {
       text: `第 ${index + 1} 条`,
     }))
     zh(<ChatMessageList messages={sixty} />)
-    const items = within(screen.getByRole('log')).getAllByRole('listitem')
+    const items = [...screen.getByRole('log').querySelectorAll('[data-author]')]
     expect(items).toHaveLength(60)
     expect(items[0]).toHaveTextContent('第 1 条')
     expect(items[59]).toHaveTextContent('第 60 条')
@@ -278,9 +285,10 @@ describe('ChatMessageList', () => {
     zh(<ChatMessageList messages={[{ id: 'm1', author: 'ai', text }]} />)
     const paragraph = screen.getByText((_, element) => element?.tagName === 'P' && element.textContent === text)
     expect(tokens(paragraph)).toEqual(expect.arrayContaining(['whitespace-pre-wrap', 'wrap-anywhere', 'min-w-0']))
-    // Nothing cuts it: no clamp, no truncation, no fixed height on the way up to the log.
+    // Nothing cuts it: no clamp, no truncation, no fixed height on the way up to the log. (The kit's
+    // bubble is `overflow-hidden` for its rounded corners; it has no block size to cut at.)
     for (let element: Element | null = paragraph; element && element.getAttribute('role') !== 'log'; element = element.parentElement) {
-      expect(tokens(element).filter((token) => /^(?:truncate|line-clamp-\d|h-\d|max-h-|overflow-hidden)/.test(token))).toEqual([])
+      expect(tokens(element).filter((token) => /^(?:truncate|line-clamp-\d|h-\d|max-h-)/.test(token))).toEqual([])
     }
   })
 
@@ -291,7 +299,7 @@ describe('ChatMessageList', () => {
     ]
     const renderAttachment = vi.fn((attachment: Attachment) => <section aria-label={`提议 ${attachment.proposalId}`} />)
     const { container, rerender } = zh(<ChatMessageList messages={messages} renderAttachment={renderAttachment} />)
-    const item = within(screen.getByRole('log')).getByRole('listitem')
+    const item = screen.getByRole('log').querySelector<HTMLElement>('[data-author]')!
     expect(within(item).getByRole('region', { name: '提议 p-1' })).toBeInTheDocument()
     expect(within(item).getByRole('region', { name: '提议 p-2' })).toBeInTheDocument()
     expect(renderAttachment).toHaveBeenCalledWith(messages[0].attachments![0], messages[0])
@@ -321,44 +329,27 @@ describe('ChatMessageList', () => {
     expect(await axe(container)).toHaveNoViolations()
   })
 
-  describe('follow', () => {
-    const add = (list: ChatMessage[], message: ChatMessage) => [...list, message]
-    function setup(props: { readOnly?: boolean; follow?: boolean } = {}) {
-      const scrollIntoView = vi.fn()
-      const view = zh(<ChatMessageList messages={conversation} {...props} />)
-      view.container.querySelector<HTMLElement>('[data-slot="chat-message-list-end"]')!.scrollIntoView = scrollIntoView
-      const show = (messages: ChatMessage[]) =>
-        view.rerender(
-          <LocaleProvider>
-            <ChatMessageList messages={messages} {...props} />
-          </LocaleProvider>,
-        )
-      return { scrollIntoView, show }
-    }
+  it('scrolls through the kit’s scroller: a named viewport reachable by keyboard and a named jump to the latest message', () => {
+    const { container } = zh(<ChatMessageList messages={conversation} />)
+    const viewport = screen.getByRole('region', { name: '对话记录' })
+    expect(viewport).toHaveAttribute('tabindex', '0')
+    expect(viewport).toContainElement(screen.getByRole('log', { name: '对话记录' }))
+    // The jump button is the kit's, with our words: no English name is left in it.
+    const jump = container.querySelector('[data-slot="message-scroller-button"]')!
+    expect(jump).toHaveTextContent(/^回到最新消息$/)
+    // Nothing of the hand-built following is left.
+    expect(container.querySelector('[data-slot="chat-message-list-end"]')).toBeNull()
+  })
 
-    it('never scrolls when it first appears; brings a new message and a growing answer into view', () => {
-      const { scrollIntoView, show } = setup()
-      expect(scrollIntoView).not.toHaveBeenCalled()
-      const asked = add(conversation, { id: 'u2', author: 'user', text: '发吧' })
-      show(asked)
-      expect(scrollIntoView).toHaveBeenCalledTimes(1)
-      expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' })
-      show(add(asked, { id: 'a2', author: 'ai', text: '', status: 'streaming' }))
-      show(add(asked, { id: 'a2', author: 'ai', text: '四条确认', status: 'streaming' }))
-      show(add(asked, { id: 'a2', author: 'ai', text: '四条确认已准备好。' }))
-      expect(scrollIntoView).toHaveBeenCalledTimes(4)
-      // The same list again moves nothing.
-      show(add(asked, { id: 'a2', author: 'ai', text: '四条确认已准备好。' }))
-      expect(scrollIntoView).toHaveBeenCalledTimes(4)
-    })
-
-    it('stays still for a record, and when the surface turns it off', () => {
-      for (const props of [{ readOnly: true }, { follow: false }]) {
-        const { scrollIntoView, show } = setup(props)
-        show(add(conversation, { id: 'u2', author: 'user', text: '发吧' }))
-        expect(scrollIntoView).not.toHaveBeenCalled()
-      }
-    })
+  it('en: the viewport and the jump button are named in English from the messages', () => {
+    localStorage.setItem(LOCALE_STORAGE_KEY, 'en')
+    const { container } = render(
+      <LocaleProvider>
+        <ChatMessageList messages={conversation} />
+      </LocaleProvider>,
+    )
+    expect(screen.getByRole('region', { name: 'Conversation' })).toBeInTheDocument()
+    expect(container.querySelector('[data-slot="message-scroller-button"]')).toHaveTextContent('Jump to the latest message')
   })
 })
 
@@ -530,11 +521,11 @@ describe('the chat demos', () => {
   it('the list demo holds the evidence R-09 names: sixty messages, one of 2,000 characters, an attachment', () => {
     const { container } = zh(<ListDemo />)
     const long = screen.getByRole('log', { name: '六十条消息' })
-    const items = within(long).getAllByRole('listitem')
+    const items = [...long.querySelectorAll('[data-author]')]
     expect(items).toHaveLength(60)
     expect(Math.max(...items.map((item) => item.querySelector('p')?.textContent?.length ?? 0))).toBe(2000)
-    // The region around it scrolls, so it can be reached and scrolled by keyboard.
-    expect(long.closest('[tabindex="0"]')).toHaveAccessibleName('一段很长的对话')
+    // In a box of limited height the kit's viewport scrolls, and it can be reached and scrolled by keyboard.
+    expect(long.closest('[tabindex="0"]')).toHaveAccessibleName('六十条消息')
     expect(container.querySelector('[data-slot="chat-message-attachments"]')).toHaveTextContent('提议：发出四条确认')
   })
 })

@@ -145,7 +145,7 @@ family.
 | Containers and overlays | [components/containers.md](components/containers.md) | `src/components/containers/` | Dialogs, sheets, cards, collapsibles, tooltips | 7 |
 | Feedback and status | [components/feedback.md](components/feedback.md) | `src/components/feedback/` | Badges, alerts, toasts, loading and empty states | 8 |
 | Data display | [components/data-display.md](components/data-display.md) | `src/components/data-display/` | Tables, items, avatars, markers | 5 |
-| Chat | [components/chat.md](components/chat.md) | `src/components/chat/` | Composer, message list, persistence switch | 5 |
+| Chat | [components/chat.md](components/chat.md) | `src/components/chat/` | Composer and message list — built from the kit's Chat parts (D-45) — and the persistence switch | 5 |
 | Blocks | [components/blocks.md](components/blocks.md) | `src/block-renderer/`, `src/blocks/<name>/` | The block renderer and the text, empty and proposal blocks | 4 |
 | Data blocks | [components/data-blocks.md](components/data-blocks.md) | `src/blocks/<name>/` | The summary, list, table and schedule blocks | 4 |
 | Module frame | [components/module.md](components/module.md) | `src/module/` | The frame every module page sits in | 1 |
@@ -206,6 +206,7 @@ string literal, and checks each prop below.
 | `breadcrumb.tsx` | `Breadcrumb` | `aria-label="breadcrumb"` on the `nav` | No default: the caller's `aria-label` |
 | `breadcrumb.tsx` | `BreadcrumbEllipsis` | `sr-only` "More" | Prop `label` |
 | `spinner.tsx` | `Spinner` | `aria-label="Loading"` | No default: the caller's `aria-label` |
+| `message-scroller.tsx` | `MessageScrollerButton` | `sr-only` "Scroll to end" / "Scroll to start" | Prop `label` |
 
 - **Every one of these props is optional in the kit file** — the patch stays
   the smallest possible edit. The wrapper makes it impossible to forget: it
@@ -217,5 +218,13 @@ string literal, and checks each prop below.
   and `toastOptions.closeButtonAriaLabel`, and `theme` from our
   `ThemeProvider` (the kit's `sonner.tsx` reads `next-themes`, which has no
   provider here).
+- **Same duty, in a package:** `@shadcn/react` (behind `message-scroller.tsx`)
+  names the scroller's viewport "Messages" by default — `ChatMessageList`
+  passes `aria-label` (the log's own name) on `MessageScrollerViewport`.
+- **Kit files a family may compose directly (D-45):** `bubble.tsx`,
+  `message.tsx` and `message-scroller.tsx` are the parts of the kit's Chat.
+  They are composed inside `ChatMessageList` only and have no registry row or
+  re-export of their own: outside `src/components/chat/` a conversation is
+  shown with `ChatMessageList`.
 - **After `shadcn add` or an upgrade** of a file above: re-apply its rows,
   then run `npm test`. Never add a visual value while there (D-06).

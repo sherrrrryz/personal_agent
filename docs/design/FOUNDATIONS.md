@@ -214,7 +214,7 @@ for reading.
 | Framework and build | `react` 19.3.1 · `react-dom` 19.3.1 · `typescript` 7.0.2 · `vite` 8.3.8 · `@vitejs/plugin-react` 6.3.0 |
 | Styling | `tailwindcss` 4.3.5 · `@tailwindcss/vite` 4.3.5 · `tw-animate-css` 1.4.0 |
 | Kit | `shadcn` CLI 4.23.1 (`init -b base -p nova -t vite` → style `base-nova`, base colour `neutral`) · `@base-ui/react` 1.9.0 · `lucide-react` 1.81.0 · `class-variance-authority` 0.7.1 · `clsx` 2.1.1 · `tailwind-merge` 3.7.1 · `sonner` 2.0.8 · `@fontsource-variable/geist` 5.3.0 (installed, not imported in task 1) |
-| Resolved by the CLI, not chosen | `cn` 0.5.2 — the class merger every kit file imports · `next-themes` 0.4.6 — imported by the kit's `sonner.tsx`; no provider is mounted, the `Sonner` wrapper passes `theme`. Both MIT; accepted by the lead under D-41 and pinned. `tailwind-merge` is installed and currently imported by nothing |
+| Resolved by the CLI, not chosen | `cn` 0.5.2 — the class merger every kit file imports · `next-themes` 0.4.6 — imported by the kit's `sonner.tsx`; no provider is mounted, the `Sonner` wrapper passes `theme`. Both MIT; accepted by the lead under D-41 and pinned. `tailwind-merge` is installed and currently imported by nothing · `@shadcn/react` 0.3.1 (2026-11-27, D-45) — shadcn/ui's own headless package, imported by the kit's `message-scroller.tsx`; MIT, no dependency of its own, peer `react` ≥ 19 |
 | Canvas | `@xyflow/react` 13.0.3 (D-16) |
 | Routing | `react-router` 8.5.3, library mode — not a UI kit |
 | Tokens | `style-dictionary` 5.8.0 (D-33) |
@@ -222,11 +222,16 @@ for reading.
 | Matrix | `@playwright/test` 1.65.1 (Chromium only) · `@axe-core/playwright` 4.14.1 — dev only |
 | Lint and types | `oxlint` 1.95.0 · `@types/node` 24.19.4 · `@types/react` 19.3.3 · `@types/react-dom` 19.3.0 |
 
-**Kit files installed** (32, in `src/components/ui/`): alert-dialog, alert,
-avatar, badge, breadcrumb, button, card, collapsible, dialog, dropdown-menu,
-empty, field, input-group, input, item, label, progress, radio-group, select,
-separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs,
-textarea, toggle-group, toggle, tooltip. Five carry the patches of
+**Kit files installed** (35, in `src/components/ui/`): alert-dialog, alert,
+avatar, badge, breadcrumb, bubble, button, card, collapsible, dialog,
+dropdown-menu, empty, field, input-group, input, item, label,
+message-scroller, message, progress, radio-group, select, separator, sheet,
+sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea,
+toggle-group, toggle, tooltip. `bubble`, `message` and `message-scroller`
+were added on 2026-11-27 with `shadcn add` (CLI 4.23.1, same `components.json`)
+for the chat (D-45) — the parts of the kit's Chat
+(<https://ui.shadcn.com/docs/ai-elements/base/chat>); the Vercel AI SDK and
+that page's `createChat` helper are not installed. Six carry the patches of
 `COMPONENTS.md` § Kit patches; the rest are as the CLI wrote them. Kit
 components deliberately not installed: `COMPONENTS.md` § Kit components
 deliberately not used.

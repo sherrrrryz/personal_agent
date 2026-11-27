@@ -30,8 +30,8 @@ function shown(messages: Message[], said: Record<number, string>, locale: Locale
 
 /**
  * `onboarding.profession` — step 1 (D-30): the AI asks four things in turn,
- * her scripted answer is offered as a suggestion, and the AI closes with a
- * summary; then 继续. The states follow 状态预览 from the address: 加载中 is a
+ * her scripted answer types itself into the composer and she sends it
+ * (D-48), and the AI closes with a summary; then 继续. The states follow 状态预览 from the address: 加载中 is a
  * reply still arriving, 出错 a reply that failed (retry in the list), 超长内容
  * the 40-message interview. Empty is how the step opens: the first question
  * is already there.
@@ -76,8 +76,28 @@ export function ProfessionStep() {
     else end.current?.scrollIntoView?.({ block: 'end' })
   }, [answered, pending])
 
+  // Her scripted answer types itself into the composer, a character a frame, as soon as a question
+  // is waiting; she reads it, changes it if she likes, and sends (D-48). With reduced motion it is
+  // there at once. Whatever she types herself stops it.
+  const scripted = !done && pending === 'idle' ? interview.questions[answered].answer[locale] : null
+  const frame = useRef(0)
+  useEffect(() => {
+    if (scripted === null) return
+    const characters = Array.from(scripted)
+    const still = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let shown = 0
+    const type = () => {
+      shown = still ? characters.length : shown + 1
+      setDraft(characters.slice(0, shown).join(''))
+      frame.current = shown < characters.length ? requestAnimationFrame(type) : 0
+    }
+    frame.current = requestAnimationFrame(type)
+    return () => cancelAnimationFrame(frame.current)
+  }, [scripted])
+
   function send(text: string) {
     if (done || pending === 'streaming') return
+    cancelAnimationFrame(frame.current)
     setSaid({ ...said, [answered]: text })
     setDraft('')
     setReply('streaming')
@@ -99,7 +119,6 @@ export function ProfessionStep() {
       },
     )
   }
-  const suggestion = !done && pending === 'idle' && draft === '' ? interview.questions[answered].answer[locale] : null
 
   return (
     <Page
@@ -114,23 +133,18 @@ export function ProfessionStep() {
         ) : undefined
       }
     >
-      <ChatMessageList messages={messages} label={t('profession.log')} onRetry={() => setReply('streaming')} />
+      {/* The page scrolls here, not the list: its own following is off, the step brings the end into view (above). */}
+      <ChatMessageList messages={messages} label={t('profession.log')} follow={false} onRetry={() => setReply('streaming')} />
       {/* The composer stays at the end of the window while the interview scrolls above it. */}
       <div className="sticky bottom-0 bg-background py-4">
         <Stack gap="md">
-          {suggestion && (
-            <ul aria-label={t('profession.suggestions')} className="flex min-w-0 flex-wrap gap-2">
-              <li className="min-w-0">
-                <Button variant="secondary" size="sm" onClick={() => send(suggestion)}>
-                  {suggestion}
-                </Button>
-              </li>
-            </ul>
-          )}
           <ChatComposer
             placement="onboarding"
             value={draft}
-            onValueChange={setDraft}
+            onValueChange={(text) => {
+              cancelAnimationFrame(frame.current)
+              setDraft(text)
+            }}
             onSend={send}
             sending={pending === 'streaming'}
             disabled={done}

@@ -50,8 +50,15 @@ function open(path: string, options: { search?: string; storage?: ReturnType<typ
 const heading = (name: string) => screen.findByRole('heading', { level: 1, name })
 const rows = () => within(screen.getByRole('list', { name: '职业模块' })).getAllByRole('listitem')
 
+/** Her scripted answer types itself into the composer (D-48); she sends it. Reduced motion puts it there at once. */
+async function sendScripted(answer: string) {
+  await waitFor(() => expect(screen.getByRole('textbox', { name: '你的回答' })).toHaveValue(answer))
+  await userEvent.click(screen.getByRole('button', { name: '发送' }))
+}
+
 async function interview() {
-  for (const answer of answers) await userEvent.click(await screen.findByRole('button', { name: answer }))
+  setMediaQuery('(prefers-reduced-motion: reduce)', true)
+  for (const answer of answers) await sendScripted(answer)
   // The summary has arrived: 继续 is available.
   await waitFor(() => expect(screen.getByRole('button', { name: '继续' })).not.toHaveAttribute('aria-disabled', 'true'))
 }
@@ -156,7 +163,7 @@ describe('onboarding, the first run (B-14)', () => {
 
     open('/onboarding/profession', { search: '?preview=long' })
     await heading('先聊聊你的工作')
-    expect(within(screen.getByRole('log', { name: '职业访谈' })).getAllByRole('listitem')).toHaveLength(40)
+    expect(screen.getByRole('log', { name: '职业访谈' }).querySelectorAll('[data-author]')).toHaveLength(40)
     expect(screen.getByRole('button', { name: '继续' })).not.toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByRole('textbox', { name: '你的回答' })).toBeDisabled()
   })

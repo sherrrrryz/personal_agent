@@ -39,7 +39,11 @@ test('onboarding — w1440-100: the first run, from / to 通知, shown once', as
     await expect(page.getByRole('heading', { level: 1, name: '先聊聊你的工作' })).toBeVisible()
     await expect(page.getByText('第 1 步，共 3 步')).toBeVisible()
     await clean(page, 'step 1')
-    for (const answer of answers) await page.getByRole('button', { name: answer }).click()
+    // Each scripted answer types itself into the composer (D-48); she sends it.
+    for (const answer of answers) {
+      await expect(page.getByRole('textbox', { name: '你的回答' })).toHaveValue(answer)
+      await page.getByRole('button', { name: '发送', exact: true }).click()
+    }
     await expect(page.getByText('我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
     await shot(page, '1-profession')
     await page.getByRole('button', { name: '继续' }).click()

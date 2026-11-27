@@ -28,6 +28,8 @@ if (typeof window !== 'undefined') {
 
   const element = Element.prototype as unknown as Record<string, unknown>
   element.scrollIntoView ??= () => {}
+  // The kit's message scroller places its viewport with `scrollTo`; jsdom has none.
+  element.scrollTo ??= () => {}
   element.hasPointerCapture ??= () => false
   element.setPointerCapture ??= () => {}
   element.releasePointerCapture ??= () => {}

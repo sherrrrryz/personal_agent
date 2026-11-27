@@ -17,8 +17,9 @@ const linkClass = 'inline-flex items-center underline underline-offset-4 wrap-an
 /**
  * `chat.thread` (`/chat/<id>`) — a dedicated chat (spec part 2 § Chat): the
  * conversation's title, its topic and the module it concerns, the persistence
- * switch, and the messages. Its composer is the shell's bottom row
- * (`ChatBar`), so `main` scrolls under a composer that stays.
+ * switch, and the messages, which scroll inside the room `main` has left
+ * (the kit's `MessageScroller`). Its composer is the shell's bottom row
+ * (`ChatBar`).
  *
  * The header reads the state itself — like the breadcrumb above it — and only
  * the messages follow 状态预览: a forced error leaves her knowing which chat
@@ -36,7 +37,7 @@ export function ThreadPage() {
   const module = findModule(state, conversation.subModuleId ?? conversation.moduleId ?? '')
 
   return (
-    <Page title={conversation.title[locale] || t('thread.untitled')} width="prose">
+    <Page title={conversation.title[locale] || t('thread.untitled')} width="prose" height="fill">
       <Stack gap="md">
         <ul aria-label={t('thread.details')} className="flex min-w-0 flex-wrap gap-x-6">
           {topic && (
@@ -56,7 +57,10 @@ export function ThreadPage() {
         </ul>
         <ConversationPersistence conversation={conversation} />
       </Stack>
-      <ThreadMessages conversation={conversation} />
+      {/* What the header leaves of `main` is the conversation's: it scrolls inside itself. */}
+      <div className="flex min-h-48 flex-1 flex-col">
+        <ThreadMessages conversation={conversation} />
+      </div>
     </Page>
   )
 }

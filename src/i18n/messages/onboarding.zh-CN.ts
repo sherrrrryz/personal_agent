@@ -10,7 +10,6 @@ const messages: Translation<typeof en> = {
   'profession.title': '先聊聊你的工作',
   'profession.description': '四个问题。我会根据你的回答，建议工作台一开始有哪些模块。',
   'profession.log': '职业访谈',
-  'profession.suggestions': '可以这样回答',
   'profession.continue': '继续',
   'profession.continue.note': '回答完上面的问题后可以继续。',
 

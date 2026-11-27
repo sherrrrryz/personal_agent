@@ -1,4 +1,4 @@
-import { SendHorizontal } from 'lucide-react'
+import { ArrowUp } from 'lucide-react'
 import { useId, useRef, useState, type FormEvent, type KeyboardEvent, type Ref } from 'react'
 
 import { Button } from '@/components/actions'
@@ -12,7 +12,7 @@ export type ChatComposerProps = {
   /**
    * Where it stands. `bar`: the shell's chat bar — as low as it gets, the key
    * hint kept for assistive technology only. `thread`: a dedicated chat.
-   * `onboarding`: the interview — room for a longer answer, send under the text.
+   * `onboarding`: the interview — room for a longer answer.
    */
   placement?: ChatComposerPlacement
   /** The visible label; it names the text control. Default: the placement's own. */
@@ -50,10 +50,11 @@ const sizeClass: Record<ChatComposerPlacement, string> = {
 const formClass = 'min-w-0 [&_button[aria-disabled=true]:not([aria-busy=true])]:opacity-50'
 
 /**
- * Where a message to the AI is written and sent. Enter sends, Shift+Enter
- * starts a new line; the send button does the same for a pointer. It is the
- * same component in the chat bar, in a dedicated chat and in the onboarding
- * interview (D-30).
+ * Where a message to the AI is written and sent, composed as the kit's Chat
+ * composes its field (D-45): an `InputGroup` holding the text and, under it,
+ * the add-on row with the send button. Enter sends, Shift+Enter starts a new
+ * line; the send button does the same for a pointer. It is the same component
+ * in the chat bar, in a dedicated chat and in the onboarding interview (D-30).
  */
 export function ChatComposer({
   placement = 'bar',
@@ -104,17 +105,15 @@ export function ChatComposer({
   // real `disabled` would fade the whole group (the kit's `has-disabled`), and an
   // empty composer must look ready to type in.
   const unavailable = { disabled: disabled || blank, focusableWhenDisabled: !disabled, loading: sending }
-  const sendButton =
-    placement === 'onboarding' ? (
-      <Button type="submit" size="sm" {...unavailable}>
-        <SendHorizontal aria-hidden="true" />
-        {t('composer.send')}
-      </Button>
-    ) : (
+  // As the kit's Chat composes its field: the text on top, and under it a row of add-ons that
+  // ends with the send button.
+  const sendButton = (
+    <div className="ms-auto flex">
       <Button type="submit" size="icon" aria-label={t('composer.send')} {...unavailable}>
-        <SendHorizontal aria-hidden="true" />
+        <ArrowUp aria-hidden="true" />
       </Button>
-    )
+    </div>
+  )
 
   return (
     <form data-slot="chat-composer" data-placement={placement} onSubmit={onSubmit} className={`${formClass} ${sizeClass[placement]}`}>
@@ -123,7 +122,7 @@ export function ChatComposer({
         description={placement === 'bar' ? undefined : t('composer.hint')}
         disabled={disabled}
       >
-        <InputGroup align={placement === 'onboarding' ? 'block' : 'inline'} end={sendButton}>
+        <InputGroup align="block" end={sendButton}>
           <Textarea
             ref={(node) => {
               own.current = node
