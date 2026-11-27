@@ -1,9 +1,9 @@
-import { FlaskConicalIcon } from 'lucide-react'
+import { ArrowLeftIcon, FlaskConicalIcon } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { Button } from '@/components/actions'
-import { Breadcrumb, SidebarTrigger, type Crumb } from '@/components/navigation'
+import { Breadcrumb, SidebarTrigger, useSidebar, type Crumb } from '@/components/navigation'
 import { useLocale, useT } from '@/i18n'
 import { useRuntimeState } from '@/runtime'
 
@@ -15,7 +15,7 @@ import { TimeDevice } from './TimeDevice'
 const panelClass = `${shellPanelClass} flex flex-wrap items-center gap-x-2 gap-y-1 px-2 py-1`
 
 /**
- * The header (spec part 2 § Shell): sidebar trigger, breadcrumb, the
+ * The header (spec part 2 § Shell): the back arrow, breadcrumb, the
  * prototype controls and — while a state is forced — a line that says so,
  * with 恢复正常, so a forced state is never read as a defect. It is laid over
  * the start of `main` as a floating panel (D-50): the header is a transparent
@@ -27,11 +27,28 @@ const panelClass = `${shellPanelClass} flex flex-wrap items-center gap-x-2 gap-y
  * Beside the prototype controls is the slot the open screen fills with its own
  * controls (`useShellHeaderSlot`, D-50).
  *
+ * 返回 (D-53, 从哪来回哪去): when the entry before this one is a screen of
+ * the app she came from (`cameFromApp`, from the shell's copy of the history), one step back
+ * along the history; otherwise — a direct address, a reload, the first screen
+ * after onboarding — up to the breadcrumb's level above, in place of this
+ * entry; on a top-level screen with neither it is not drawn. The sidebar's
+ * own trigger sits at the top of the sidebar; only the compact size class,
+ * where the sidebar is a sheet off the canvas, keeps a trigger here to open it.
+ *
  * One row with room; when the three do not fit, the controls move under the
  * breadcrumb, and the preview line always takes a row of its own. `heading`
  * is the open page's `h1`: the breadcrumb's last level.
  */
-export function ShellHeader({ heading, slot }: { heading: string; slot?: (element: HTMLDivElement | null) => void }) {
+export function ShellHeader({
+  heading,
+  cameFromApp,
+  slot,
+}: {
+  heading: string
+  /** The entry before this one is a screen of the app (`usePreviousEntry`). */
+  cameFromApp: boolean
+  slot?: (element: HTMLDivElement | null) => void
+}) {
   const t = useT('shell')
   const common = useT('common')
   const { locale } = useLocale()
@@ -39,6 +56,8 @@ export function ShellHeader({ heading, slot }: { heading: string; slot?: (elemen
   const { pathname } = useLocation()
   const [message, setMessage] = useState('')
   const device = useDevice(setMessage)
+  const navigate = useNavigate()
+  const { mode } = useSidebar()
 
   const { ancestors, fallback } = ancestorsOf(pathname, state, locale, {
     topics: t('nav.topics'),
@@ -48,11 +67,18 @@ export function ShellHeader({ heading, slot }: { heading: string; slot?: (elemen
     ...ancestors.map(({ label, to }) => ({ label, render: <Link to={to} /> })),
     { label: heading || fallback || common('app.name') },
   ]
+  const parent = ancestors.at(-1)
+  const back = cameFromApp ? () => void navigate(-1) : parent ? () => void navigate(parent.to, { replace: true }) : undefined
 
   return (
     <header className="pointer-events-none z-10 col-start-1 row-start-1 self-start p-2">
       <div className={panelClass} data-shell-panel="">
-        <SidebarTrigger />
+        {mode === 'sheet' && <SidebarTrigger />}
+        {back && (
+          <Button variant="ghost" size="icon" aria-label={common('action.back')} onClick={back}>
+            <ArrowLeftIcon aria-hidden="true" />
+          </Button>
+        )}
         <div className="flex min-w-0 grow basis-32">
           <Breadcrumb items={crumbs} />
         </div>

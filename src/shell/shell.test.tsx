@@ -26,6 +26,7 @@ import { axe } from '@/test/axe'
 import { setMediaQuery } from '@/test/match-media'
 
 import { ancestorsOf, routeAfterJump } from './crumbs'
+import { step } from './in-app-history'
 import { chromeOf, type ShellHandle } from './route'
 import { Shell } from './Shell'
 import type { ShellSlots } from './slots'
@@ -132,7 +133,9 @@ describe('the shell in each size class (R-05)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: '通知' })).toBeInTheDocument()
     expect(within(nav()).getByText('我的店 · 宠物美容')).not.toHaveClass('sr-only')
     expect(within(nav()).getByRole('link', { name: '服务时长' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '展开或收起侧边栏' })).toHaveAttribute('aria-expanded', 'true')
+    // The trigger sits at the top of the sidebar, not in the header (D-53).
+    expect(within(nav()).getByRole('button', { name: '展开或收起侧边栏' })).toHaveAttribute('aria-expanded', 'true')
+    expect(shellHeader()).not.toContainElement(screen.getByRole('button', { name: '展开或收起侧边栏' }))
     expect(deviceButton()).toHaveTextContent('原型控制 · 时间推进：第 1–2 周')
     expect(shellHeader()).toContainElement(deviceButton())
     expect(screen.getByRole('main')).toContainElement(screen.getByRole('button', { name: '页面按钮' }))
@@ -145,7 +148,8 @@ describe('the shell in each size class (R-05)', () => {
     expect(within(nav()).getByRole('link', { name: '消息' })).toBeInTheDocument()
     expect(within(nav()).getByText('我的店 · 宠物美容')).toHaveClass('sr-only')
     expect(within(nav()).queryByRole('link', { name: '服务时长' })).not.toBeInTheDocument()
-    const trigger = screen.getByRole('button', { name: '展开或收起侧边栏' })
+    // In the rail the trigger is still at the top of the sidebar, so the rail opens from where it closed.
+    const trigger = within(nav()).getByRole('button', { name: '展开或收起侧边栏' })
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
 
     await userEvent.click(trigger)
@@ -393,9 +397,9 @@ describe('keyboard and focus (R-07)', () => {
     const at = (element: Element) => stops.indexOf(element)
     const order = [
       screen.getByRole('link', { name: '跳到主要内容' }),
+      within(nav()).getByRole('button', { name: '展开或收起侧边栏' }),
       within(nav()).getByRole('link', { name: '通知' }),
       within(nav()).getByRole('link', { name: '设置' }),
-      screen.getByRole('button', { name: '展开或收起侧边栏' }),
       deviceButton(),
       screen.getByRole('button', { name: '页面按钮' }),
       last,
@@ -462,6 +466,67 @@ describe('keyboard and focus (R-07)', () => {
       '/topics',
       `/topics/${conversation.topicId}`,
     ])
+  })
+})
+
+describe('返回 — back to where she came from (D-53)', () => {
+  const back = () => within(shellHeader() as HTMLElement).getByRole('button', { name: '返回' })
+
+  it('goes back along the path she took inside the app, and is not drawn on a first top-level screen', async () => {
+    const { router } = open('/m/notifications')
+    await screen.findByRole('heading', { level: 1, name: '通知' })
+    expect(screen.queryByRole('button', { name: '返回' })).toBeNull()
+
+    await userEvent.click(within(nav()).getByRole('link', { name: '预约' }))
+    await screen.findByRole('heading', { level: 1, name: '预约' })
+    await userEvent.click(screen.getByRole('link', { name: '流程' }))
+    await screen.findByRole('heading', { level: 1, name: '流程' })
+
+    await userEvent.click(back())
+    await screen.findByRole('heading', { level: 1, name: '预约' })
+    expect(router.state.historyAction).toBe('POP')
+    // 预约 has no level above, but she came from 通知: back goes there, not up.
+    await userEvent.click(back())
+    await screen.findByRole('heading', { level: 1, name: '通知' })
+    expect(router.state.location.pathname).toBe('/m/notifications')
+    expect(screen.queryByRole('button', { name: '返回' })).toBeNull()
+  })
+
+  it('opened by its address, goes up the breadcrumb in place of the open entry until a top-level screen', async () => {
+    const { router } = open(`/m/${duration}/workflow`)
+    await screen.findByRole('heading', { level: 1, name: '流程' })
+    await userEvent.click(back())
+    await screen.findByRole('heading', { level: 1, name: '服务时长' })
+    expect(router.state.historyAction).toBe('REPLACE')
+    await userEvent.click(back())
+    await screen.findByRole('heading', { level: 1, name: '预约' })
+    expect(router.state.location.pathname).toBe(`/m/${appointments}`)
+    expect(screen.queryByRole('button', { name: '返回' })).toBeNull()
+  })
+
+  it('works from the keyboard and is named in English', async () => {
+    const { router } = open('/m/notifications/workflow', { locale: 'en' })
+    await screen.findByRole('heading', { level: 1, name: '流程' })
+    const button = within(shellHeader() as HTMLElement).getByRole('button', { name: 'Back' })
+    button.focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/m/notifications'))
+  })
+
+  it('keeps a copy of the history: push, replace, pop, and a pop to an entry it never saw starts afresh', () => {
+    const a = { key: 'a', pathname: '/m/a', app: true }
+    const b = { key: 'b', pathname: '/m/b', app: true }
+    const c = { key: 'c', pathname: '/onboarding/profession', app: false }
+    let history = step(null, 'POP', a)
+    expect(history).toEqual({ entries: [a], index: 0 })
+    history = step(history, 'PUSH', b)
+    expect(history).toEqual({ entries: [a, b], index: 1 })
+    expect(step(history, 'PUSH', b)).toBe(history)
+    expect(step(history, 'REPLACE', c)).toEqual({ entries: [a, c], index: 1 })
+    expect(step(history, 'POP', a)).toEqual({ entries: [a, b], index: 0 })
+    expect(step(step(history, 'POP', a), 'PUSH', c)).toEqual({ entries: [a, c], index: 1 })
+    const z = { key: 'z', pathname: '/m/z', app: true }
+    expect(step(history, 'POP', z)).toEqual({ entries: [z], index: 0 })
   })
 })
 
@@ -602,6 +667,9 @@ describe('the 时间推进 device and 状态预览 (R-08)', () => {
     await userEvent.click(within(menu).getByRole('menuitemradio', { name: '第一晚' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/m/notifications'))
     expect(await screen.findByRole('heading', { level: 1, name: '通知' })).toBeInTheDocument()
+    // The jump took the place of 服务时长 (D-53): there is no step back to it, and 通知 has no level above.
+    expect(router.state.historyAction).toBe('REPLACE')
+    expect(screen.queryByRole('button', { name: '返回' })).toBeNull()
 
     const state = runtime.getState()
     expect(routeAfterJump('/m/notifications/workflow', state)).toBeNull()

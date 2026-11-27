@@ -9,7 +9,7 @@ import { Stack } from '@/components/layout'
 import { appointmentStatus, column, nodeId, tableId } from '@/fixtures/keys'
 import { useFormat, useLocale } from '@/i18n'
 import { numberCell, rowOf, stringCell, tableOf, toDate, useActions, useRuntimeState } from '@/runtime'
-import { modulePath } from '@/shell'
+import { modulePath, useCameFrom } from '@/shell'
 
 import { durationModuleId, pageTools, petPath } from './page-tools'
 
@@ -26,6 +26,7 @@ export function AppointmentSheet({ moduleId, appointmentId, basePath }: { module
   const { locale } = useLocale()
   const format = useFormat()
   const navigate = useNavigate()
+  const cameFrom = useCameFrom()
   const actions = useActions()
   // The booking as it is, never forced by 状态预览: the address must open whatever is being previewed.
   const state = useRuntimeState()
@@ -45,7 +46,9 @@ export function AppointmentSheet({ moduleId, appointmentId, basePath }: { module
   const actual = numberCell(row, a.actual)
   const extra = numberCell(row, a.extra)
   const duration = durationModuleId(state)
-  const close = () => void navigate(basePath)
+  // Closing returns to the page it was opened from (D-53): back, when that is where she came from, so that
+  // 返回 afterwards does not open the sheet again; else the page, in place of the sheet's address.
+  const close = () => void (cameFrom === basePath ? navigate(-1) : navigate(basePath, { replace: true }))
 
   const finish = () => {
     const value = Number(minutes)

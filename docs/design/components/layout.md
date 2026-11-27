@@ -81,6 +81,24 @@ focused control are never under a bar. A screen does nothing for this; a
 `sticky top-0` of its own inside `main` would stick **under** the header — add
 `top-(--shell-header-size)`.
 
+**What the shell's header holds (D-53).** From the start: in the compact
+size class only, the `SidebarTrigger` that opens the sheet (otherwise the
+trigger is at the top of the sidebar — `navigation.md`); **返回**, a ghost
+icon `Button` with `ArrowLeft` named by `common` `action.back`; the
+breadcrumb; then the open screen's slot and the prototype controls. 返回 goes
+back to where she came from: one step back along the history when the entry
+before is a screen inside the shell, else up to the breadcrumb's level above,
+replacing the open entry; on a top-level screen with neither it is not drawn.
+The browser does not say where its previous entry leads, so the shell keeps
+its own copy of the history from the moment the app loaded
+(`src/shell/in-app-history.ts`, called in `Shell` above the bare branch so
+that no move is missed). A move that is not a step she took — a scene jump,
+clearing `?scene=` — replaces the address (`navigate(…, { replace: true })`);
+a push there would become a step back. A screen that closes something with
+an address of its own (the appointment sheet) asks `useCameFrom()` (from
+`@/shell`): when the page it closes to is where she came from it goes back,
+else it replaces its address with that page — closing is never a new step.
+
 Controls placed in the `actions` slot of `Page` or `Section` bring their own
 contract (their family file); the slot adds none and wraps them under the
 title rather than shrinking them.

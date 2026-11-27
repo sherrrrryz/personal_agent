@@ -89,7 +89,11 @@ export function Sidebar({ 'aria-label': label, children }: SidebarProps) {
   )
 }
 
-/** The button that opens the sheet (compact) or folds the sidebar into the rail and back. Goes in the page header. */
+/**
+ * The button that opens the sheet (compact) or folds the sidebar into the rail and back. In the
+ * app it sits at the top of the sidebar, in `SidebarHeader`; the page header keeps one only to
+ * open the compact sheet (D-53).
+ */
 export function SidebarTrigger() {
   const t = useT('navigation')
   const { mode, open, sheetOpen, toggle } = useSidebar()

@@ -7,8 +7,10 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarHeader,
   SidebarItem,
   SidebarSubItem,
+  SidebarTrigger,
   useSidebar,
 } from '@/components/navigation'
 import { useLocale, useT } from '@/i18n'
@@ -18,7 +20,9 @@ import { modulePath, partsOf } from './crumbs'
 import { moduleIconComponents } from './module-icons'
 
 /**
- * The module navigation (spec part 2 § Shell, "Sidebar, in order"): 基础 — the
+ * The module navigation (spec part 2 § Shell, "Sidebar, in order"): at the top
+ * the trigger that folds it into the rail and opens it again (D-53; the sheet
+ * has its own close button instead); 基础 — the
  * base modules and 话题; the profession heading with her modules, each with
  * its sub-modules one level down; the chat's recent list (`recent`, a slot);
  * the footer with 设置 and the preferences menu.
@@ -79,6 +83,13 @@ export function AppSidebar({ recent: Recent }: { recent?: ComponentType }) {
 
   return (
     <Sidebar aria-label={t('nav.label')}>
+      {mode !== 'sheet' && (
+        <SidebarHeader>
+          <div className="flex">
+            <SidebarTrigger />
+          </div>
+        </SidebarHeader>
+      )}
       <SidebarContent>
         <SidebarGroup label={t('nav.base')}>
           {base.map(item)}

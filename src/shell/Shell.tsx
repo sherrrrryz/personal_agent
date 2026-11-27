@@ -6,6 +6,7 @@ import { SidebarProvider } from '@/components/navigation'
 import { useT } from '@/i18n'
 
 import { AppSidebar } from './AppSidebar'
+import { CameFromContext, usePreviousEntry } from './in-app-history'
 import { useShellRoute } from './route'
 import { ShellHeaderSlotContext } from './header-slot'
 import { shellPanelClass } from './panel'
@@ -32,14 +33,18 @@ const skipClass = `sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top
  * `route.ts` says which is which.
  *
  * Size classes (spec part 1 § Responsive): expanded — sidebar open; medium —
- * icon rail; compact — the kit's sheet, opened from the header. The trigger
- * switches open and rail; that choice lasts until the size class changes.
+ * icon rail; compact — the kit's sheet, opened from the header. The trigger at
+ * the top of the sidebar (D-53) switches open and rail; that choice lasts until
+ * the size class changes.
  *
  * `slots` replaces what the route and the chat provide — for a test.
  */
 export function Shell({ slots }: { slots?: ShellSlots }) {
   const t = useT('shell')
   const route = useShellRoute()
+  // Before the bare branch: the copy of the history must see every move (D-53).
+  const previous = usePreviousEntry(route.chrome === 'app')
+  const cameFrom = previous?.app ? previous.pathname : null
   const { main, heading } = usePageHeading()
   // The header's slot for the open screen's own controls (D-50).
   const [headerSlot, setHeaderSlot] = useState<HTMLElement | null>(null)
@@ -58,9 +63,11 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
 
   if (route.chrome === 'bare') {
     return (
-      <main id="main" ref={main} tabIndex={-1}>
-        <Outlet />
-      </main>
+      <CameFromContext value={cameFrom}>
+        <main id="main" ref={main} tabIndex={-1}>
+          <Outlet />
+        </main>
+      </CameFromContext>
     )
   }
 
@@ -75,43 +82,45 @@ export function Shell({ slots }: { slots?: ShellSlots }) {
       <a href="#main" className={skipClass} onClick={skip}>
         {t('skip')}
       </a>
-      <ShellHeaderSlotContext value={headerSlot}>
-        <SidebarProvider open={open} onOpenChange={(next) => setChoice({ expanded, open: next })}>
-          <AppSidebar recent={sidebarRecent} />
-          <div
-            ref={shell}
-            className="grid h-svh min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-clip overflow-y-auto"
-            data-shell=""
-          >
-            <ShellHeader heading={heading} slot={setHeaderSlot} />
-            {/*
-              Sideways the page is cut, not scrolled: a screen that is too wide
-              then fails the matrix as clipped text instead of passing with a
-              scroll bar nobody looked for. The minimum keeps `main` reachable
-              in a short window; the column scrolls as a whole when even that
-              does not fit. `isolate`: nothing a screen stacks rises over the
-              two bars. The padding is the bars' room, the scroll padding keeps
-              a focused control out from under them.
-            */}
-            <main
-              id="main"
-              ref={main}
-              tabIndex={-1}
-              className="relative isolate col-start-1 row-start-1 min-h-48 scroll-pt-(--shell-header-size) scroll-pb-(--shell-bar-size) overflow-x-clip overflow-y-auto pt-(--shell-header-size) pb-(--shell-bar-size)"
+      <CameFromContext value={cameFrom}>
+        <ShellHeaderSlotContext value={headerSlot}>
+          <SidebarProvider open={open} onOpenChange={(next) => setChoice({ expanded, open: next })}>
+            <AppSidebar recent={sidebarRecent} />
+            <div
+              ref={shell}
+              className="grid h-svh min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-clip overflow-y-auto"
+              data-shell=""
             >
-              <Outlet />
-            </main>
-            {ChatBar && (
-              // A transparent row with room around a floating panel (D-50); the room lets clicks through to the page.
-              <div className="pointer-events-none z-10 col-start-1 row-start-1 self-end p-2" data-shell-bar="">
-                <div className={shellPanelClass} data-shell-panel="">
-                  <ChatBar />
+              <ShellHeader heading={heading} cameFromApp={cameFrom !== null} slot={setHeaderSlot} />
+              {/*
+                Sideways the page is cut, not scrolled: a screen that is too wide
+                then fails the matrix as clipped text instead of passing with a
+                scroll bar nobody looked for. The minimum keeps `main` reachable
+                in a short window; the column scrolls as a whole when even that
+                does not fit. `isolate`: nothing a screen stacks rises over the
+                two bars. The padding is the bars' room, the scroll padding keeps
+                a focused control out from under them.
+              */}
+              <main
+                id="main"
+                ref={main}
+                tabIndex={-1}
+                className="relative isolate col-start-1 row-start-1 min-h-48 scroll-pt-(--shell-header-size) scroll-pb-(--shell-bar-size) overflow-x-clip overflow-y-auto pt-(--shell-header-size) pb-(--shell-bar-size)"
+              >
+                <Outlet />
+              </main>
+              {ChatBar && (
+                // A transparent row with room around a floating panel (D-50); the room lets clicks through to the page.
+                <div className="pointer-events-none z-10 col-start-1 row-start-1 self-end p-2" data-shell-bar="">
+                  <div className={shellPanelClass} data-shell-panel="">
+                    <ChatBar />
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </SidebarProvider>
-      </ShellHeaderSlotContext>
+              )}
+            </div>
+          </SidebarProvider>
+        </ShellHeaderSlotContext>
+      </CameFromContext>
     </>
   )
 }
