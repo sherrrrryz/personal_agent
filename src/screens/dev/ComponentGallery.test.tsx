@@ -28,7 +28,8 @@ describe('/dev/components', () => {
       expect(within(layout).getByRole('heading', { level: 3, name })).toBeInTheDocument()
     }
     expect(await axe(container)).toHaveNoViolations()
-  })
+    // Every demo of every family in one render: under load it needs more than the default five seconds (K1).
+  }, 20_000)
 
   it('?family= shows that family only and marks its link as current', async () => {
     open('/dev/components?family=layout')

@@ -13,7 +13,6 @@ const messages = {
   'profession.title': 'Tell me about your work',
   'profession.description': 'Four questions. From your answers I propose the modules your workspace starts with.',
   'profession.log': 'Interview',
-  'profession.suggestions': 'You could answer',
   'profession.continue': 'Continue',
   'profession.continue.note': 'Answer the questions above to continue.',
 

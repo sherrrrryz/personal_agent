@@ -122,7 +122,11 @@ for (const width of widths) {
       await page.getByRole('menuitem', { name: /重新开始/ }).click()
       await expect(page).toHaveURL(/\/onboarding\/profession$/)
       await check(page, 'onboarding.profession', problems)
-      for (const answer of answers) await page.getByRole('button', { name: answer }).click()
+      // Each scripted answer types itself into the composer (D-48); she sends it.
+      for (const answer of answers) {
+        await expect(page.getByRole('textbox', { name: '你的回答' })).toHaveValue(answer)
+        await page.getByRole('button', { name: '发送', exact: true }).click()
+      }
       await expect(page.getByText('我建议从四个模块开始：预约、顾客与宠物、商品与库存、排班。')).toBeVisible()
       await page.getByRole('button', { name: '继续' }).click()
       await expect(page.getByRole('heading', { level: 1, name: '你的模块' })).toBeVisible()
