@@ -91,7 +91,7 @@ export function AppointmentSheet({ moduleId, appointmentId, basePath }: { module
           {extra ? ` (${t('estimate.extra', { duration: format.duration(extra) })})` : null}
         </p>
         <p>
-          <BlockItemLink href={duration ? `${modulePath(duration)}/workflow?node=${nodeId.estimate}` : `${modulePath(moduleId)}/workflow`}>
+          <BlockItemLink href={duration ? `${modulePath(duration)}/workflow?node=${extra ? nodeId.firstVisit : nodeId.estimate}` : `${modulePath(moduleId)}/workflow`}>
             {t('sheet.why')}
           </BlockItemLink>
         </p>
