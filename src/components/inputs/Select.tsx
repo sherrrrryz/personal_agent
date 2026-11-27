@@ -87,7 +87,8 @@ export function Select<Value extends string = string>({
           }}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent>
+      {/* The list floats over the page: a frosted surface (D-47). */}
+      <SelectContent className="surface-frosted">
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value} disabled={option.disabled} lang={option.lang}>
             {option.label}

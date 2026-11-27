@@ -183,9 +183,59 @@ describe('the shell in each size class (R-05)', () => {
     expect(main.nextElementSibling).toBe(row)
     expect(main).not.toContainElement(row as HTMLElement)
     expect(main.previousElementSibling).toBe(shellHeader())
-    // The column is as tall as the window and `main` is the part that scrolls: the row cannot lie over it.
-    expect(main.parentElement).toHaveClass('h-svh', 'flex-col')
-    expect(main).toHaveClass('flex-1', 'overflow-y-auto')
+    // The column is one grid cell as tall as the window and `main` is the part that scrolls.
+    expect(main.parentElement).toHaveClass('h-svh', 'grid', 'grid-rows-1')
+    expect(main).toHaveClass('row-start-1', 'overflow-y-auto')
+  })
+
+  it('the header and the bottom row are frosted and lie over the two ends of main, which keeps their room (D-47)', async () => {
+    const { container } = open('/m/notifications', { slots: { chatBar: TestBar } })
+    await screen.findByRole('heading', { level: 1 })
+    const row = container.querySelector('[data-shell-bar]') as HTMLElement
+    const main = screen.getByRole('main')
+    // The same cell as `main`: the header at its start, the row at its end, both above what a screen stacks.
+    expect(shellHeader()).toHaveClass('surface-frosted', 'bg-background', 'row-start-1', 'self-start', 'z-10')
+    expect(row).toHaveClass('surface-frosted', 'bg-background', 'row-start-1', 'self-end', 'z-10')
+    expect(main).toHaveClass('isolate')
+    // The room of each bar, and the same again as scroll padding: a focused control is not left under one.
+    expect(main).toHaveClass('pt-(--shell-header-size)', 'pb-(--shell-bar-size)')
+    expect(main).toHaveClass('scroll-pt-(--shell-header-size)', 'scroll-pb-(--shell-bar-size)')
+  })
+
+  it('writes the size of each bar onto the shell and follows it as it changes (D-47)', async () => {
+    const observed: { target: Element; notify: () => void }[] = []
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        private readonly notify: () => void
+        constructor(callback: () => void) {
+          this.notify = callback
+        }
+        observe(target: Element) {
+          observed.push({ target, notify: this.notify })
+        }
+        disconnect() {}
+      },
+    )
+    const sizes = new Map<Element, number>()
+    const offsetHeight = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+      return sizes.get(this) ?? 0
+    })
+    try {
+      const { container } = open('/m/notifications', { slots: { chatBar: TestBar } })
+      await screen.findByRole('heading', { level: 1 })
+      const shell = container.querySelector('[data-shell]') as HTMLElement
+      const row = container.querySelector('[data-shell-bar]') as HTMLElement
+      expect(observed.map(({ target }) => target)).toEqual(expect.arrayContaining([shellHeader(), row]))
+      sizes.set(shellHeader()!, 40)
+      sizes.set(row, 96)
+      act(() => observed.find(({ target }) => target === row)!.notify())
+      expect(shell.style.getPropertyValue('--shell-header-size')).toBe('40px')
+      expect(shell.style.getPropertyValue('--shell-bar-size')).toBe('96px')
+    } finally {
+      offsetHeight.mockRestore()
+      vi.unstubAllGlobals()
+    }
   })
 
   it('the recent slot sits in the sidebar between the modules and the footer', async () => {

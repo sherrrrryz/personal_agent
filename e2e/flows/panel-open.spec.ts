@@ -1,6 +1,8 @@
 // Flow `panel-open` (R-20, spec part 2 § Chat): in the shell the chat bar
 // follows `main` in the tab order and, with the in-place panel open, never
-// covers content or the focused element. Run by
+// covers the focused element or the end of the page. Since D-47 the bar is a
+// frosted surface laid over the end of `main` (the page scrolls beneath it);
+// `main` keeps the bar's room as padding and scroll padding. Run by
 // `npm run matrix -- --flows panel-open`, at 1440.
 //
 // The flow opens `/dev/shell`, where the chat's slots are registered like on
@@ -144,8 +146,9 @@ for (const cell of cells) {
         await page.screenshot({ path: shot })
       }
 
-      // Nothing is laid over anything: the panel ends above the composer, the row begins where main ends,
-      // the panel is at most half the shell, and main keeps room of its own.
+      // The panel ends above the composer; the row lies over the end of main (D-47) and main keeps
+      // exactly its room — and the header's — as padding, so the page's own room begins under the
+      // header and ends where the row begins; the panel is at most half the shell.
       const box = async (locator: typeof main) => (await locator.boundingBox())!
       const [mainBox, rowBox, panelBox, composerBox, shellBox] = await Promise.all([
         box(main),
@@ -155,7 +158,21 @@ for (const cell of cells) {
         box(page.locator('[data-shell]')),
       ])
       expect(panelBox.y + panelBox.height, 'the panel ends above the composer').toBeLessThanOrEqual(composerBox.y + SLACK)
-      expect(rowBox.y, 'the bar begins where main ends').toBeGreaterThanOrEqual(mainBox.y + mainBox.height - SLACK)
+      const room = await main.evaluate((element) => {
+        const style = getComputedStyle(element)
+        const header = element.parentElement?.querySelector(':scope > header')?.getBoundingClientRect()
+        return {
+          start: parseFloat(style.paddingTop),
+          end: parseFloat(style.paddingBottom),
+          scrollStart: parseFloat(style.scrollPaddingTop),
+          scrollEnd: parseFloat(style.scrollPaddingBottom),
+          header: header?.height ?? 0,
+        }
+      })
+      expect(rowBox.y + rowBox.height, 'the bar ends where main ends').toBeLessThanOrEqual(mainBox.y + mainBox.height + SLACK)
+      expect(Math.abs(room.end - rowBox.height), "main keeps the bar's room at its end").toBeLessThanOrEqual(SLACK)
+      expect(Math.abs(room.start - room.header), "main keeps the header's room at its start").toBeLessThanOrEqual(SLACK)
+      expect([room.scrollStart, room.scrollEnd], 'the scroll padding is the same room').toEqual([room.start, room.end])
       // What she asked is answered where she can see it: the answer's first line is inside the
       // panel, and the composer that keeps the focus is inside the window.
       const answerBox = await box(panel.locator('[data-author]:not([data-author="user"])').last())
@@ -165,10 +182,10 @@ for (const cell of cells) {
         page.viewportSize()!.height + SLACK,
       )
       expect(panelBox.height, 'the panel is at most half the shell').toBeLessThanOrEqual(shellBox.height / 2 + SLACK)
-      expect(mainBox.height, 'main keeps room of its own').toBeGreaterThan(0)
+      expect(mainBox.height - room.start - room.end, 'main keeps room of its own between the two bars').toBeGreaterThan(0)
       expect(
         await page.evaluate(() => ['fixed', 'sticky', 'absolute'].includes(getComputedStyle(document.querySelector('[data-shell-bar]')!).position)),
-        'the bar is in the flow, not laid over the page',
+        'the bar is an item of the shell grid, not taken out of the flow',
       ).toBe(false)
 
       // The screen behind stays in use: its first control takes a click.

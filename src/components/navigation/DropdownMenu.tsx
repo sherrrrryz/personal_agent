@@ -26,8 +26,9 @@ export type DropdownMenuProps = {
 
 // The kit's menu is as wide as its trigger — an icon button gives a sliver.
 // Ours is as wide as its items need, never wider than the room there is;
-// everything else is the kit's (D-43).
-const contentClass = 'w-auto max-w-(--available-width)'
+// It floats over the page, so it is a frosted surface (D-47); everything
+// else is the kit's (D-43).
+const contentClass = 'surface-frosted w-auto max-w-(--available-width)'
 
 /** A list of actions or choices that opens from a button. */
 export function DropdownMenu({ trigger, align = 'start', side = 'bottom', open, onOpenChange, children }: DropdownMenuProps) {

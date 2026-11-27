@@ -14,7 +14,9 @@ import { TimeDevice } from './TimeDevice'
 /**
  * The header (spec part 2 § Shell): sidebar trigger, breadcrumb, the
  * prototype controls and — while a state is forced — a line that says so,
- * with 恢复正常, so a forced state is never read as a defect.
+ * with 恢复正常, so a forced state is never read as a defect. It is laid over
+ * the start of `main` as a frosted surface (D-47) — the classes that place it
+ * in the shell's grid cell are here; the shell keeps its room in `main`.
  *
  * One row with room; when the three do not fit, the controls move under the
  * breadcrumb, and the preview line always takes a row of its own. `heading`
@@ -36,7 +38,7 @@ export function ShellHeader({ heading }: { heading: string }) {
   ]
 
   return (
-    <header className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b px-2 py-1">
+    <header className="surface-frosted z-10 col-start-1 row-start-1 flex flex-wrap self-start items-center gap-x-2 gap-y-1 border-b bg-background px-2 py-1">
       <SidebarTrigger />
       <div className="flex min-w-0 grow basis-32">
         <Breadcrumb items={crumbs} />

@@ -33,6 +33,14 @@
     "sidebar-accent-foreground": { "$value": "{color.neutral.900}" },
     "sidebar-border": { "$value": "{color.neutral.200}" },
     "sidebar-ring": { "$value": "{color.neutral.400}" },
+    "surface-frosted": {
+      "$value": "{color.white-alpha.70}",
+      "$description": "Background of a surface of ours that floats or sticks over scrolling content (D-47): translucent, drawn with the backdrop blur surface.frosted.blur. Its text is the role the surface already carries (foreground, popover-foreground). Used only by the `surface-frosted` class in src/index.css."
+    },
+    "surface-frosted-shadow": {
+      "$value": "{color.black-alpha.10}",
+      "$description": "Colour of the small shadow around a frosted surface (D-47)."
+    },
     "focus": {
       "$type": "string",
       "forced": {

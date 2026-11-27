@@ -31,6 +31,7 @@ The complete list for this family (D-43; `../COMPONENTS.md` § Conventions).
 | Component | What is added | Why |
 | --- | --- | --- |
 | `Dialog`, `AlertDialog`, `Sheet` | `max-h-full overflow-y-auto` on the surface | Invisible at the default size. At 200% zoom or root 24 px the kit's overlay grows past the window and its end cannot be reached |
+| `Dialog`, `AlertDialog`, `Sheet` | `surface-frosted` on the surface (the same constant, `overlaySurface`): a translucent background, a backdrop blur and the small shadow instead of the kit's `bg-popover` and shadow; the kit's ring and scrim stay | **Visible, by the owner's decision D-47**: surfaces that float over the page are frosted. The look is `../TOKENS.md` § Frosted surface |
 
 **Removed with D-43:** the border that stood in for the scrim and shadow (both are drawn again); our
 close `Button` first in a header row — `Dialog` and `Sheet` use **the kit's own close button**, in the

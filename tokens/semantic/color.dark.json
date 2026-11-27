@@ -32,6 +32,8 @@
     "sidebar-accent": { "$value": "{color.neutral.800}" },
     "sidebar-accent-foreground": { "$value": "{color.neutral.50}" },
     "sidebar-border": { "$value": "{color.white-alpha.10}" },
-    "sidebar-ring": { "$value": "{color.neutral.500}" }
+    "sidebar-ring": { "$value": "{color.neutral.500}" },
+    "surface-frosted": { "$value": "{color.neutral-900-alpha.70}" },
+    "surface-frosted-shadow": { "$value": "{color.black-alpha.40}" }
   }
 }
